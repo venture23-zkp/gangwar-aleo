@@ -36,7 +36,7 @@ export type SecondaryStats = z.infer<typeof secondaryStatsSchema>;
 
 export const weaponLeoSchema = z.object({
   id: leoU128Schema,
-  w_type: leoU128Schema, // Normal | Default??
+  type: leoU128Schema, // Normal | Default??
   consumption_rate: leoU128Schema,
   critical_chance: leoU128Schema,
   dura_ammo: leoU128Schema,
@@ -49,7 +49,7 @@ export type WeaponLeo = z.infer<typeof weaponLeoSchema>;
 
 export const weaponSchema = z.object({
   id: z.number(),
-  wType: z.number(), // Normal | Default??
+  type: z.number(), // Normal | Default??
   consumptionRate: z.number(),
   criticalChance: z.number(),
   duraAmmo: z.number(),

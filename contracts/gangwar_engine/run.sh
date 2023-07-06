@@ -28,7 +28,7 @@ echo "{
 
 
 TEAM_A='{player_1:{primary_stats:{strength:289u128},secondary_stats:{health:1007u128,speed:1197u128,dura_ammo:1u128,dodge_chance:148193045380736063463374607431768211455u128,hit_chance:142476168764691463463374607431768211455u128,critical_chance:97886783864153863463374607431768211455u128,melee_damage:272304252579574463463374607431768211455u128},primary_equipment:{id:13u128,type:1field,consumption_rate:11u128,critical_chance:0u128,damage:177u128,dura_ammo:180u128,hit_chance:177122105436891563463374607431768211455u128,number_of_hits:3u128,is_broken:false}}}'
-# TEAM_A='{ player_1: { primary_stats: { strength: 100u128 }, secondary_stats: { health: 100u128, dodge_chance: 100u128, hit_chance: 100u128, critical_chance: 100u128, melee_damage: 100u128 }, primary_equipment: { id: 1u128, w_type: 1u128, consumption_rate: 100u128, critical_chance: 10u128, dura_ammo: 1000u128, damage: 10u128, hit_chance: 10u128, number_of_hits: 10u128, is_broken: false }, multipliers: { dodge_chance: 1u128 } } }'
+# TEAM_A='{ player_1: { primary_stats: { strength: 100u128 }, secondary_stats: { health: 100u128, dodge_chance: 100u128, hit_chance: 100u128, critical_chance: 100u128, melee_damage: 100u128 }, primary_equipment: { id: 1u128, type: 1u128, consumption_rate: 100u128, critical_chance: 10u128, dura_ammo: 1000u128, damage: 10u128, hit_chance: 10u128, number_of_hits: 10u128, is_broken: false }, multipliers: { dodge_chance: 1u128 } } }'
 TEAM_B='{player_1:{primary_stats:{strength:213u128,accuracy:236u128,agility:191u128,mastery:284u128,luck:175u128},secondary_stats:{health:761u128,speed:589u128,dura_ammo:1u128,dodge_chance:151983403762150163463374607431768211455u128,hit_chance:232545501550095163463374607431768211455u128,critical_chance:156356448960807563463374607431768211455u128,melee_damage:283846638997548863463374607431768211455u128},primary_equipment:{id:3u128,type:1field,consumption_rate:17u128,critical_chance:0u128,damage:182u128,dura_ammo:132u128,hit_chance:125941150263042963463374607431768211455u128,number_of_hits:3u128,is_broken:false}}}'
 
 leo run start_game "${TEAM_A}" "${TEAM_B}" "111u128"
@@ -49,7 +49,7 @@ leo run start_game "${TEAM_A}" "${TEAM_B}" "111u128"
 #       },
 #       primary_equipment: {
 #         id: 1u128.private,
-#         w_type: 1u128.private,
+#         type: 1u128.private,
 #         consumption_rate: 1u128.private,
 #         critical_chance: 10u128.private,
 #         dura_ammo: 10u128.private,
@@ -77,7 +77,7 @@ leo run start_game "${TEAM_A}" "${TEAM_B}" "111u128"
 #       },
 #       primary_equipment: {
 #         id: 1u128.private,
-#         w_type: 1u128.private,
+#         type: 1u128.private,
 #         consumption_rate: 1u128.private,
 #         critical_chance: 10u128.private,
 #         dura_ammo: 10u128.private,

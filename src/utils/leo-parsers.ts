@@ -124,7 +124,7 @@ const secondaryStats = (secondaryStats: SecondaryStats): SecondaryStatsLeo => {
 const weapon = (weapon: Weapon): WeaponLeo => {
   const res: WeaponLeo = {
     id: u128(weapon.id),
-    w_type: u128(weapon.wType),
+    type: u128(weapon.type),
     consumption_rate: u128(weapon.consumptionRate),
     critical_chance: u128(weapon.criticalChance),
     dura_ammo: u128(weapon.duraAmmo),

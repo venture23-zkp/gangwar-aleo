@@ -19,7 +19,7 @@ program gangstabet_engine.aleo {
 
     struct Weapon {
         id: u128,
-        w_type: u128, // Normal | Default??
+        type: u128, // Melee | Range | Support
         consumption_rate: u128,
         critical_chance: u128,
         dura_ammo: u128,
@@ -295,12 +295,12 @@ program gangstabet_engine.aleo {
 
             // for now assume special_weapon = true
 
-            // primay_equipment.w_type = 0u128 (Range)
-            if (main.primary_equipment.w_type == 0u128) {
+            // primay_equipment.type = 0u128 (Range/Melee)
+            if (main.primary_equipment.type == 0u128) {
                 damage = main.primary_equipment.damage;
             
-            // else if primary_equipment.w_type = 1u128
-            } else if (main.primary_equipment.w_type == 1u128) {
+            // else if primary_equipment.type = 1u128
+            } else if (main.primary_equipment.type == 1u128) {
                 let extra_damage: u128 = main.secondary_stats.melee_damage * main.primary_equipment.damage; // percentange TODO: handle percentage multiplication
                 damage = extra_damage + main.primary_equipment.damage;
             }
