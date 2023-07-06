@@ -2,6 +2,7 @@ import { exec } from "child_process";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { promisify } from "util";
+import { record } from "zod";
 
 import { Address, DevelopmentClient, PrivateKey, ViewKey } from "../../aleo-sdk";
 import { env, FEE, LOCAL_NETWORK_PRIVATE_KEY, programNames } from "../../constants";
@@ -36,6 +37,27 @@ import {
   leoTxSchema,
   LeoRecord,
   LeoViewKey,
+  War,
+  warLeoSchema,
+  PrimaryStatsLeo,
+  primaryStatsSchema,
+  PrimaryStats,
+  SecondaryStatsLeo,
+  SecondaryStats,
+  secondaryStatsSchema,
+  WeaponLeo,
+  Weapon,
+  weaponSchema,
+  ItemLeo,
+  Item,
+  itemSchema,
+  Character,
+  characterSchema,
+  CharacterLeo,
+  TeamLeo,
+  Team,
+  teamSchema,
+  warSchema,
 } from "../../types";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
 
@@ -80,6 +102,12 @@ const u64 = (value: string): number => {
   return parsed;
 };
 
+const u128 = (value: string): number => {
+  const parsed = Number(replaceValue(value, "u128"));
+  if (isNaN(parsed)) throw apiError("u128 parsing failed");
+  return parsed;
+};
+
 const parseRecordString = (recordString: string): Record<string, unknown> => {
   const correctJson = recordString.replace(/(['"])?([a-z0-9A-Z_.]+)(['"])?/g, '"$2" ');
   return JSON.parse(correctJson);
@@ -118,6 +146,77 @@ const parseCmdOutput = (cmdOutput: string): Record<string, unknown> => {
 
 const getTxResult = (tx: LeoTx): string | undefined => {
   return tx.execution.transitions.at(0)?.outputs.at(0)?.value;
+};
+
+const primaryStats = (primaryStats: PrimaryStatsLeo): PrimaryStats => {
+  const res: PrimaryStats = {
+    strength: u128(primaryStats.strength),
+  };
+  return primaryStatsSchema.parse(res);
+};
+
+const secondaryStats = (secondaryStats: SecondaryStatsLeo): SecondaryStats => {
+  const res: SecondaryStats = {
+    health: u128(secondaryStats.health),
+    dodgeChance: u128(secondaryStats.dodge_chance),
+    hitChance: u128(secondaryStats.hit_chance),
+    criticalChance: u128(secondaryStats.critical_chance),
+    meleeDamage: u128(secondaryStats.melee_damage),
+  };
+  return secondaryStatsSchema.parse(res);
+};
+
+const weapon = (weapon: WeaponLeo): Weapon => {
+  const res: Weapon = {
+    id: u128(weapon.id),
+    wType: u128(weapon.w_type),
+    consumptionRate: u128(weapon.consumption_rate),
+    criticalChance: u128(weapon.critical_chance),
+    duraAmmo: u128(weapon.dura_ammo),
+    damage: u128(weapon.damage),
+    hitChance: u128(weapon.hit_chance),
+    numberOfHits: u128(weapon.number_of_hits),
+    isBroken: weapon.is_broken,
+  };
+  return weaponSchema.parse(res);
+};
+
+const item = (item: ItemLeo): Item => {
+  const res: Item = {
+    itemId: u128(item.item_id),
+    itemCount: u128(item.item_count),
+    statBoost: item.stat_boost,
+    rank: item.rank,
+  };
+  return itemSchema.parse(res);
+};
+
+const character = (character: CharacterLeo): Character => {
+  const res: Character = {
+    primaryStats: primaryStats(character.primary_stats),
+    secondaryStats: secondaryStats(character.secondary_stats),
+    primaryEquipment: weapon(character.primary_equipment),
+  };
+  return characterSchema.parse(res);
+};
+
+const team = (team: TeamLeo): Team => {
+  const res: Team = {
+    player_1: character(team.player_1),
+  };
+  return teamSchema.parse(team);
+};
+
+const war = (record: Record<string, unknown>): War => {
+  const parsed = warLeoSchema.parse(record);
+  const { main_team, target_team } = parsed;
+  const war: War = {
+    owner: parsed.owner,
+    mainTeam: team(main_team),
+    targetTeam: team(target_team),
+  };
+
+  return warSchema.parse(war);
 };
 
 const match = (record: Record<string, unknown>): Match => {
@@ -266,7 +365,7 @@ const sum = (record: Record<string, unknown>): Sum => {
   return sumSchema.parse(res);
 };
 
-export const parseOutput = { address, field, u8, u32, u64, match, matchSummary, dice, powerUp, hashChainRecord, randomNumber, sum };
+export const parseOutput = { address, field, u8, u32, u64, match, matchSummary, dice, powerUp, hashChainRecord, randomNumber, sum, war };
 
 const decryptRecord = async (encryptedRecord: LeoRecord, viewKey: LeoViewKey): Promise<Record<string, unknown>> => {
   const decrypted = ViewKey.from_string(viewKey).decrypt(encryptedRecord);

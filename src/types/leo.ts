@@ -24,6 +24,9 @@ export type LeoViewKey = z.infer<typeof leoViewKeySchema>;
 export const leoTxIdSchema = z.string().startsWith("at1");
 export type LeoTxId = z.infer<typeof leoTxIdSchema>;
 
+export const leoU128Schema = leoStringSchema("u128");
+export type LeoU128 = z.infer<typeof leoFieldSchema>;
+
 export const leoFieldSchema = leoStringSchema("field");
 export type LeoField = z.infer<typeof leoFieldSchema>;
 
