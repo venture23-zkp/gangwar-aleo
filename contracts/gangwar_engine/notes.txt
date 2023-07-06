@@ -1,0 +1,12 @@
+Circuit Compilation
+Pass 1: ~1m 21s
+
+Executions
+
+Transition: start_game
+Constraints: 15,593
+Duration: ~ 15s
+
+Transition: game_loop
+Constraints: 39,834
+Duration: ~ 12s
