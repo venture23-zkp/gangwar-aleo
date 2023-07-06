@@ -1,3 +1,3 @@
-import { hashChain } from "./hash-chain";
+import { createPayload } from "./gangwar";
 
-export const core = { hashChain };
+export const core = { createPayload };

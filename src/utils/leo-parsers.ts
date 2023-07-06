@@ -3,13 +3,6 @@ import {
   Character,
   CharacterLeo,
   characterLeoSchema,
-  Dice,
-  DiceData,
-  DiceDataLeo,
-  DiceLeo,
-  diceLeoSchema,
-  HashChain,
-  HashChainLeo,
   Item,
   ItemLeo,
   itemLeoSchema,
@@ -22,20 +15,9 @@ import {
   leoU64Schema,
   LeoU8,
   leoU8Schema,
-  MatchSettings,
-  MatchSettingsLeo,
-  matchSettingsLeoSchema,
-  PowerUp,
-  PowerUpLeo,
-  powerUpLeoSchema,
-  PowerUpProbabilities,
-  PowerUpProbabilitiesLeo,
-  powerUpProbabilitiesLeoSchema,
   PrimaryStats,
   PrimaryStatsLeo,
   primaryStatsLeoSchema,
-  Ranking,
-  RankingLeo,
   SecondaryStats,
   SecondaryStatsLeo,
   secondaryStatsLeoSchema,
@@ -171,135 +153,6 @@ const war = (war: War): WarLeo => {
   return warLeoSchema.parse(res);
 };
 
-const matchSettings = (settings: MatchSettings): MatchSettingsLeo => {
-  const res: MatchSettingsLeo = {
-    player_amount: u8(settings.players),
-    dice_per_player: u8(settings.dicePerPlayer),
-    initial_power_up_amount: u8(settings.initialPowerUpAmount),
-    max_power_up_amount: u8(settings.maxPowerUpAmount),
-    heal_power_up_amount: u8(settings.healPowerUpAmount),
-    stage_number_divisor: u8(settings.stageNumberDivisor),
-    draw_round_offset: u8(settings.drawRoundOffset),
-  };
-  return matchSettingsLeoSchema.parse(res);
-};
-
-const powerUpProbabilities = (probabilities: PowerUpProbabilities): PowerUpProbabilitiesLeo => {
-  const res: PowerUpProbabilitiesLeo = {
-    pu_1: "0u8",
-    pu_2: "0u8",
-    pu_3: "0u8",
-    pu_4: "0u8",
-    pu_5: "0u8",
-    pu_6: "0u8",
-    pu_7: "0u8",
-    pu_8: "0u8",
-    pu_9: "0u8",
-  };
-
-  probabilities.forEach((prob) => {
-    const key = ("pu_" + prob.id) as keyof PowerUpProbabilitiesLeo;
-    res[key] = u8(prob.probability);
-  });
-
-  return powerUpProbabilitiesLeoSchema.parse(res);
-};
-
-const ranking = (leaderboard: Ranking): RankingLeo => {
-  const res: RankingLeo = {
-    p_1: "0field",
-    p_2: "0field",
-    p_3: "0field",
-    p_4: "0field",
-    p_5: "0field",
-    p_6: "0field",
-    p_7: "0field",
-    p_8: "0field",
-    p_9: "0field",
-    p_10: "0field",
-  };
-
-  leaderboard.forEach((playerId, i) => {
-    const place = i + 1;
-    const key = ("p_" + place) as keyof RankingLeo;
-    const parsedId = encodeId(playerId);
-
-    if (!parsedId) throw apiError("ID encoding error");
-
-    res[key] = field(parsedId);
-  });
-
-  return res;
-};
-
-const dice = (payload: Dice): DiceLeo => {
-  const encodedId = encodeId(payload.matchId);
-
-  if (!encodedId) throw apiError("ID encoding error");
-
-  const res: DiceLeo = {
-    _nonce: publicField(payload._nonce),
-    owner: privateField(payload.owner),
-    gates: privateField(u64(payload.gates)),
-    match_id: privateField(field(encodedId)),
-    face_amount: privateField(u8(payload.faceAmount)),
-    dice_amount: privateField(u32(payload.diceAmount)),
-  };
-
-  return diceLeoSchema.parse(res);
-};
-
-const diceData = (diceData: DiceData): DiceDataLeo => {
-  const diceDataLeo = {
-    dice_1: "",
-    dice_2: "",
-    dice_3: "",
-    dice_4: "",
-    dice_5: "",
-    dice_6: "",
-    dice_7: "",
-    dice_8: "",
-    dice_9: "",
-    dice_10: "",
-  };
-
-  const diceDataList = Object.values(diceData).map((diceValue) => u8(diceValue));
-
-  diceDataList.forEach((value, i) => {
-    const key = `dice_${i + 1}` as keyof DiceDataLeo;
-    diceDataLeo[key] = value;
-  });
-
-  return diceDataLeo;
-};
-
-const powerUp = (payload: PowerUp): PowerUpLeo => {
-  const encodedId = encodeId(payload.matchId);
-
-  if (!encodedId) throw apiError("ID encoding error");
-
-  const res: PowerUpLeo = {
-    _nonce: publicField(payload._nonce),
-    owner: privateField(payload.owner),
-    gates: privateField(u64(payload.gates)),
-    match_id: privateField(field(encodedId)),
-    power_up_id: privateField(u8(payload.powerUpId)),
-  };
-
-  return powerUpLeoSchema.parse(res);
-};
-
-const hashChain = (payload: HashChain): HashChainLeo => {
-  if (payload.length !== 32) throw apiError(`Hash chain must contain 32 elements, found ${payload.length}`);
-
-  const res = payload.reduce((chain, hash, i) => {
-    const key = ("hash_" + (i + 1)) as keyof HashChainLeo;
-    return { ...chain, [key]: hash + "field" };
-  }, {} as HashChainLeo);
-
-  return res;
-};
-
 export const leoParse = {
   field,
   id,
@@ -307,14 +160,7 @@ export const leoParse = {
   u32,
   u64,
   u128,
-  matchSettings,
-  powerUpProbabilities,
   stringifyLeoCmdParam,
   team,
   war,
-  ranking,
-  dice,
-  diceData,
-  powerUp,
-  hashChain,
 };
