@@ -43,6 +43,9 @@ import {
   Team,
   TeamLeo,
   teamLeoSchema,
+  War,
+  WarLeo,
+  warLeoSchema,
   Weapon,
   WeaponLeo,
   weaponLeoSchema,
@@ -157,6 +160,15 @@ const team = (team: Team): TeamLeo => {
     player_1: character(team.player_1),
   };
   return teamLeoSchema.parse(team);
+};
+
+const war = (war: War): WarLeo => {
+  const res: WarLeo = {
+    owner: war.owner,
+    main_team: team(war.mainTeam),
+    target_team: team(war.targetTeam),
+  };
+  return warLeoSchema.parse(res);
 };
 
 const matchSettings = (settings: MatchSettings): MatchSettingsLeo => {
@@ -299,6 +311,7 @@ export const leoParse = {
   powerUpProbabilities,
   stringifyLeoCmdParam,
   team,
+  war,
   ranking,
   dice,
   diceData,
