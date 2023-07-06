@@ -365,6 +365,7 @@ export const deployPrograms = async () => {
   if (!privateKey) return;
 
   const fees = {
+    gangwar_engine: 15,
     boloney_match: 5,
     boloney_match_summary: 5,
     dice: 16,

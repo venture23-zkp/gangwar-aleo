@@ -21,6 +21,7 @@ const envSchema = z.object({
   DEPLOY_PROGRAMS: z.string().default("false").transform(transformBool),
   DEPLOY_PRIVATE_KEY: leoPrivateKeySchema.optional(),
 
+  GANGWAR_ENGINE_VERSION: z.string().optional().transform(transformVersion),
   BOLONEY_MATCH_VERSION: z.string().optional().transform(transformVersion),
   BOLONEY_MATCH_SUMMARY_VERSION: z.string().optional().transform(transformVersion),
   DICE_VERSION: z.string().optional().transform(transformVersion),
@@ -40,6 +41,7 @@ export const programNames = {
   BOLONEY_MATCH: "boloney_match" + env.BOLONEY_MATCH_VERSION,
   BOLONEY_MATCH_SUMMARY: "boloney_match_summary" + env.BOLONEY_MATCH_SUMMARY_VERSION,
   DICE: "dice" + env.DICE_VERSION,
+  GANGWAR_ENGINE: "gangwar_engine" + env.GANGWAR_ENGINE_VERSION,
   RNG: "rng" + env.RNG_VERSION,
   HASH_CHAIN: "hash_chain" + env.HASH_CHAIN_VERSION,
   POWER_UP: "power_up" + env.POWER_UP_VERSION,
