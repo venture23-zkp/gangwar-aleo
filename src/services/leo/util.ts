@@ -82,12 +82,77 @@ const u128 = (value: string): number => {
   return parsed;
 };
 
-const parseRecordString = (recordString: string): Record<string, unknown> => {
-  const correctJson = recordString.replace(/(['"])?([a-z0-9A-Z_.]+)(['"])?/g, '"$2" ');
+const immediatelyRepeatingNumberClosingBracket = (value: string) => {
+  let count = 0;
+  let repeatingStop = false;
+  for (let i = 0; i < value.length; i++) {
+    if (!repeatingStop) {
+      if (value[i] === "}") {
+        count += 1;
+      } else if (value[i] !== "}") {
+        repeatingStop = true;
+      }
+    }
+  }
+  return count;
+};
+
+const correctRecordBracketIssue = (recordString: string, bracketPattern: string): string => {
+  console.log("Trying to correct record bracket issue");
+  let correctedRecordStringArray = [];
+  for (let i = 0, j = 0; i < recordString.length; i++) {
+    const recordChar = recordString[i];
+    let patternChar = bracketPattern[j];
+    if (recordChar === "{" && patternChar === "{") {
+      correctedRecordStringArray.push(recordChar);
+      j++;
+    } else if (recordChar !== "{" && patternChar === "{") {
+      correctedRecordStringArray.push(recordChar);
+    } else if (recordChar !== "}" && recordChar !== "{" && patternChar !== "{" && patternChar !== "}") {
+      correctedRecordStringArray.push(recordChar);
+      j++;
+    } else if (patternChar === "}" && recordChar !== "}") {
+      correctedRecordStringArray.push(recordChar);
+    } else if (patternChar === "}" && recordChar === "}") {
+      let immediatelyRepeatingClosingBracketOfRecord = immediatelyRepeatingNumberClosingBracket(
+        recordString.substring(i, recordString.length)
+      );
+      let immediatelyRepeatingClosingBracketOfPattern = immediatelyRepeatingNumberClosingBracket(
+        bracketPattern.substring(j, bracketPattern.length)
+      );
+
+      if (immediatelyRepeatingClosingBracketOfRecord > immediatelyRepeatingClosingBracketOfPattern) {
+        // skip a closing bracket of record
+        j++;
+      }
+    }
+  }
+  const correctedRecordString = correctedRecordStringArray.join("");
+  console.log(recordString);
+  console.log(bracketPattern);
+  console.log(correctedRecordString);
+  return recordString;
+};
+
+export const parseRecordStringTest = (recordString: string, correctBracketPattern?: string): string => {
+  const json = recordString.replace(/(['"])?([a-z0-9A-Z_.]+)(['"])?/g, '"$2" ');
+  let correctJson = json;
+  if (correctBracketPattern) {
+    correctRecordBracketIssue(recordString, correctBracketPattern);
+  }
+  return correctJson;
+};
+
+export const parseRecordString = (recordString: string, correctBracketPattern?: string): Record<string, unknown> => {
+  const json = recordString.replace(/(['"])?([a-z0-9A-Z_.]+)(['"])?/g, '"$2" ');
+  let correctJson = json;
+  if (correctBracketPattern) {
+    correctRecordBracketIssue(recordString, correctBracketPattern);
+  }
   return JSON.parse(correctJson);
 };
 
-const parseCmdOutput = (cmdOutput: string): Record<string, unknown> => {
+const parseCmdOutput = (cmdOutput: string, correctBracketPattern?: string): Record<string, unknown> => {
   const lines = cmdOutput.split("\n");
 
   let res: Record<string, unknown> = {};
@@ -101,7 +166,7 @@ const parseCmdOutput = (cmdOutput: string): Record<string, unknown> => {
     if (done) return;
 
     if (objectStarted && objectFinished) {
-      res = parseRecordString(toParse);
+      res = parseRecordString(toParse, correctBracketPattern);
       done = true;
     } else if (objectStarted) {
       if (line.startsWith("}")) {
@@ -125,6 +190,7 @@ const getTxResult = (tx: LeoTx): string | undefined => {
 const primaryStats = (primaryStats: PrimaryStatsLeo): PrimaryStats => {
   const res: PrimaryStats = {
     strength: u128(primaryStats.strength),
+    // accuracy: u128(primaryStats.accuracy),
   };
   return primaryStatsSchema.parse(res);
 };
@@ -177,6 +243,7 @@ const character = (character: CharacterLeo): Character => {
 const team = (team: TeamLeo): Team => {
   const res: Team = {
     player_1: character(team.player_1),
+    // player_2: character(team.player_2),
   };
   return teamSchema.parse(team);
 };
@@ -188,6 +255,7 @@ const war = (record: Record<string, unknown>): War => {
     owner: parsed.owner,
     mainTeam: team(main_team),
     targetTeam: team(target_team),
+    _nonce: parsed._nonce,
   };
 
   return warSchema.parse(war);
@@ -206,12 +274,15 @@ interface LeoRunParams {
   transition?: string;
 }
 
-const leoRun = async ({ contractPath, params = [], transition = "main" }: LeoRunParams): Promise<Record<string, unknown>> => {
+const leoRun = async (
+  { contractPath, params = [], transition = "main" }: LeoRunParams,
+  correctBracketPattern?: string
+): Promise<Record<string, unknown>> => {
   const stringedParams = params.join(" ");
   const cmd = `cd ${contractPath} && leo run ${transition} ${stringedParams}`;
 
   const { stdout } = await execute(cmd);
-  const parsed = parseCmdOutput(stdout);
+  const parsed = parseCmdOutput(stdout, correctBracketPattern);
 
   return parsed;
 };
@@ -274,9 +345,9 @@ const snarkOsExecute = async ({
 
 type ExecuteZkLogicParams = LeoRunParams & SnarkOsExecuteParams;
 
-export const zkRun = (params: ExecuteZkLogicParams): Promise<Record<string, unknown>> => {
+export const zkRun = (params: ExecuteZkLogicParams, bracketPattern?: string): Promise<Record<string, unknown>> => {
   if (env.ZK_MODE === "leo") {
-    return leoRun(params);
+    return leoRun(params, bracketPattern);
   } else {
     return snarkOsExecute(params);
   }

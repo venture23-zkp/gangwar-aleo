@@ -1,3 +1,4 @@
+import assert from "assert";
 import { convertFieldToProb, convertProbToField } from "./probability";
 
 jest.setTimeout(600000);
@@ -13,9 +14,7 @@ describe("Probability Test", () => {
 
   it("Convert probability to field", async () => {
     const probInField = convertProbToField(probability);
-    console.log(probInField);
-
     const probInNumber = convertFieldToProb(probInField);
-    console.log(probInNumber);
+    expect(probInNumber).toBeCloseTo(probability);
   });
 });

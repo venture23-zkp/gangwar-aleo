@@ -13,6 +13,7 @@ export type PrimaryStatsLeo = z.infer<typeof primaryStatsLeoSchema>;
 
 export const primaryStatsSchema = z.object({
   strength: z.number(),
+  // accuracy: z.number(),
 });
 export type PrimaryStats = z.infer<typeof primaryStatsSchema>;
 
@@ -123,13 +124,13 @@ export type Character = z.infer<typeof characterSchema>;
 
 export const teamLeoSchema = z.object({
   player_1: characterLeoSchema,
-  // player_2: character,
-  // player_3: character
+  // player_2: characterLeoSchema,
 });
 export type TeamLeo = z.infer<typeof teamLeoSchema>;
 
 export const teamSchema = z.object({
   player_1: characterSchema,
+  // player_2: characterSchema,
 });
 export type Team = z.infer<typeof teamSchema>;
 
@@ -141,6 +142,7 @@ export const warLeoSchema = z.object({
   // objectives: u128 // ??,
   main_team: teamLeoSchema,
   target_team: teamLeoSchema,
+  _nonce: leoGroupSchema,
 });
 export type WarLeo = z.infer<typeof warLeoSchema>;
 
@@ -148,8 +150,21 @@ export const warSchema = z.object({
   owner: leoAddressSchema,
   mainTeam: teamSchema,
   targetTeam: teamSchema,
+  _nonce: leoGroupSchema,
 });
 export type War = z.infer<typeof warSchema>;
+
+export const characterBracketPattern = () => "{{primaryStats}{secondaryStats}{weapon}}";
+const teamBracketPattern = (numberOfPlayers: number) => {
+  let bracketPattern = "{";
+  for (let i = 0; i < numberOfPlayers; i++) {
+    bracketPattern = bracketPattern.concat(characterBracketPattern());
+  }
+  bracketPattern = bracketPattern.concat("}");
+  return bracketPattern;
+};
+export const warBracketPattern = (teamAPlayerCount: number, teamBPlayerCount: number) =>
+  `{${teamBracketPattern(teamAPlayerCount)}, ${teamBracketPattern(teamBPlayerCount)}}`;
 
 export type equipmentTypes = "Range" | "Support" | "Melee";
 export type activeTimeType = "ROUND" | "CYCLE" | "TURN" | "FIRST";

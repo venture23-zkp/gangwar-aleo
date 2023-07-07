@@ -1,9 +1,10 @@
 import { gangwar } from "./gangwar";
 import { core } from "../../core";
+import { warLeoSchema } from "../../types";
 
 jest.setTimeout(600000);
 
-describe("Hash Chain Service", () => {
+describe("Gangwar Service", () => {
   const keys = {
     owner: "aleo1z9rkh2xecmpnx9jxkvnyq08mfeddrsrccny0j2hgw4yfhnxpxyqqp42329",
     privateKey: "APrivateKey1zkp3WTnfDxUchbLeHqwGrgdkTNieykUP72UPNmv4uQngjwf",
@@ -11,13 +12,22 @@ describe("Hash Chain Service", () => {
     startingSeed: "42u128",
   };
 
-  it("Starts the game with randome team", async () => {
+  it("Placeholder", async () => {
+    console.log("Test");
+
+    console.log(JSON.stringify(warLeoSchema));
+  });
+
+  // it("Initialize the game with a random seed", async () => {
+  //   const { owner, privateKey, viewKey, startingSeed } = keys;
+  //   const res = await gangwar.initialize(privateKey, viewKey, startingSeed);
+  //   console.log(res);
+  // });
+
+  it("Starts the game with two teams", async () => {
     const { owner, privateKey, viewKey, startingSeed } = keys;
-
-    const { teamA, teamB } = core.createPayload(1, 1);
-
+    const { teamA, teamB } = core.createPayload(1, 2);
     const res = await gangwar.startGame(privateKey, viewKey, owner, teamA, teamB, startingSeed);
-
     console.log(res);
   });
 });

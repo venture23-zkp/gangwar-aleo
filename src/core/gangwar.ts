@@ -79,12 +79,12 @@ const createWeapon = (useType: "Normal" | "Default"): Weapon => {
     //   isSupport: false,
     type: type,
     //   stats: {
-    consumptionRate: randRange(20, 10),
+    consumptionRate: randRangeInt(20, 10),
     criticalChance: randRange(0, 0.3),
-    damage: randRange(95, 200),
-    duraAmmo: randRange(95, 200),
-    hitChance: randRange(70, 0.3),
-    numberOfHits: randRange(8, 1),
+    damage: randRangeInt(95, 200),
+    duraAmmo: randRangeInt(95, 200),
+    hitChance: randRange(0.7, 0.3),
+    numberOfHits: randRangeInt(8, 1),
     isBroken: false, // Added later
     //   },
     //   properties: {
@@ -132,11 +132,12 @@ const createCharacter = (count: number = 1, names: string[]): Character[] => {
 
   for (let i = 0; i < count; i++) {
     const primaryStats: PrimaryStats = {
-      strength: randRange(150, 300),
+      strength: randRangeInt(150, 300),
+      // accuracy: randRangeInt(150, 300),
     };
 
     const secondaryStats: SecondaryStats = {
-      health: randRange(500, 1700),
+      health: randRangeInt(500, 1700),
       // speed: randRange(500, 1700),
       // duraAmmo: randRange(1, 2),
       dodgeChance: randRange(0.3, 0.5),
@@ -173,10 +174,12 @@ const createRandomTeams = (teamANumber: number, teamBNumber: number): { teamA: T
   let teamBCharacters = createCharacter(teamBNumber, name2);
   let teamA: Team = {
     player_1: teamACharacters[0],
+    // player_2: teamACharacters[1],
     // To be added
   };
   let teamB: Team = {
     player_1: teamBCharacters[0],
+    // player_2: teamBCharacters[1],
     // To be added
   };
   return { teamA, teamB };

@@ -2,7 +2,7 @@ import { join } from "path";
 
 import { FEE, programNames } from "../../constants";
 import { LeoAddress, leoAddressSchema, LeoPrivateKey, LeoU128, LeoViewKey } from "../../types";
-import { Team, War } from "../../types/gangwar";
+import { Team, War, warBracketPattern } from "../../types/gangwar";
 import { leoParse } from "../../utils";
 import { contractsPath, parseOutput, zkRun } from "./util";
 
@@ -38,24 +38,34 @@ const startGame = async (
 ): Promise<War> => {
   leoAddressSchema.parse(owner);
 
+  console.log(teamA);
   const leoTeamA = leoParse.team(teamA);
+  console.log(leoTeamA);
   const leoTeamB = leoParse.team(teamB);
 
   const teamAParam = leoParse.stringifyLeoCmdParam(leoTeamA);
   const teamBParam = leoParse.stringifyLeoCmdParam(leoTeamB);
 
   const transition = "start_game";
-  const params = [owner, teamAParam, teamBParam, randomSeed];
+  const params = [teamAParam, teamBParam, randomSeed];
 
-  const record = await zkRun({
-    privateKey,
-    viewKey,
-    appName: programNames.GANGWAR_ENGINE,
-    contractPath: gangwarPath,
-    transition,
-    params,
-    fee: FEE,
-  });
+  const correctBracketPattern = warBracketPattern(2, 2); // TODO
+  console.log(correctBracketPattern);
+
+  const record = await zkRun(
+    {
+      privateKey,
+      viewKey,
+      appName: programNames.GANGWAR_ENGINE,
+      contractPath: gangwarPath,
+      transition,
+      params,
+      fee: FEE,
+    },
+    correctBracketPattern
+  );
+
+  console.log(record);
 
   return parseOutput.war(record);
 };

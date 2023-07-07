@@ -18,9 +18,6 @@ function convertProbTo(repr: string, maxValue: BigInt, prob: number) {
 
   const final = updated_first_part_after_probability + second_part + repr;
 
-  // console.log(prob);
-  // console.log(MAX_VALUE);
-  // console.log(final_field);
   return final;
 }
 
@@ -29,19 +26,13 @@ function convertToProb(repr: string, maxValue: BigInt, prob: string) {
   // Use the decimal bits of MAX_SAFE_INTEGER as precision
   const precision = Number.MAX_SAFE_INTEGER.toString().length - 1;
 
-  console.log(probInBigInt.toString());
   const maxValueLength = maxValue.toString().length;
-  console.log("max value length", maxValueLength);
-  console.log("precision length", precision);
 
   const portionToExtract = probInBigInt.toString().length - (maxValueLength - precision);
-  console.log("portion to extract", portionToExtract);
 
   // Extract the most significant digits of probability to generate probability in safe range
   const probInNum = Number(probInBigInt.toString().substring(0, portionToExtract));
-  console.log("prob in num", probInNum);
   const maxValueInNum = Number(maxValue.toString().substring(0, precision));
-  console.log("max value in num", maxValueInNum);
 
   const probInNumber = probInNum / maxValueInNum;
 
