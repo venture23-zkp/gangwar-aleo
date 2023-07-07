@@ -1,6 +1,6 @@
 import { number, z } from "zod";
 
-import { leoAddressSchema, leoFieldSchema, leoGroupSchema, leoU128Schema, leoU64Schema, leoU8Schema } from "./leo";
+import { leoAddressSchema, leoBooleanSchema, leoFieldSchema, leoGroupSchema, leoU128Schema, leoU64Schema, leoU8Schema } from "./leo";
 
 export const primaryStatsLeoSchema = z.object({
   strength: leoU128Schema,
@@ -44,7 +44,7 @@ export const weaponLeoSchema = z.object({
   damage: leoU128Schema,
   hit_chance: leoU128Schema,
   number_of_hits: leoU128Schema,
-  is_broken: z.boolean(),
+  is_broken: leoBooleanSchema,
 });
 export type WeaponLeo = z.infer<typeof weaponLeoSchema>;
 

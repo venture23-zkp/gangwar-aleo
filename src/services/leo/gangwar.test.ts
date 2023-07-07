@@ -12,11 +12,10 @@ describe("Gangwar Service", () => {
     startingSeed: "42u128",
   };
 
-  it("Placeholder", async () => {
-    console.log("Test");
-
-    console.log(JSON.stringify(warLeoSchema));
-  });
+  // it("Placeholder", async () => {
+  //   console.log("Test");
+  //   console.log(JSON.stringify(warLeoSchema));
+  // });
 
   // it("Initialize the game with a random seed", async () => {
   //   const { owner, privateKey, viewKey, startingSeed } = keys;

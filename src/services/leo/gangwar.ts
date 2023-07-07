@@ -38,9 +38,9 @@ const startGame = async (
 ): Promise<War> => {
   leoAddressSchema.parse(owner);
 
-  console.log(teamA);
+  // console.log(teamA);
   const leoTeamA = leoParse.team(teamA);
-  console.log(leoTeamA);
+  // console.log(leoTeamA);
   const leoTeamB = leoParse.team(teamB);
 
   const teamAParam = leoParse.stringifyLeoCmdParam(leoTeamA);
@@ -49,8 +49,7 @@ const startGame = async (
   const transition = "start_game";
   const params = [teamAParam, teamBParam, randomSeed];
 
-  const correctBracketPattern = warBracketPattern(2, 2); // TODO
-  console.log(correctBracketPattern);
+  const correctBracketPattern = warBracketPattern(1, 1); // TODO
 
   const record = await zkRun(
     {
@@ -65,7 +64,7 @@ const startGame = async (
     correctBracketPattern
   );
 
-  console.log(record);
+  // console.log(JSON.stringify(record));
 
   return parseOutput.war(record);
 };

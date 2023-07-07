@@ -6,6 +6,7 @@ import {
   Item,
   ItemLeo,
   itemLeoSchema,
+  leoBooleanSchema,
   LeoField,
   leoFieldSchema,
   LeoU128,
@@ -105,6 +106,11 @@ const u128 = (value: number | string): LeoU128 => {
   return leoU128Schema.parse(parsed);
 };
 
+const bool = (value: boolean): LeoU128 => {
+  const val = value ? "true" : "false";
+  return leoBooleanSchema.parse(val);
+};
+
 const fieldProb = (value: number): LeoField => {
   // Base field - 1 of Edwards BLS12
   // https://developer.aleo.org/advanced/the_aleo_curves/edwards_bls12#base-field
@@ -148,7 +154,7 @@ const weapon = (weapon: Weapon): WeaponLeo => {
     damage: u128(weapon.damage),
     hit_chance: u128Prob(weapon.hitChance),
     number_of_hits: u128(weapon.numberOfHits),
-    is_broken: weapon.isBroken,
+    is_broken: bool(weapon.isBroken),
   };
   return weaponLeoSchema.parse(res);
 };

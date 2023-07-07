@@ -2,7 +2,7 @@ import { exec } from "child_process";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { promisify } from "util";
-import { record } from "zod";
+import { boolean, record } from "zod";
 
 import { Address, DevelopmentClient, PrivateKey, ViewKey } from "../../aleo-sdk";
 import { env, FEE, LOCAL_NETWORK_PRIVATE_KEY, programNames } from "../../constants";
@@ -80,6 +80,17 @@ const u128 = (value: string): number => {
   const parsed = Number(replaceValue(value, "u128"));
   if (isNaN(parsed)) throw apiError("u128 parsing failed");
   return parsed;
+};
+
+const bool = (value: string): boolean => {
+  const parsed = replaceValue(value, "");
+  if (parsed === "true") {
+    return true;
+  } else if (parsed === "false") {
+    return false;
+  } else {
+    throw apiError("bool parsing failed");
+  }
 };
 
 const immediatelyRepeatingNumberClosingBracket = (value: string) => {
@@ -214,7 +225,7 @@ const weapon = (weapon: WeaponLeo): Weapon => {
     damage: u128(weapon.damage),
     hitChance: u128(weapon.hit_chance),
     numberOfHits: u128(weapon.number_of_hits),
-    isBroken: weapon.is_broken,
+    isBroken: bool(weapon.is_broken),
   };
   return weaponSchema.parse(res);
 };
@@ -243,7 +254,7 @@ const team = (team: TeamLeo): Team => {
     player_1: character(team.player_1),
     // player_2: character(team.player_2),
   };
-  return teamSchema.parse(team);
+  return teamSchema.parse(res);
 };
 
 const war = (record: Record<string, unknown>): War => {
