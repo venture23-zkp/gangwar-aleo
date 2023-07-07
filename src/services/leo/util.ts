@@ -98,21 +98,19 @@ const immediatelyRepeatingNumberClosingBracket = (value: string) => {
 };
 
 const correctRecordBracketIssue = (recordString: string, bracketPattern: string): string => {
-  console.log("Trying to correct record bracket issue");
+  // console.log("Trying to correct record bracket issue");
   let correctedRecordStringArray = [];
+  let correctedString = "";
   for (let i = 0, j = 0; i < recordString.length; i++) {
-    const recordChar = recordString[i];
+    let recordChar = recordString[i];
     let patternChar = bracketPattern[j];
+    let uptoPattern = bracketPattern.substring(0, j);
+
+    correctedString = correctedRecordStringArray.join("");
+    correctedString.replace(" ", "");
     if (recordChar === "{" && patternChar === "{") {
       correctedRecordStringArray.push(recordChar);
       j++;
-    } else if (recordChar !== "{" && patternChar === "{") {
-      correctedRecordStringArray.push(recordChar);
-    } else if (recordChar !== "}" && recordChar !== "{" && patternChar !== "{" && patternChar !== "}") {
-      correctedRecordStringArray.push(recordChar);
-      j++;
-    } else if (patternChar === "}" && recordChar !== "}") {
-      correctedRecordStringArray.push(recordChar);
     } else if (patternChar === "}" && recordChar === "}") {
       let immediatelyRepeatingClosingBracketOfRecord = immediatelyRepeatingNumberClosingBracket(
         recordString.substring(i, recordString.length)
@@ -123,31 +121,31 @@ const correctRecordBracketIssue = (recordString: string, bracketPattern: string)
 
       if (immediatelyRepeatingClosingBracketOfRecord > immediatelyRepeatingClosingBracketOfPattern) {
         // skip a closing bracket of record
+        continue;
+      } else if (immediatelyRepeatingClosingBracketOfRecord === immediatelyRepeatingClosingBracketOfPattern) {
+        correctedRecordStringArray.push(recordChar);
         j++;
       }
+    } else if (recordChar !== "{" && patternChar === "{") {
+      correctedRecordStringArray.push(recordChar);
+    } else if (recordChar !== "}" && recordChar !== "{" && patternChar !== "{" && patternChar !== "}") {
+      correctedRecordStringArray.push(recordChar);
+      j++;
+    } else if (patternChar === "}" && recordChar !== "}") {
+      correctedRecordStringArray.push(recordChar);
+    } else {
+      correctedRecordStringArray.push(recordChar);
     }
   }
   const correctedRecordString = correctedRecordStringArray.join("");
-  console.log(recordString);
-  console.log(bracketPattern);
-  console.log(correctedRecordString);
-  return recordString;
-};
-
-export const parseRecordStringTest = (recordString: string, correctBracketPattern?: string): string => {
-  const json = recordString.replace(/(['"])?([a-z0-9A-Z_.]+)(['"])?/g, '"$2" ');
-  let correctJson = json;
-  if (correctBracketPattern) {
-    correctRecordBracketIssue(recordString, correctBracketPattern);
-  }
-  return correctJson;
+  return correctedRecordString;
 };
 
 export const parseRecordString = (recordString: string, correctBracketPattern?: string): Record<string, unknown> => {
   const json = recordString.replace(/(['"])?([a-z0-9A-Z_.]+)(['"])?/g, '"$2" ');
   let correctJson = json;
   if (correctBracketPattern) {
-    correctRecordBracketIssue(recordString, correctBracketPattern);
+    correctJson = correctRecordBracketIssue(json, correctBracketPattern);
   }
   return JSON.parse(correctJson);
 };

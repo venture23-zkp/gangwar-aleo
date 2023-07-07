@@ -154,9 +154,9 @@ export const warSchema = z.object({
 });
 export type War = z.infer<typeof warSchema>;
 
-export const characterBracketPattern = () => "{{primaryStats}{secondaryStats}{weapon}}";
+export const characterBracketPattern = () => "{p1{pStats}{sStats}{weapon}}";
 const teamBracketPattern = (numberOfPlayers: number) => {
-  let bracketPattern = "{";
+  let bracketPattern = "{main/target";
   for (let i = 0; i < numberOfPlayers; i++) {
     bracketPattern = bracketPattern.concat(characterBracketPattern());
   }
@@ -164,7 +164,7 @@ const teamBracketPattern = (numberOfPlayers: number) => {
   return bracketPattern;
 };
 export const warBracketPattern = (teamAPlayerCount: number, teamBPlayerCount: number) =>
-  `{${teamBracketPattern(teamAPlayerCount)}, ${teamBracketPattern(teamBPlayerCount)}}`;
+  `{o${teamBracketPattern(teamAPlayerCount)}, ${teamBracketPattern(teamBPlayerCount)}nonce}`;
 
 export type equipmentTypes = "Range" | "Support" | "Melee";
 export type activeTimeType = "ROUND" | "CYCLE" | "TURN" | "FIRST";
