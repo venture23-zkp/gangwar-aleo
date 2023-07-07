@@ -3,7 +3,7 @@ program gangstabet_engine.aleo {
 
     struct PrimaryStats {
         strength: u128,
-        // accuracy: u128,
+        accuracy: u128,
         // mastery: u128,
         // agility: u128,
         // luck: u128
@@ -86,7 +86,7 @@ program gangstabet_engine.aleo {
 
     struct Team {
         player_1: Character,
-        // player_2: Character,
+        player_2: Character,
         // player_3: Character
     }
 
