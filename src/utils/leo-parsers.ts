@@ -8,6 +8,7 @@ import {
   itemLeoSchema,
   LeoField,
   leoFieldSchema,
+  LeoU128,
   leoU128Schema,
   LeoU32,
   leoU32Schema,
@@ -46,6 +47,25 @@ const privateField = (value: string) => value + ".private";
 
 const publicField = (value: string) => value + ".public";
 
+function prob(repr: string, maxValue: BigInt, prob: number) {
+  // Use the decimal digits of MAX_SAFE_INTEGER as precision
+  const precision = Number.MAX_SAFE_INTEGER.toString().length - 1;
+
+  // Split the field value into two parts: first & second
+  const first_part = maxValue.toString().substring(0, precision);
+
+  // Note: Although second part won't ever be considered in practice
+  // it can be randomized to give a sense of randomness to users
+  // In gangstabet, the probabilites are set before-hand so randomness is not needed
+  const second_part = maxValue.toString().substring(precision, maxValue.toString().length);
+
+  let updated_first_part_after_probability = Math.round(Number(first_part) * prob);
+
+  const final = updated_first_part_after_probability + second_part + repr;
+
+  return final;
+}
+
 const field = (value: bigint): LeoField => {
   const parsed = value + "field";
   return leoFieldSchema.parse(parsed);
@@ -78,16 +98,31 @@ const u64 = (value: number | string): LeoU64 => {
   return leoU64Schema.parse(parsed);
 };
 
-const u128 = (value: number | string): LeoU64 => {
+const u128 = (value: number | string): LeoU128 => {
   const numVal = Number(value);
   if (isNaN(numVal)) throw apiError("u128 parsing failed");
   const parsed = numVal + "u128";
   return leoU128Schema.parse(parsed);
 };
 
+const fieldProb = (value: number): LeoField => {
+  // Base field - 1 of Edwards BLS12
+  // https://developer.aleo.org/advanced/the_aleo_curves/edwards_bls12#base-field
+  const MAX_FIELD = BigInt("8444461749428370424248824938781546531375899335154063827935233455917409239040");
+  const parsed = prob("field", MAX_FIELD, value);
+  return leoFieldSchema.parse(parsed);
+};
+
+const u128Prob = (value: number): LeoU128 => {
+  const MAX_UINT128 = BigInt("340282366920938463463374607431768211455"); // 2^128 - 1
+  const parsed = prob("u128", MAX_UINT128, value);
+  return leoU128Schema.parse(parsed);
+};
+
 const primaryStats = (primaryStats: PrimaryStats): PrimaryStatsLeo => {
   const res: PrimaryStatsLeo = {
     strength: u128(primaryStats.strength),
+    // accuracy: u128(primaryStats.accuracy),
   };
   return primaryStatsLeoSchema.parse(res);
 };
@@ -95,10 +130,10 @@ const primaryStats = (primaryStats: PrimaryStats): PrimaryStatsLeo => {
 const secondaryStats = (secondaryStats: SecondaryStats): SecondaryStatsLeo => {
   const res: SecondaryStatsLeo = {
     health: u128(secondaryStats.health),
-    dodge_chance: u128(secondaryStats.dodgeChance),
-    hit_chance: u128(secondaryStats.hitChance),
-    critical_chance: u128(secondaryStats.criticalChance),
-    melee_damage: u128(secondaryStats.meleeDamage),
+    dodge_chance: u128Prob(secondaryStats.dodgeChance),
+    hit_chance: u128Prob(secondaryStats.hitChance),
+    critical_chance: u128Prob(secondaryStats.criticalChance),
+    melee_damage: u128Prob(secondaryStats.meleeDamage),
   };
   return secondaryStatsLeoSchema.parse(res);
 };
@@ -108,10 +143,10 @@ const weapon = (weapon: Weapon): WeaponLeo => {
     id: u128(weapon.id),
     w_type: u128(weapon.type),
     consumption_rate: u128(weapon.consumptionRate),
-    critical_chance: u128(weapon.criticalChance),
+    critical_chance: u128Prob(weapon.criticalChance),
     dura_ammo: u128(weapon.duraAmmo),
     damage: u128(weapon.damage),
-    hit_chance: u128(weapon.hitChance),
+    hit_chance: u128Prob(weapon.hitChance),
     number_of_hits: u128(weapon.numberOfHits),
     is_broken: weapon.isBroken,
   };
@@ -140,8 +175,10 @@ const character = (character: Character): CharacterLeo => {
 const team = (team: Team): TeamLeo => {
   const res: TeamLeo = {
     player_1: character(team.player_1),
+    // player_2: character(team.player_2),
   };
-  return teamLeoSchema.parse(team);
+  return res;
+  // return teamLeoSchema.parse(team);
 };
 
 const war = (war: War): WarLeo => {
@@ -149,6 +186,7 @@ const war = (war: War): WarLeo => {
     owner: war.owner,
     main_team: team(war.mainTeam),
     target_team: team(war.targetTeam),
+    _nonce: war._nonce,
   };
   return warLeoSchema.parse(res);
 };
