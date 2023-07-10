@@ -195,6 +195,16 @@ program gangstabet_engine.aleo {
         }
     }
 
+    inline multiply_with_probability(value: u128, probability: u128) -> u128 {
+        
+        // u128::MAX = first_precision * second_precision
+        let first_precision: u128 = 9007199254740991u128; // JS Number.MAX_SAFE_INTEGER
+        let second_precision: u128 = 37778931862957170098176u128;
+
+        let newValue: u128 = (value.mul(probability.div(first_precision))).div(second_precision);
+        return newValue;
+    }
+
     // TODO: for generalized inputs
     inline get_total_hits(max_hits: u128, main: Character, target: Character, random_number: u128) -> IHitData {
         let total_normal_hits: u128 = 0u128;
@@ -219,11 +229,14 @@ program gangstabet_engine.aleo {
                 // Note: When setting characters, a case in handled on game_engine where there is no primary equipment
                 // For now let us consider that player always has a primary equipment
                 if (!is_dodged) {
+                    
+                    // TODO: Ensure main_final_hit_chance is less than 1
                     let main_final_hit_chance: u128 = main.secondary_stats.hit_chance + main.primary_equipment.hit_chance;
                     coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_final_hit_chance);
                     let is_hit: bool = coin_flip_output.result;
 
                     if (is_hit) {
+                        // TODO: Ensure main_critical_chance is less than 1
                         let main_critical_chance: u128 = main.secondary_stats.critical_chance + main.primary_equipment.critical_chance;
                         coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_critical_chance);
                         let is_critical: bool = coin_flip_output.result;
@@ -301,7 +314,7 @@ program gangstabet_engine.aleo {
             
             // else if primary_equipment.w_type = 1u128
             } else if (main.primary_equipment.w_type == 1u128) {
-                let extra_damage: u128 = main.secondary_stats.melee_damage * main.primary_equipment.damage; // percentange TODO: handle percentage multiplication
+                let extra_damage: u128 = multiply_with_probability(main.secondary_stats.melee_damage, main.primary_equipment.damage); // percentange TODO: handle percentage multiplication
                 damage = extra_damage + main.primary_equipment.damage;
             }
 
