@@ -141,7 +141,7 @@ const createCharacter = (count: number = 1, names: string[]): Character[] => {
       // speed: randRange(500, 1700),
       // duraAmmo: randRange(1, 2),
       dodgeChance: randRange(0.3, 0.5),
-      hitChance: randRange(0.4, 1),
+      hitChance: randRange(0, 0.3),
       criticalChance: randRange(0.1, 0.5),
       // supportEffectiveness: randRange(0.4, 1),
       // SupportTriggerChance: randRange(0.4, 1),

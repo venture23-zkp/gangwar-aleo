@@ -72,12 +72,12 @@ const startGame = async (
 const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: LeoAddress, war: War, randomSeed: LeoU128): Promise<War> => {
   leoAddressSchema.parse(owner);
 
-  const leoWar = leoParse.war(war);
+  const leoWar = leoParse.warRecord(war);
 
   const warParam = leoParse.stringifyLeoCmdParam(leoWar);
 
   const transition = "game_loop";
-  const params = [owner, warParam, randomSeed];
+  const params = [warParam, randomSeed];
 
   const record = await zkRun({
     privateKey,

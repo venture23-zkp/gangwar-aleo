@@ -1,6 +1,6 @@
 import { gangwar } from "./gangwar";
 import { core } from "../../core";
-import { warLeoSchema } from "../../types";
+import { War, warLeoSchema } from "../../types";
 
 jest.setTimeout(600000);
 
@@ -11,6 +11,8 @@ describe("Gangwar Service", () => {
     viewKey: "AViewKey1fvqnzQ9nYfFMAkhjdcz5UEtDD1JjpbtG8kMXBLJKAHbd",
     startingSeed: "42u128",
   };
+
+  let war: War;
 
   // it("Placeholder", async () => {
   //   console.log("Test");
@@ -26,7 +28,13 @@ describe("Gangwar Service", () => {
   it("Starts the game with two teams", async () => {
     const { owner, privateKey, viewKey, startingSeed } = keys;
     const { teamA, teamB } = core.createPayload(1, 2);
-    const res = await gangwar.startGame(privateKey, viewKey, owner, teamA, teamB, startingSeed);
-    console.log(res);
+    war = await gangwar.startGame(privateKey, viewKey, owner, teamA, teamB, startingSeed);
+    // console.log(JSON.stringify(war));
+  });
+
+  it("Play the game", async () => {
+    const { owner, privateKey, viewKey, startingSeed } = keys;
+    const res = await gangwar.gameLoop(privateKey, viewKey, owner, war, startingSeed);
+    // console.log(res);
   });
 });

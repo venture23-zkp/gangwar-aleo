@@ -133,6 +133,14 @@ const primaryStats = (primaryStats: PrimaryStats): PrimaryStatsLeo => {
   return primaryStatsLeoSchema.parse(res);
 };
 
+const primaryStatsRecord = (primaryStats: PrimaryStats): PrimaryStatsLeo => {
+  const res: PrimaryStatsLeo = {
+    strength: privateField(u128(primaryStats.strength)),
+    // accuracy: u128(primaryStats.accuracy),
+  };
+  return primaryStatsLeoSchema.parse(res);
+};
+
 const secondaryStats = (secondaryStats: SecondaryStats): SecondaryStatsLeo => {
   const res: SecondaryStatsLeo = {
     health: u128(secondaryStats.health),
@@ -140,6 +148,17 @@ const secondaryStats = (secondaryStats: SecondaryStats): SecondaryStatsLeo => {
     hit_chance: u128Prob(secondaryStats.hitChance),
     critical_chance: u128Prob(secondaryStats.criticalChance),
     melee_damage: u128Prob(secondaryStats.meleeDamage),
+  };
+  return secondaryStatsLeoSchema.parse(res);
+};
+
+const secondaryStatsRecord = (secondaryStats: SecondaryStats): SecondaryStatsLeo => {
+  const res: SecondaryStatsLeo = {
+    health: privateField(u128(secondaryStats.health)),
+    dodge_chance: privateField(u128Prob(secondaryStats.dodgeChance)),
+    hit_chance: privateField(u128Prob(secondaryStats.hitChance)),
+    critical_chance: privateField(u128Prob(secondaryStats.criticalChance)),
+    melee_damage: privateField(u128Prob(secondaryStats.meleeDamage)),
   };
   return secondaryStatsLeoSchema.parse(res);
 };
@@ -155,6 +174,20 @@ const weapon = (weapon: Weapon): WeaponLeo => {
     hit_chance: u128Prob(weapon.hitChance),
     number_of_hits: u128(weapon.numberOfHits),
     is_broken: bool(weapon.isBroken),
+  };
+  return weaponLeoSchema.parse(res);
+};
+const weaponRecord = (weapon: Weapon): WeaponLeo => {
+  const res: WeaponLeo = {
+    id: privateField(u128(weapon.id)),
+    w_type: privateField(u128(weapon.type)),
+    consumption_rate: privateField(u128(weapon.consumptionRate)),
+    critical_chance: privateField(u128Prob(weapon.criticalChance)),
+    dura_ammo: privateField(u128(weapon.duraAmmo)),
+    damage: privateField(u128(weapon.damage)),
+    hit_chance: privateField(u128Prob(weapon.hitChance)),
+    number_of_hits: privateField(u128(weapon.numberOfHits)),
+    is_broken: privateField(bool(weapon.isBroken)),
   };
   return weaponLeoSchema.parse(res);
 };
@@ -178,9 +211,27 @@ const character = (character: Character): CharacterLeo => {
   return characterLeoSchema.parse(res);
 };
 
+const characterRecord = (character: Character): CharacterLeo => {
+  const res: CharacterLeo = {
+    primary_stats: primaryStatsRecord(character.primaryStats),
+    secondary_stats: secondaryStatsRecord(character.secondaryStats),
+    primary_equipment: weaponRecord(character.primaryEquipment),
+  };
+  return characterLeoSchema.parse(res);
+};
+
 const team = (team: Team): TeamLeo => {
   const res: TeamLeo = {
     player_1: character(team.player_1),
+    // player_2: character(team.player_2),
+  };
+  return res;
+  // return teamLeoSchema.parse(team);
+};
+
+const teamRecord = (team: Team): TeamLeo => {
+  const res: TeamLeo = {
+    player_1: characterRecord(team.player_1),
     // player_2: character(team.player_2),
   };
   return res;
@@ -197,6 +248,16 @@ const war = (war: War): WarLeo => {
   return warLeoSchema.parse(res);
 };
 
+const warRecord = (war: War): WarLeo => {
+  const res: WarLeo = {
+    owner: war.owner,
+    main_team: teamRecord(war.mainTeam),
+    target_team: teamRecord(war.targetTeam),
+    _nonce: war._nonce,
+  };
+  return warLeoSchema.parse(res);
+};
+
 export const leoParse = {
   field,
   id,
@@ -207,4 +268,5 @@ export const leoParse = {
   stringifyLeoCmdParam,
   team,
   war,
+  warRecord,
 };

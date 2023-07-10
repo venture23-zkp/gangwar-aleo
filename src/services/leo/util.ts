@@ -48,6 +48,24 @@ const replaceValue = (value: string, searchValue = "") => value.replace(searchVa
 
 const address = (value: string): string => replaceValue(value);
 
+function prob(repr: string, maxValue: BigInt, prob: string) {
+  const probInBigInt = BigInt(prob.replace(repr, ""));
+  // Use the decimal bits of MAX_SAFE_INTEGER as precision
+  const precision = Number.MAX_SAFE_INTEGER.toString().length - 1;
+
+  const maxValueLength = maxValue.toString().length;
+
+  const portionToExtract = probInBigInt.toString().length - (maxValueLength - precision);
+
+  // Extract the most significant digits of probability to generate probability in safe range
+  const probInNum = Number(probInBigInt.toString().substring(0, portionToExtract));
+  const maxValueInNum = Number(maxValue.toString().substring(0, precision));
+
+  const probInNumber = probInNum / maxValueInNum;
+
+  return probInNumber;
+}
+
 const field = (value: string): bigint => {
   const parsed = BigInt(replaceValue(value, "field"));
   return parsed;
@@ -91,6 +109,22 @@ const bool = (value: string): boolean => {
   } else {
     throw apiError("bool parsing failed");
   }
+};
+
+const fieldProb = (value: string): number => {
+  const MAX_FIELD = BigInt("8444461749428370424248824938781546531375899335154063827935233455917409239040");
+  const parsed = replaceValue(value, "field");
+  const valueInProb = prob("field", MAX_FIELD, parsed);
+  if (isNaN(valueInProb)) throw apiError("field probability parsing failed");
+  return valueInProb;
+};
+
+const u128Prob = (value: string): number => {
+  const MAX_UINT128 = BigInt("340282366920938463463374607431768211455"); // 2^128 - 1
+  const parsed = replaceValue(value, "u128");
+  const valueInProb = prob("u128", MAX_UINT128, parsed);
+  if (isNaN(valueInProb)) throw apiError("u128 probability parsing failed");
+  return valueInProb;
 };
 
 const immediatelyRepeatingNumberClosingBracket = (value: string) => {
@@ -205,13 +239,15 @@ const primaryStats = (primaryStats: PrimaryStatsLeo): PrimaryStats => {
 };
 
 const secondaryStats = (secondaryStats: SecondaryStatsLeo): SecondaryStats => {
+  // console.log(secondaryStats);
   const res: SecondaryStats = {
     health: u128(secondaryStats.health),
-    dodgeChance: u128(secondaryStats.dodge_chance),
-    hitChance: u128(secondaryStats.hit_chance),
-    criticalChance: u128(secondaryStats.critical_chance),
-    meleeDamage: u128(secondaryStats.melee_damage),
+    dodgeChance: u128Prob(secondaryStats.dodge_chance),
+    hitChance: u128Prob(secondaryStats.hit_chance),
+    criticalChance: u128Prob(secondaryStats.critical_chance),
+    meleeDamage: u128Prob(secondaryStats.melee_damage),
   };
+  // console.log(res);
   return secondaryStatsSchema.parse(res);
 };
 
@@ -220,10 +256,10 @@ const weapon = (weapon: WeaponLeo): Weapon => {
     id: u128(weapon.id),
     type: u128(weapon.w_type),
     consumptionRate: u128(weapon.consumption_rate),
-    criticalChance: u128(weapon.critical_chance),
+    criticalChance: u128Prob(weapon.critical_chance),
     duraAmmo: u128(weapon.dura_ammo),
     damage: u128(weapon.damage),
-    hitChance: u128(weapon.hit_chance),
+    hitChance: u128Prob(weapon.hit_chance),
     numberOfHits: u128(weapon.number_of_hits),
     isBroken: bool(weapon.is_broken),
   };
@@ -259,6 +295,7 @@ const team = (team: TeamLeo): Team => {
 
 const war = (record: Record<string, unknown>): War => {
   const parsed = warLeoSchema.parse(record);
+  console.log(parsed);
   const { main_team, target_team } = parsed;
   const war: War = {
     owner: parsed.owner,
@@ -291,6 +328,7 @@ const leoRun = async (
   const cmd = `cd ${contractPath} && leo run ${transition} ${stringedParams}`;
 
   const { stdout } = await execute(cmd);
+  console.log(stdout);
   const parsed = parseCmdOutput(stdout, correctBracketPattern);
 
   return parsed;
