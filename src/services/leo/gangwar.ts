@@ -79,15 +79,20 @@ const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: L
   const transition = "game_loop";
   const params = [warParam, randomSeed];
 
-  const record = await zkRun({
-    privateKey,
-    viewKey,
-    appName: programNames.GANGWAR_ENGINE,
-    contractPath: gangwarPath,
-    transition,
-    params,
-    fee: FEE,
-  });
+  const correctBracketPattern = warBracketPattern(1, 1); // TODO
+
+  const record = await zkRun(
+    {
+      privateKey,
+      viewKey,
+      appName: programNames.GANGWAR_ENGINE,
+      contractPath: gangwarPath,
+      transition,
+      params,
+      fee: FEE,
+    },
+    correctBracketPattern
+  );
 
   return parseOutput.war(record);
 };
