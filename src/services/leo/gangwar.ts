@@ -32,22 +32,23 @@ const startGame = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey,
   owner: LeoAddress,
+  simulationId: number,
   teamA: Team,
   teamB: Team,
-  randomSeed: LeoU128
+  randomSeed: string
 ): Promise<War> => {
   leoAddressSchema.parse(owner);
 
-  // console.log(teamA);
   const leoTeamA = leoParse.team(teamA);
-  // console.log(leoTeamA);
   const leoTeamB = leoParse.team(teamB);
+  const leoSimulationId = leoParse.u128(simulationId);
+  const leoRandomSeed = leoParse.u128(randomSeed);
 
   const teamAParam = leoParse.stringifyLeoCmdParam(leoTeamA);
   const teamBParam = leoParse.stringifyLeoCmdParam(leoTeamB);
 
   const transition = "start_game";
-  const params = [teamAParam, teamBParam, randomSeed];
+  const params = [leoSimulationId, teamAParam, teamBParam, leoRandomSeed];
 
   const correctBracketPattern = warBracketPattern(1, 1); // TODO
 
@@ -69,15 +70,16 @@ const startGame = async (
   return parseOutput.war(record);
 };
 
-const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: LeoAddress, war: War, randomSeed: LeoU128): Promise<War> => {
+const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: LeoAddress, war: War, randomSeed: string): Promise<War> => {
   leoAddressSchema.parse(owner);
 
   const leoWar = leoParse.warRecord(war);
+  const leoRandomSeed = leoParse.u128(randomSeed);
 
   const warParam = leoParse.stringifyLeoCmdParam(leoWar);
 
   const transition = "game_loop";
-  const params = [warParam, randomSeed];
+  const params = [warParam, leoRandomSeed];
 
   const correctBracketPattern = warBracketPattern(1, 1); // TODO
 

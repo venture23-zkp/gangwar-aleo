@@ -299,6 +299,8 @@ const war = (record: Record<string, unknown>): War => {
   const { main_team, target_team } = parsed;
   const war: War = {
     owner: parsed.owner,
+    simulationId: parsed.simulation_id,
+    round: u128(parsed.round),
     mainTeam: team(main_team),
     targetTeam: team(target_team),
     _nonce: parsed._nonce,

@@ -241,6 +241,8 @@ const teamRecord = (team: Team): TeamLeo => {
 const war = (war: War): WarLeo => {
   const res: WarLeo = {
     owner: war.owner,
+    simulation_id: war.simulationId,
+    round: privateField(u128(war.round)),
     main_team: team(war.mainTeam),
     target_team: team(war.targetTeam),
     _nonce: war._nonce,
@@ -251,6 +253,8 @@ const war = (war: War): WarLeo => {
 const warRecord = (war: War): WarLeo => {
   const res: WarLeo = {
     owner: war.owner,
+    simulation_id: war.simulationId,
+    round: privateField(u128(war.round)),
     main_team: teamRecord(war.mainTeam),
     target_team: teamRecord(war.targetTeam),
     _nonce: war._nonce,

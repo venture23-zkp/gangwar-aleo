@@ -189,7 +189,7 @@ export const createPayload = (simId: number, playersPerTeam: number) => {
   const { teamA, teamB } = createRandomTeams(playersPerTeam, playersPerTeam);
   return {
     // roomId: `gangwar#${simId}`,
-    // simulationId: simId,
+    simulationId: simId,
     // duration: `0x23C34600`, //10 minutes
     // objectives: ["0x1"],
     teamA,

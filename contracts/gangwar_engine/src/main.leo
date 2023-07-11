@@ -44,7 +44,8 @@ program gangstabet_engine.aleo {
     }
 
     struct IPhysicalAttackResponse {
-        damage: u128,
+        updated_main_character: Character,
+        updated_target_character: Character,
         new_random_number: u128
     }
 
@@ -93,7 +94,8 @@ program gangstabet_engine.aleo {
     record War {
         owner: address,
         // room_id: u128,
-        // simulation_id: u128,
+        simulation_id: u128,
+        round: u128,
         // duration: u128,
         // objectives: u128 // ??,
         main_team: Team,
@@ -117,7 +119,7 @@ program gangstabet_engine.aleo {
         Mapping::set(settings, 0u128, random_number);
     }
 
-    transition start_game(team_a: Team, team_b: Team, random_seed: u128) -> War {
+    transition start_game(simulation_id: u128, team_a: Team, team_b: Team, random_seed: u128) -> War {
         let half_u128: u128 = 170141183460469231731687303715884105728u128; // u128::MAX.div(2)
         let coin_flip_output: CoinFlip = flip_a_coin(random_seed, half_u128);
         let team_b_starts: bool = coin_flip_output.result;
@@ -132,7 +134,8 @@ program gangstabet_engine.aleo {
         let war: War = War {
             owner: self.caller, // TODO: Server address
             // room_id: 0u128,
-            // simulation_id: 0u128,
+            simulation_id: simulation_id,
+            round: 0u128,
             // duration: 0u128,
             // objectives: 0u128,
             main_team,
@@ -156,14 +159,23 @@ program gangstabet_engine.aleo {
     transition game_loop(w: War, random_seed: u128) -> War {
         let physical_attack: IPhysicalAttackResponse = physical_attack_sequence(w.main_team.player_1, w.target_team.player_1, random_seed);
 
+        let updated_main_team: Team = Team{
+            player_1: physical_attack.updated_main_character
+        };
+
+        let updated_target_team: Team = Team{
+            player_1: physical_attack.updated_target_character
+        };
+
         let war: War = War {
             owner: self.caller, // TODO: Server address
             // room_id: w.room_id,
-            // simulation_id: w.simulation_id,
+            simulation_id: w.simulation_id,
+            round: w.round.add(1u128),
             // duration: w.duration,
             // objectives: w.objectives,
-            main_team: w.target_team,
-            target_team: w.main_team
+            main_team: updated_target_team,
+            target_team: updated_main_team
         };
 
         return war then finalize(random_seed, physical_attack.new_random_number);
@@ -267,6 +279,7 @@ program gangstabet_engine.aleo {
         let total_normal_hits: u128 = 0u128;
         let total_critical_hits: u128 = 0u128;
         let total_hits: u128 = 0u128;
+        let is_equipment_broken: bool = false;
 
         let coin_flip_output: CoinFlip = CoinFlip {
             result: false,
@@ -331,7 +344,7 @@ program gangstabet_engine.aleo {
 
             // assume isCollateral = false
             // TODO: double check; handle when negative; there's more logic
-            let is_equipment_broken: bool = main.primary_equipment.dura_ammo - main.primary_equipment.consumption_rate == 0u128;
+            is_equipment_broken = main.primary_equipment.dura_ammo.sub_wrapped(main.primary_equipment.consumption_rate) == 0u128;
 
             let normal_hit_damage: u128 = 0u128;
             let critical_hit_damage: u128 = 0u128;
@@ -348,9 +361,44 @@ program gangstabet_engine.aleo {
             damage = normal_hit_damage + critical_hit_damage;
         }
         // Damage Boost Ignored
+
+        let updated_secondary_stats: SecondaryStats = SecondaryStats{
+            health: target.secondary_stats.health.sub_wrapped(damage),
+            dodge_chance: target.secondary_stats.dodge_chance,
+            hit_chance: target.secondary_stats.hit_chance,
+            critical_chance: target.secondary_stats.critical_chance,
+            melee_damage: target.secondary_stats.melee_damage
+        };
+
+        let updated_weapon: Weapon = Weapon{
+            id: main.primary_equipment.id,
+            w_type: main.primary_equipment.w_type,
+            consumption_rate: main.primary_equipment.consumption_rate,
+            critical_chance: main.primary_equipment.critical_chance,
+            dura_ammo: main.primary_equipment.dura_ammo.sub_wrapped(total_hits),
+            damage: main.primary_equipment.damage,
+            hit_chance: main.primary_equipment.hit_chance,
+            number_of_hits: main.primary_equipment.number_of_hits,
+            is_broken: is_equipment_broken
+        };
+
+        let updated_main_character: Character = Character{
+            primary_stats: main.primary_stats,
+            secondary_stats: main.secondary_stats,
+            primary_equipment: updated_weapon
+        };
+
+        let updated_target_character: Character = Character{
+            primary_stats: main.primary_stats,
+            secondary_stats: updated_secondary_stats,
+            primary_equipment: updated_weapon
+        };
+
         return IPhysicalAttackResponse {
-            damage,
+            updated_main_character,
+            updated_target_character,
             new_random_number: coin_flip_output.new_random_number
         };
     }
+
 }

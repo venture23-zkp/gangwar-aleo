@@ -137,7 +137,8 @@ export type Team = z.infer<typeof teamSchema>;
 export const warLeoSchema = z.object({
   owner: leoAddressSchema,
   // room_id: u128,
-  // simulation_id: u128,
+  simulation_id: leoU128Schema,
+  round: leoU128Schema,
   // duration: u128,
   // objectives: u128 // ??,
   main_team: teamLeoSchema,
@@ -148,6 +149,8 @@ export type WarLeo = z.infer<typeof warLeoSchema>;
 
 export const warSchema = z.object({
   owner: leoAddressSchema,
+  simulationId: z.string(),
+  round: z.number(),
   mainTeam: teamSchema,
   targetTeam: teamSchema,
   _nonce: leoGroupSchema,
