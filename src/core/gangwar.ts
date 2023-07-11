@@ -154,7 +154,7 @@ const createCharacter = (count: number = 1, names: string[]): Character[] => {
     const character: Character = {
       //name:
       //type
-      //nftId
+      nftId: i,
       primaryStats,
       secondaryStats,
       primaryEquipment,

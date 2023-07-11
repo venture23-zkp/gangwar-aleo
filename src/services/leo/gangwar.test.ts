@@ -29,6 +29,9 @@ describe("Gangwar Service", () => {
     const { owner, privateKey, viewKey } = keys;
     const { teamA, teamB, simulationId } = core.createPayload(1, 2);
 
+    console.log(JSON.stringify(teamA));
+    console.log(JSON.stringify(teamB));
+
     // TODO: Starting seed needs to be the one that's stored on chain
     // So need a way to fetch and store it
     // For now let's use startingSeed = 1
@@ -37,10 +40,10 @@ describe("Gangwar Service", () => {
     // console.log(JSON.stringify(war));
   });
 
-  it("Play the game", async () => {
-    const { owner, privateKey, viewKey } = keys;
-    const startingSeed = "1";
-    const res = await gangwar.gameLoop(privateKey, viewKey, owner, war, startingSeed);
-    // console.log(res);
-  });
+  // it("Play the game", async () => {
+  //   const { owner, privateKey, viewKey } = keys;
+  //   const startingSeed = "1";
+  //   const res = await gangwar.gameLoop(privateKey, viewKey, owner, war, startingSeed);
+  //   // console.log(res);
+  // });
 });

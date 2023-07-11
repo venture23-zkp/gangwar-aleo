@@ -11,6 +11,8 @@ import {
   leoFieldSchema,
   LeoU128,
   leoU128Schema,
+  LeoU16,
+  leoU16Schema,
   LeoU32,
   leoU32Schema,
   LeoU64,
@@ -83,6 +85,13 @@ const u8 = (value: number | string): LeoU8 => {
   if (isNaN(numVal)) throw apiError("u8 parsing failed");
   const parsed = numVal + "u8";
   return leoU8Schema.parse(parsed);
+};
+
+const u16 = (value: number | string): LeoU16 => {
+  const numVal = Number(value);
+  if (isNaN(numVal)) throw apiError("u16 parsing failed");
+  const parsed = numVal + "u16";
+  return leoU16Schema.parse(parsed);
 };
 
 const u32 = (value: number | string): LeoU32 => {
@@ -204,6 +213,7 @@ const item = (item: Item): ItemLeo => {
 
 const character = (character: Character): CharacterLeo => {
   const res: CharacterLeo = {
+    nft_id: u16(character.nftId),
     primary_stats: primaryStats(character.primaryStats),
     secondary_stats: secondaryStats(character.secondaryStats),
     primary_equipment: weapon(character.primaryEquipment),
@@ -213,6 +223,7 @@ const character = (character: Character): CharacterLeo => {
 
 const characterRecord = (character: Character): CharacterLeo => {
   const res: CharacterLeo = {
+    nft_id: privateField(u16(character.nftId)),
     primary_stats: primaryStatsRecord(character.primaryStats),
     secondary_stats: secondaryStatsRecord(character.secondaryStats),
     primary_equipment: weaponRecord(character.primaryEquipment),

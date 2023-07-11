@@ -1,6 +1,15 @@
 import { number, z } from "zod";
 
-import { leoAddressSchema, leoBooleanSchema, leoFieldSchema, leoGroupSchema, leoU128Schema, leoU64Schema, leoU8Schema } from "./leo";
+import {
+  leoAddressSchema,
+  leoBooleanSchema,
+  leoFieldSchema,
+  leoGroupSchema,
+  leoU128Schema,
+  leoU16Schema,
+  leoU64Schema,
+  leoU8Schema,
+} from "./leo";
 
 export const primaryStatsLeoSchema = z.object({
   strength: leoU128Schema,
@@ -50,7 +59,7 @@ export type WeaponLeo = z.infer<typeof weaponLeoSchema>;
 
 export const weaponSchema = z.object({
   id: z.number(),
-  type: z.number(), // Normal | Default??
+  type: z.number(), // Range[0] | Melee[1] | Support
   consumptionRate: z.number(),
   criticalChance: z.number(),
   duraAmmo: z.number(),
@@ -102,7 +111,7 @@ export type Multiplers = z.infer<typeof multipliersSchema>;
 export const characterLeoSchema = z.object({
   // name: leoU128Schema, // string,
   // u_type: leoU128Schema // can be 'HUMAN', 'ROBOT' ..
-  // nft_id: u16, // 1..5555
+  nft_id: leoU16Schema,
   primary_stats: primaryStatsLeoSchema,
   secondary_stats: secondaryStatsLeoSchema,
   primary_equipment: weaponLeoSchema,
@@ -116,6 +125,7 @@ export const characterLeoSchema = z.object({
 export type CharacterLeo = z.infer<typeof characterLeoSchema>;
 
 export const characterSchema = z.object({
+  nftId: z.number(),
   primaryStats: primaryStatsSchema,
   secondaryStats: secondaryStatsSchema,
   primaryEquipment: weaponSchema,

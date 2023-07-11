@@ -52,7 +52,7 @@ program gangstabet_engine.aleo {
     struct Character {
         // name: u128, // string,
         // u_type: u128 // can be 'HUMAN', 'ROBOT' ..
-        // nft_id: u16, // 1..5555
+        nft_id: u16,
         primary_stats: PrimaryStats,
         secondary_stats: SecondaryStats,
         primary_equipment: Weapon,
@@ -383,15 +383,17 @@ program gangstabet_engine.aleo {
         };
 
         let updated_main_character: Character = Character{
+            nft_id: main.nft_id,
             primary_stats: main.primary_stats,
             secondary_stats: main.secondary_stats,
             primary_equipment: updated_weapon
         };
 
         let updated_target_character: Character = Character{
-            primary_stats: main.primary_stats,
+            nft_id: target.nft_id,
+            primary_stats: target.primary_stats,
             secondary_stats: updated_secondary_stats,
-            primary_equipment: updated_weapon
+            primary_equipment: target.primary_equipment
         };
 
         return IPhysicalAttackResponse {

@@ -36,6 +36,9 @@ export type LeoBoolean = z.infer<typeof leoBooleanSchema>;
 export const leoU8Schema = leoStringSchema("u8");
 export type LeoU8 = z.infer<typeof leoU8Schema>;
 
+export const leoU16Schema = leoStringSchema("u16");
+export type LeoU16 = z.infer<typeof leoU16Schema>;
+
 export const leoU32Schema = leoStringSchema("u32");
 export type LeoU32 = z.infer<typeof leoU32Schema>;
 

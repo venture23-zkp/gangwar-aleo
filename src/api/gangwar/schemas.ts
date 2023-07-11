@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { number, z } from "zod";
 
 import { leoAddressSchema, leoPrivateKeySchema, leoU128Schema, leoViewKeySchema, teamSchema, uuidSchema, warSchema } from "../../types";
 
@@ -14,8 +14,10 @@ export const schemas = {
       privateKey: leoPrivateKeySchema,
       viewKey: leoViewKeySchema,
       owner: leoAddressSchema,
+      simulationId: z.number(),
       teamA: teamSchema,
       teamB: teamSchema,
+      randomSeed: z.number(),
     }),
     gameLoop: z.object({
       privateKey: leoPrivateKeySchema,

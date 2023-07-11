@@ -82,6 +82,12 @@ export const u8 = (value: string): number => {
   return parsed;
 };
 
+export const u16 = (value: string): number => {
+  const parsed = Number(replaceValue(value, "u16"));
+  if (isNaN(parsed)) throw apiError("u16 parsing failed");
+  return parsed;
+};
+
 const u32 = (value: string): number => {
   const parsed = Number(replaceValue(value, "u32"));
   if (isNaN(parsed)) throw apiError("u32 parsing failed");
@@ -278,6 +284,7 @@ const item = (item: ItemLeo): Item => {
 
 const character = (character: CharacterLeo): Character => {
   const res: Character = {
+    nftId: u16(character.nft_id),
     primaryStats: primaryStats(character.primary_stats),
     secondaryStats: secondaryStats(character.secondary_stats),
     primaryEquipment: weapon(character.primary_equipment),
@@ -395,6 +402,7 @@ const snarkOsExecute = async ({
 type ExecuteZkLogicParams = LeoRunParams & SnarkOsExecuteParams;
 
 export const zkRun = (params: ExecuteZkLogicParams, bracketPattern?: string): Promise<Record<string, unknown>> => {
+  console.log("ZK_MODE", env.ZK_MODE);
   if (env.ZK_MODE === "leo") {
     return leoRun(params, bracketPattern);
   } else {
