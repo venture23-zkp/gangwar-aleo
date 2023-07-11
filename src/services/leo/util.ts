@@ -308,6 +308,9 @@ const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
     isDodged: bool(damage.is_dodged),
     isHit: bool(damage.is_hit),
     isCritical: bool(damage.is_critical),
+    totalCriticalHits: u128(damage.total_critical_hits),
+    totalNormalHits: u128(damage.total_normal_hits),
+    totalHits: u128(damage.total_hits),
     damage: u128(damage.damage),
   };
   return phyiscalAttackSchema.parse(res);

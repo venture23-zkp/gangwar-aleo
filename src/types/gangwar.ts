@@ -148,6 +148,9 @@ export const physicalAttackLeoSchema = z.object({
   is_dodged: leoBooleanSchema,
   is_hit: leoBooleanSchema,
   is_critical: leoBooleanSchema,
+  total_critical_hits: leoU128Schema,
+  total_normal_hits: leoU128Schema,
+  total_hits: leoU128Schema,
   damage: leoU128Schema,
 });
 export type PhysicalAttackLeo = z.infer<typeof physicalAttackLeoSchema>;
@@ -156,6 +159,9 @@ export const phyiscalAttackSchema = z.object({
   isDodged: z.boolean(),
   isHit: z.boolean(),
   isCritical: z.boolean(),
+  totalCriticalHits: z.number(),
+  totalNormalHits: z.number(),
+  totalHits: z.number(),
   damage: z.number(),
 });
 export type PhysicalAttack = z.infer<typeof phyiscalAttackSchema>;

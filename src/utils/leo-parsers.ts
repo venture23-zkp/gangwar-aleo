@@ -219,6 +219,9 @@ const physicalAttack = (damage: PhysicalAttack): PhysicalAttackLeo => {
     is_dodged: bool(damage.isDodged),
     is_hit: bool(damage.isHit),
     is_critical: bool(damage.isCritical),
+    total_critical_hits: u128(damage.totalCriticalHits),
+    total_normal_hits: u128(damage.totalNormalHits),
+    total_hits: u128(damage.totalHits),
     damage: u128(damage.damage),
   };
   return physicalAttackLeoSchema.parse(res);
@@ -229,6 +232,9 @@ const physicalAttackRecord = (damage: PhysicalAttack): PhysicalAttackLeo => {
     is_dodged: privateField(bool(damage.isDodged)),
     is_hit: privateField(bool(damage.isHit)),
     is_critical: privateField(bool(damage.isCritical)),
+    total_critical_hits: privateField(u128(damage.totalCriticalHits)),
+    total_normal_hits: privateField(u128(damage.totalNormalHits)),
+    total_hits: privateField(u128(damage.totalHits)),
     damage: privateField(u128(damage.damage)),
   };
   return physicalAttackLeoSchema.parse(res);

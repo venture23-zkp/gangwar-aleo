@@ -36,6 +36,7 @@ program gangstabet_engine.aleo {
         rank: bool
     }
 
+    // TODO: verify if total_hits is necessary
     struct IHitData {
         total_normal_hits: u128,
         total_critical_hits: u128,
@@ -47,6 +48,9 @@ program gangstabet_engine.aleo {
         is_dodged: bool,
         is_hit: bool,
         is_critical: bool,
+        total_critical_hits: u128,
+        total_normal_hits: u128,
+        total_hits: u128,
         damage: u128
     }
 
@@ -144,6 +148,9 @@ program gangstabet_engine.aleo {
             is_dodged: true,
             is_hit: false,
             is_critical: false,
+            total_critical_hits: 0u128,
+            total_normal_hits: 0u128,
+            total_hits: 0u128,
             damage: 0u128,
         };
 
@@ -314,7 +321,10 @@ program gangstabet_engine.aleo {
                 is_dodged: true,
                 is_hit: false,
                 is_critical: false,
-                damage: 0u128,
+                total_critical_hits,
+                total_normal_hits,
+                total_hits,
+                damage,
             };
 
             return IPhysicalAttackResponse{
@@ -336,6 +346,9 @@ program gangstabet_engine.aleo {
                 is_dodged: false,
                 is_hit: false,
                 is_critical: false,
+                total_critical_hits,
+                total_normal_hits,
+                total_hits,
                 damage: 0u128,
             };
 
@@ -442,6 +455,9 @@ program gangstabet_engine.aleo {
             is_dodged,
             is_hit,
             is_critical,
+            total_critical_hits,
+            total_normal_hits,
+            total_hits,
             damage,
         };
 
