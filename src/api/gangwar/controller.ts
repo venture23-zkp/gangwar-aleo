@@ -21,7 +21,7 @@ export const gangwarController: GangwarController = {
   },
   gameLoop: async (req, res) => {
     const { owner, simulationId, war, randomSeed, privateKey, viewKey } = req.body;
-    const warUpdate = await leo.gangwar.gameLoop(privateKey, viewKey, owner, simulationId, war);
+    const warUpdate = await leo.gangwar.gameLoop(privateKey, viewKey, owner, war, randomSeed);
     res.send({ warUpdate });
   },
 };

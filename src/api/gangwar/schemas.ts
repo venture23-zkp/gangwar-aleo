@@ -23,6 +23,7 @@ export const schemas = {
       privateKey: leoPrivateKeySchema,
       viewKey: leoViewKeySchema,
       owner: leoAddressSchema,
+      randomSeed: z.number(),
       war: warSchema,
     }),
   },

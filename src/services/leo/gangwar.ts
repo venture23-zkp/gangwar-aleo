@@ -32,7 +32,7 @@ const startGame = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey,
   owner: LeoAddress,
-  simulationId: number,
+  simulationId: string,
   teamA: Team,
   teamB: Team,
   randomSeed: string
@@ -71,6 +71,7 @@ const startGame = async (
 };
 
 const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: LeoAddress, war: War, randomSeed: string): Promise<War> => {
+  console.log(war);
   leoAddressSchema.parse(owner);
 
   const leoWar = leoParse.warRecord(war);

@@ -154,7 +154,7 @@ const createCharacter = (count: number = 1, names: string[]): Character[] => {
     const character: Character = {
       //name:
       //type
-      nftId: i,
+      nftId: randRangeInt(1, 5555),
       primaryStats,
       secondaryStats,
       primaryEquipment,
@@ -185,7 +185,7 @@ const createRandomTeams = (teamANumber: number, teamBNumber: number): { teamA: T
   return { teamA, teamB };
 };
 
-export const createPayload = (simId: number, playersPerTeam: number) => {
+export const createPayload = (simId: string, playersPerTeam: number) => {
   const { teamA, teamB } = createRandomTeams(playersPerTeam, playersPerTeam);
   return {
     // roomId: `gangwar#${simId}`,

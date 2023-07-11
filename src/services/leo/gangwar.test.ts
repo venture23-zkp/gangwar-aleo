@@ -27,7 +27,9 @@ describe("Gangwar Service", () => {
 
   it("Starts the game with two teams", async () => {
     const { owner, privateKey, viewKey } = keys;
-    const { teamA, teamB, simulationId } = core.createPayload(1, 2);
+
+    const simId = "123";
+    const { teamA, teamB, simulationId } = core.createPayload(simId, 2);
 
     console.log(JSON.stringify(teamA));
     console.log(JSON.stringify(teamB));
@@ -36,8 +38,8 @@ describe("Gangwar Service", () => {
     // So need a way to fetch and store it
     // For now let's use startingSeed = 1
     const startingSeed = "1";
-    war = await gangwar.startGame(privateKey, viewKey, owner, simulationId, teamA, teamB, startingSeed);
-    // console.log(JSON.stringify(war));
+    war = await gangwar.startGame(privateKey, viewKey, owner, simId, teamA, teamB, startingSeed);
+    console.log(JSON.stringify(war));
   });
 
   it("Play the game", async () => {
