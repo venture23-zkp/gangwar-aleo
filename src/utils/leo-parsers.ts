@@ -19,6 +19,9 @@ import {
   leoU64Schema,
   LeoU8,
   leoU8Schema,
+  PhysicalAttack,
+  PhysicalAttackLeo,
+  physicalAttackLeoSchema,
   PrimaryStats,
   PrimaryStatsLeo,
   primaryStatsLeoSchema,
@@ -211,6 +214,26 @@ const item = (item: Item): ItemLeo => {
   return itemLeoSchema.parse(res);
 };
 
+const physicalAttack = (damage: PhysicalAttack): PhysicalAttackLeo => {
+  const res: PhysicalAttackLeo = {
+    is_dodged: bool(damage.isDodged),
+    is_hit: bool(damage.isHit),
+    is_critical: bool(damage.isCritical),
+    damage: u128(damage.damage),
+  };
+  return physicalAttackLeoSchema.parse(res);
+};
+
+const physicalAttackRecord = (damage: PhysicalAttack): PhysicalAttackLeo => {
+  const res: PhysicalAttackLeo = {
+    is_dodged: privateField(bool(damage.isDodged)),
+    is_hit: privateField(bool(damage.isHit)),
+    is_critical: privateField(bool(damage.isCritical)),
+    damage: privateField(u128(damage.damage)),
+  };
+  return physicalAttackLeoSchema.parse(res);
+};
+
 const character = (character: Character): CharacterLeo => {
   const res: CharacterLeo = {
     nft_id: u16(character.nftId),
@@ -256,6 +279,7 @@ const war = (war: War): WarLeo => {
     round: privateField(u128(war.round)),
     main_team: team(war.mainTeam),
     target_team: team(war.targetTeam),
+    physical_attack: physicalAttack(war.physicalAttack),
     _nonce: war._nonce,
   };
   return warLeoSchema.parse(res);
@@ -268,6 +292,7 @@ const warRecord = (war: War): WarLeo => {
     round: privateField(u128(war.round)),
     main_team: teamRecord(war.mainTeam),
     target_team: teamRecord(war.targetTeam),
+    physical_attack: physicalAttackRecord(war.physicalAttack),
     _nonce: war._nonce,
   };
   return warLeoSchema.parse(res);

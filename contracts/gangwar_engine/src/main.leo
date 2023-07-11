@@ -43,9 +43,17 @@ program gangstabet_engine.aleo {
         new_random_number: u128
     }
 
+    struct PhysicalAttack {
+        is_dodged: bool,
+        is_hit: bool,
+        is_critical: bool,
+        damage: u128
+    }
+
     struct IPhysicalAttackResponse {
         updated_main_character: Character,
         updated_target_character: Character,
+        physical_attack: PhysicalAttack,
         new_random_number: u128
     }
 
@@ -99,7 +107,8 @@ program gangstabet_engine.aleo {
         // duration: u128,
         // objectives: u128 // ??,
         main_team: Team,
-        target_team: Team
+        target_team: Team,
+        physical_attack: PhysicalAttack
     }
 
     // Represents the public settings for the program
@@ -131,6 +140,13 @@ program gangstabet_engine.aleo {
             target_team = team_a;
         }
 
+        let initial_attack: PhysicalAttack = PhysicalAttack {
+            is_dodged: true,
+            is_hit: false,
+            is_critical: false,
+            damage: 0u128,
+        };
+
         let war: War = War {
             owner: self.caller, // TODO: Server address
             // room_id: 0u128,
@@ -139,7 +155,8 @@ program gangstabet_engine.aleo {
             // duration: 0u128,
             // objectives: 0u128,
             main_team,
-            target_team
+            target_team,
+            physical_attack: initial_attack
         };
 
         // TODO: Also sample events here
@@ -157,14 +174,14 @@ program gangstabet_engine.aleo {
     }
 
     transition game_loop(w: War, random_seed: u128) -> War {
-        let physical_attack: IPhysicalAttackResponse = physical_attack_sequence(w.main_team.player_1, w.target_team.player_1, random_seed);
+        let physical_attack_response: IPhysicalAttackResponse = physical_attack_sequence(w.main_team.player_1, w.target_team.player_1, random_seed);
 
         let updated_main_team: Team = Team{
-            player_1: physical_attack.updated_main_character
+            player_1: physical_attack_response.updated_main_character
         };
 
         let updated_target_team: Team = Team{
-            player_1: physical_attack.updated_target_character
+            player_1: physical_attack_response.updated_target_character
         };
 
         let war: War = War {
@@ -175,10 +192,11 @@ program gangstabet_engine.aleo {
             // duration: w.duration,
             // objectives: w.objectives,
             main_team: updated_target_team,
-            target_team: updated_main_team
+            target_team: updated_main_team,
+            physical_attack: physical_attack_response.physical_attack
         };
 
-        return war then finalize(random_seed, physical_attack.new_random_number);
+        return war then finalize(random_seed, physical_attack_response.new_random_number);
     }
 
     finalize game_loop(initial_random_seed: u128, new_random_seed: u128) {
@@ -292,7 +310,19 @@ program gangstabet_engine.aleo {
 
         if (is_dodged) {
             // Add other info for narration
-            damage = 2u128;
+            let physical_attack: PhysicalAttack = PhysicalAttack {
+                is_dodged: true,
+                is_hit: false,
+                is_critical: false,
+                damage: 0u128,
+            };
+
+            return IPhysicalAttackResponse{
+                updated_main_character: main,
+                updated_target_character: target,
+                physical_attack,
+                new_random_number: coin_flip_output.new_random_number
+            };
         }
 
         // Assume we always have a main.primary_equipment
@@ -302,7 +332,19 @@ program gangstabet_engine.aleo {
 
         if (!is_hit) {
             // Add other info for narration
-            damage = 2u128;
+            let physical_attack: PhysicalAttack = PhysicalAttack {
+                is_dodged: false,
+                is_hit: false,
+                is_critical: false,
+                damage: 0u128,
+            };
+
+            return IPhysicalAttackResponse{
+                updated_main_character: main,
+                updated_target_character: target,
+                physical_attack,
+                new_random_number: coin_flip_output.new_random_number
+            };
         }
 
         let main_critical_chance: u128 = main.secondary_stats.critical_chance + main.primary_equipment.critical_chance;
@@ -311,8 +353,8 @@ program gangstabet_engine.aleo {
 
         // ignore options
         if (main.primary_equipment.is_broken) {
-            damage = main.primary_stats.strength / 5u128;
             // if primary equipment is broken use punch
+            damage = main.primary_stats.strength / 5u128;
         } else {
             // todo: check if primary equipment is special
             // special weapon includes: 
@@ -396,9 +438,17 @@ program gangstabet_engine.aleo {
             primary_equipment: target.primary_equipment
         };
 
+        let physical_attack: PhysicalAttack = PhysicalAttack {
+            is_dodged,
+            is_hit,
+            is_critical,
+            damage,
+        };
+
         return IPhysicalAttackResponse {
             updated_main_character,
             updated_target_character,
+            physical_attack,
             new_random_number: coin_flip_output.new_random_number
         };
     }

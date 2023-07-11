@@ -32,6 +32,9 @@ import {
   Team,
   teamSchema,
   warSchema,
+  PhysicalAttack,
+  PhysicalAttackLeo,
+  phyiscalAttackSchema,
 } from "../../types";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
 
@@ -300,6 +303,16 @@ const team = (team: TeamLeo): Team => {
   return teamSchema.parse(res);
 };
 
+const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
+  const res: PhysicalAttack = {
+    isDodged: bool(damage.is_dodged),
+    isHit: bool(damage.is_hit),
+    isCritical: bool(damage.is_critical),
+    damage: u128(damage.damage),
+  };
+  return phyiscalAttackSchema.parse(res);
+};
+
 const war = (record: Record<string, unknown>): War => {
   const parsed = warLeoSchema.parse(record);
   console.log(parsed);
@@ -310,6 +323,7 @@ const war = (record: Record<string, unknown>): War => {
     round: u128(parsed.round),
     mainTeam: team(main_team),
     targetTeam: team(target_team),
+    physicalAttack: physicalAttack(parsed.physical_attack),
     _nonce: parsed._nonce,
   };
 

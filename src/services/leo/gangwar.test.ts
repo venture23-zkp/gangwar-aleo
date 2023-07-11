@@ -40,10 +40,10 @@ describe("Gangwar Service", () => {
     // console.log(JSON.stringify(war));
   });
 
-  // it("Play the game", async () => {
-  //   const { owner, privateKey, viewKey } = keys;
-  //   const startingSeed = "1";
-  //   const res = await gangwar.gameLoop(privateKey, viewKey, owner, war, startingSeed);
-  //   // console.log(res);
-  // });
+  it("Play the game", async () => {
+    const { owner, privateKey, viewKey } = keys;
+    const startingSeed = "1";
+    const res = await gangwar.gameLoop(privateKey, viewKey, owner, war, startingSeed);
+    console.log(res);
+  });
 });

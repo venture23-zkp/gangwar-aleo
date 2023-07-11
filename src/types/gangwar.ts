@@ -144,6 +144,22 @@ export const teamSchema = z.object({
 });
 export type Team = z.infer<typeof teamSchema>;
 
+export const physicalAttackLeoSchema = z.object({
+  is_dodged: leoBooleanSchema,
+  is_hit: leoBooleanSchema,
+  is_critical: leoBooleanSchema,
+  damage: leoU128Schema,
+});
+export type PhysicalAttackLeo = z.infer<typeof physicalAttackLeoSchema>;
+
+export const phyiscalAttackSchema = z.object({
+  isDodged: z.boolean(),
+  isHit: z.boolean(),
+  isCritical: z.boolean(),
+  damage: z.number(),
+});
+export type PhysicalAttack = z.infer<typeof phyiscalAttackSchema>;
+
 export const warLeoSchema = z.object({
   owner: leoAddressSchema,
   // room_id: u128,
@@ -153,6 +169,7 @@ export const warLeoSchema = z.object({
   // objectives: u128 // ??,
   main_team: teamLeoSchema,
   target_team: teamLeoSchema,
+  physical_attack: physicalAttackLeoSchema,
   _nonce: leoGroupSchema,
 });
 export type WarLeo = z.infer<typeof warLeoSchema>;
@@ -163,6 +180,7 @@ export const warSchema = z.object({
   round: z.number(),
   mainTeam: teamSchema,
   targetTeam: teamSchema,
+  physicalAttack: phyiscalAttackSchema,
   _nonce: leoGroupSchema,
 });
 export type War = z.infer<typeof warSchema>;
