@@ -4,6 +4,7 @@ import { FEE, programNames } from "../../constants";
 import { LeoAddress, leoAddressSchema, LeoPrivateKey, LeoU128, LeoViewKey } from "../../types";
 import { Team, War, warBracketPattern } from "../../types/gangwar";
 import { leoParse } from "../../utils";
+import { convertProbToUInt128 } from "./probability";
 import { contractsPath, parseOutput, zkRun } from "./util";
 
 const gangwarPath = join(contractsPath, "gangwar_engine");
@@ -34,15 +35,16 @@ const startGame = async (
   owner: LeoAddress,
   simulationId: string,
   teamA: Team,
-  teamB: Team,
-  randomSeed: string
+  teamB: Team
 ): Promise<War> => {
   leoAddressSchema.parse(owner);
 
   const leoTeamA = leoParse.team(teamA);
   const leoTeamB = leoParse.team(teamB);
   const leoSimulationId = leoParse.u128(simulationId);
-  const leoRandomSeed = leoParse.u128(randomSeed);
+
+  // Query blockchain for the randomSeed
+  const leoRandomSeed = convertProbToUInt128(Math.random());
 
   const teamAParam = leoParse.stringifyLeoCmdParam(leoTeamA);
   const teamBParam = leoParse.stringifyLeoCmdParam(leoTeamB);
@@ -65,19 +67,20 @@ const startGame = async (
     correctBracketPattern
   );
 
-  // console.log(JSON.stringify(record));
+  console.log(JSON.stringify(record));
 
   return parseOutput.war(record);
 };
 
-const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: LeoAddress, war: War, randomSeed: string): Promise<War> => {
+const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: LeoAddress, war: War): Promise<War> => {
   console.log(war);
   leoAddressSchema.parse(owner);
 
   const leoWar = leoParse.warRecord(war);
-  const leoRandomSeed = leoParse.u128(randomSeed);
-
   const warParam = leoParse.stringifyLeoCmdParam(leoWar);
+
+  // Query blockchain for the randomSeed
+  const leoRandomSeed = convertProbToUInt128(Math.random());
 
   const transition = "game_loop";
   const params = [warParam, leoRandomSeed];

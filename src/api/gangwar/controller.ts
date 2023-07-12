@@ -15,13 +15,13 @@ export const gangwarController: GangwarController = {
     res.send({ initialized });
   },
   startGame: async (req, res) => {
-    const { owner, simulationId, teamA, teamB, randomSeed, privateKey, viewKey } = req.body;
-    const war = await leo.gangwar.startGame(privateKey, viewKey, owner, simulationId, teamA, teamB, randomSeed);
+    const { owner, simulationId, teamA, teamB, privateKey, viewKey } = req.body;
+    const war = await leo.gangwar.startGame(privateKey, viewKey, owner, simulationId, teamA, teamB);
     res.send({ war });
   },
   gameLoop: async (req, res) => {
-    const { owner, simulationId, war, randomSeed, privateKey, viewKey } = req.body;
-    const warUpdate = await leo.gangwar.gameLoop(privateKey, viewKey, owner, war, randomSeed);
+    const { owner, war, privateKey, viewKey } = req.body;
+    const warUpdate = await leo.gangwar.gameLoop(privateKey, viewKey, owner, war);
     res.send({ warUpdate });
   },
 };

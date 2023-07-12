@@ -1,3 +1,5 @@
+import { LeoField, LeoU128 } from "../../types";
+
 function convertTo(repr: string, value: number) {
   return value.toString() + repr;
 }
@@ -53,15 +55,16 @@ export function convertU128ToProb(u128: string) {
   return convertToProb("u128", MAX_UINT128, u128);
 }
 
-export function convertProbToField(prob: number) {
+export function convertProbToField(prob: number): LeoField {
   // Base field - 1 of Edwards BLS12
   // https://developer.aleo.org/advanced/the_aleo_curves/edwards_bls12#base-field
   const MAX_FIELD = BigInt("8444461749428370424248824938781546531375899335154063827935233455917409239040");
 
-  return convertProbTo("field", MAX_FIELD, prob);
+  const parsed = convertProbTo("field", MAX_FIELD, prob);
+  return parsed;
 }
 
-export function convertProbToUInt128(prob: number) {
+export function convertProbToUInt128(prob: number): LeoU128 {
   const MAX_UINT128 = BigInt("340282366920938463463374607431768211455"); // 2^128 - 1
 
   return convertProbTo("u128", MAX_UINT128, prob);
