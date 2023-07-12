@@ -22,7 +22,7 @@ program gangstabet_engine.aleo {
         w_type: u128, // Melee | Range | Support
         consumption_rate: u128,
         critical_chance: u128,
-        dura_ammo: u128,
+        dura_ammo: u128, // For default weapon (weapon on NFT), dura_ammo is infinity
         damage: u128,
         hit_chance: u128,
         number_of_hits: u128,
@@ -241,6 +241,27 @@ program gangstabet_engine.aleo {
         let newValue: u128 = (value.mul(probability.div(first_precision))).div(second_precision);
         return newValue;
     }
+    
+    /// If a>b returns a-b, else returns 0
+    inline sub_to_zero(a: u128, b:u128) -> u128 {
+        if (a > b) {
+            return a.sub_wrapped(b);
+        } else {
+            return 0u128;
+        }
+    }
+    
+    /// If ((a+b > a) && (a+b > b)) return a+b else returns u128::MAX
+    /// TODO: Since this addition is in case of probability, maybe name the function to add_probabilities?
+    inline add_to_max(a: u128, b:u128) -> u128 {
+        let u128_max: u128 = 340282366920938463463374607431768211455u128;
+        let sum: u128 = a.add_wrapped(b);
+        if (a > sum) | (b > sum) {
+            return u128_max;
+        } else {
+            return sum;
+        }
+    }
 
     // TODO: for generalized inputs
     inline get_total_hits(max_hits: u128, main: Character, target: Character, random_number: u128) -> IHitData {
@@ -268,13 +289,13 @@ program gangstabet_engine.aleo {
                 if (!is_dodged) {
                     
                     // TODO: Ensure main_final_hit_chance is less than 1
-                    let main_final_hit_chance: u128 = main.secondary_stats.hit_chance + main.primary_equipment.hit_chance;
+                    let main_final_hit_chance: u128 = add_to_max(main.secondary_stats.hit_chance, main.primary_equipment.hit_chance);
                     coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_final_hit_chance);
                     let is_hit: bool = coin_flip_output.result;
 
                     if (is_hit) {
                         // TODO: Ensure main_critical_chance is less than 1
-                        let main_critical_chance: u128 = main.secondary_stats.critical_chance + main.primary_equipment.critical_chance;
+                        let main_critical_chance: u128 = add_to_max(main.secondary_stats.critical_chance, main.primary_equipment.critical_chance);
                         coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_critical_chance);
                         let is_critical: bool = coin_flip_output.result;
                         if (is_critical) {
@@ -297,6 +318,7 @@ program gangstabet_engine.aleo {
 
         return hit_data;
     }
+
 
     function physical_attack_sequence(main: Character, target: Character, random_number: u128) -> IPhysicalAttackResponse {
         let damage: u128 = 0u128;
@@ -336,7 +358,7 @@ program gangstabet_engine.aleo {
         }
 
         // Assume we always have a main.primary_equipment
-        let main_final_hit_chance: u128 = main.secondary_stats.hit_chance + main.primary_equipment.hit_chance;
+        let main_final_hit_chance: u128 = add_to_max(main.secondary_stats.hit_chance, main.primary_equipment.hit_chance);
         coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_final_hit_chance);
         let is_hit: bool = coin_flip_output.result;
 
@@ -360,7 +382,7 @@ program gangstabet_engine.aleo {
             };
         }
 
-        let main_critical_chance: u128 = main.secondary_stats.critical_chance + main.primary_equipment.critical_chance;
+        let main_critical_chance: u128 = add_to_max(main.secondary_stats.critical_chance,  main.primary_equipment.critical_chance);
         coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_critical_chance);
         let is_critical: bool = coin_flip_output.result;
 
@@ -376,13 +398,12 @@ program gangstabet_engine.aleo {
 
             // for now assume special_weapon = true
 
-            // primay_equipment.w_type = 0u128 (Range/Melee)
-            if (main.primary_equipment.w_type == 0u128) {
+            // primay_equipment.w_type = 1 = Range
+            if (main.primary_equipment.w_type == 1u128) {
                 damage = main.primary_equipment.damage;
-            
-            // else if primary_equipment.w_type = 1u128
-            } else if (main.primary_equipment.w_type == 1u128) {
-                let extra_damage: u128 = multiply_with_probability(main.secondary_stats.melee_damage, main.primary_equipment.damage); // percentange TODO: handle percentage multiplication
+            // else if primary_equipment.w_type = 0 = Melee
+            } else if (main.primary_equipment.w_type == 0u128) {
+                let extra_damage: u128 = multiply_with_probability(main.primary_equipment.damage, main.secondary_stats.melee_damage); // percentange TODO: handle percentage multiplication
                 damage = extra_damage + main.primary_equipment.damage;
             }
 
@@ -396,10 +417,11 @@ program gangstabet_engine.aleo {
             } else {
                 total_normal_hits += 1u128;
             }
+            total_hits += 1u128;
 
             // assume isCollateral = false
             // TODO: double check; handle when negative; there's more logic
-            is_equipment_broken = main.primary_equipment.dura_ammo.sub_wrapped(main.primary_equipment.consumption_rate) == 0u128;
+            is_equipment_broken = sub_to_zero(main.primary_equipment.dura_ammo, main.primary_equipment.consumption_rate) == 0u128;
 
             let normal_hit_damage: u128 = 0u128;
             let critical_hit_damage: u128 = 0u128;
@@ -418,7 +440,7 @@ program gangstabet_engine.aleo {
         // Damage Boost Ignored
 
         let updated_secondary_stats: SecondaryStats = SecondaryStats{
-            health: target.secondary_stats.health.sub_wrapped(damage),
+            health: sub_to_zero(target.secondary_stats.health, damage),
             dodge_chance: target.secondary_stats.dodge_chance,
             hit_chance: target.secondary_stats.hit_chance,
             critical_chance: target.secondary_stats.critical_chance,
@@ -430,7 +452,7 @@ program gangstabet_engine.aleo {
             w_type: main.primary_equipment.w_type,
             consumption_rate: main.primary_equipment.consumption_rate,
             critical_chance: main.primary_equipment.critical_chance,
-            dura_ammo: main.primary_equipment.dura_ammo.sub_wrapped(total_hits),
+            dura_ammo: sub_to_zero(main.primary_equipment.dura_ammo, total_hits),
             damage: main.primary_equipment.damage,
             hit_chance: main.primary_equipment.hit_chance,
             number_of_hits: main.primary_equipment.number_of_hits,
