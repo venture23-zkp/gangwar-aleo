@@ -5,7 +5,7 @@ import { LeoAddress, leoAddressSchema, LeoPrivateKey, LeoU128, LeoViewKey } from
 import { Team, War, warBracketPattern } from "../../types/gangwar";
 import { leoParse } from "../../utils";
 import { convertProbToUInt128 } from "./probability";
-import { contractsPath, parseOutput, zkRun } from "./util";
+import { contractsPath, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";
 
 const gangwarPath = join(contractsPath, "gangwar_engine");
 
@@ -17,12 +17,9 @@ const initialize = async (
   const transition = "initialize";
 
   let leoRandomSeed = convertProbToUInt128(Math.random());
-  if (env.ZK_MODE !== "leo") {
-  }
-
   const params = [leoRandomSeed];
 
-  console.log("gangwar.ts Trying to initialize with ", leoRandomSeed);
+  // console.log("gangwar.ts Trying to initialize with ", leoRandomSeed);
   await zkRun({
     privateKey,
     viewKey,
@@ -32,6 +29,17 @@ const initialize = async (
     params,
     fee: FEE,
   });
+
+  // Query blockchain for the randomSeed
+  if (env.ZK_MODE !== "leo") {
+    leoRandomSeed = await snarkOsFetchMappingValue({
+      appName: programNames.GANGWAR_ENGINE,
+      mappingName: "settings",
+      mappingKey: "0u128",
+    });
+  }
+
+  return leoRandomSeed;
 };
 
 const startGame = async (
@@ -49,7 +57,16 @@ const startGame = async (
   const leoSimulationId = leoParse.u128(simulationId);
 
   // Query blockchain for the randomSeed
-  const leoRandomSeed = convertProbToUInt128(Math.random());
+  let leoRandomSeed = convertProbToUInt128(Math.random());
+  if (env.ZK_MODE !== "leo") {
+    leoRandomSeed = await snarkOsFetchMappingValue({
+      appName: programNames.GANGWAR_ENGINE,
+      mappingName: "settings",
+      mappingKey: "0u128",
+    });
+  }
+
+  // console.log("gangwar.ts Trying to startgame with ", leoTeamA, leoTeamB, leoRandomSeed);
 
   const teamAParam = leoParse.stringifyLeoCmdParam(leoTeamA);
   const teamBParam = leoParse.stringifyLeoCmdParam(leoTeamB);
@@ -72,20 +89,27 @@ const startGame = async (
     correctBracketPattern
   );
 
-  console.log(JSON.stringify(record));
+  // console.log(JSON.stringify(record));
 
   return parseOutput.war(record);
 };
 
 const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: LeoAddress, war: War): Promise<War> => {
-  console.log(war);
+  // console.log(war);
   leoAddressSchema.parse(owner);
 
   const leoWar = leoParse.warRecord(war);
   const warParam = leoParse.stringifyLeoCmdParam(leoWar);
 
   // Query blockchain for the randomSeed
-  const leoRandomSeed = convertProbToUInt128(Math.random());
+  let leoRandomSeed = convertProbToUInt128(Math.random());
+  if (env.ZK_MODE !== "leo") {
+    leoRandomSeed = await snarkOsFetchMappingValue({
+      appName: programNames.GANGWAR_ENGINE,
+      mappingName: "settings",
+      mappingKey: "0u128",
+    });
+  }
 
   const transition = "game_loop";
   const params = [warParam, leoRandomSeed];

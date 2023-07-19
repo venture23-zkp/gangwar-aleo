@@ -2,7 +2,6 @@ import { exec } from "child_process";
 import { readFile } from "fs/promises";
 import { join } from "path";
 import { promisify } from "util";
-import { boolean, record } from "zod";
 
 import { Address, DevelopmentClient, PrivateKey, ViewKey } from "../../aleo-sdk";
 import { env, FEE, LOCAL_NETWORK_PRIVATE_KEY, programNames } from "../../constants";
@@ -318,7 +317,7 @@ const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
 
 const war = (record: Record<string, unknown>): War => {
   const parsed = warLeoSchema.parse(record);
-  console.log(parsed);
+  // console.log(parsed);
   const { main_team, target_team } = parsed;
   const war: War = {
     owner: parsed.owner,
@@ -335,9 +334,13 @@ const war = (record: Record<string, unknown>): War => {
 
 export const parseOutput = { address, field, u8, u32, u64, war };
 
-const decryptRecord = async (encryptedRecord: LeoRecord, viewKey: LeoViewKey): Promise<Record<string, unknown>> => {
-  const decrypted = ViewKey.from_string(viewKey).decrypt(encryptedRecord);
-  return parseRecordString(decrypted);
+export const decryptRecord = async (
+  encryptedRecord: LeoRecord,
+  viewKey: LeoViewKey,
+  correctBracketPattern?: string
+): Promise<Record<string, unknown>> => {
+  let decrypted = ViewKey.from_string(viewKey).decrypt(encryptedRecord).replaceAll("\n", "").replaceAll(" ", "");
+  return parseRecordString(decrypted, correctBracketPattern);
 };
 
 interface LeoRunParams {
@@ -354,7 +357,7 @@ const leoRun = async (
   const cmd = `cd ${contractPath} && leo run ${transition} ${stringedParams}`;
 
   const { stdout } = await execute(cmd);
-  console.log(stdout);
+  // console.log(stdout);
   const parsed = parseCmdOutput(stdout, correctBracketPattern);
 
   return parsed;
@@ -369,14 +372,10 @@ interface SnarkOsExecuteParams {
   fee: number;
 }
 
-const snarkOsExecute = async ({
-  privateKey,
-  viewKey,
-  appName,
-  params = [],
-  transition = "main",
-  fee,
-}: SnarkOsExecuteParams): Promise<Record<string, unknown>> => {
+const snarkOsExecute = async (
+  { privateKey, viewKey, appName, params = [], transition = "main", fee }: SnarkOsExecuteParams,
+  correctBracketPattern?: string
+): Promise<Record<string, unknown>> => {
   // when running locally, transfer some credits to the account in order to facilitate the developer experience
   if (env.ZK_MODE === "testnet_local") {
     await transferCredits(FEE + 6, Address.from_private_key(PrivateKey.from_string(privateKey)).to_string());
@@ -410,20 +409,38 @@ const snarkOsExecute = async ({
   // I know a ternary would be cool, but it creates some weird concurrency issues sometimes
   let parsed = {};
   if (result) {
-    parsed = await decryptRecord(result, viewKey);
+    // console.log("trying to decrypt", result);
+    parsed = await decryptRecord(result, viewKey, correctBracketPattern);
+    // console.log("decrypted", parsed);
   }
 
   return parsed;
 };
 
+interface SnarkOsMappingValueRequestParams {
+  appName: string;
+  mappingName: string;
+  mappingKey: string;
+}
+
+export const snarkOsFetchMappingValue = async ({ appName, mappingName, mappingKey }: SnarkOsMappingValueRequestParams): Promise<string> => {
+  // when running locally, transfer some credits to the account in order to facilitate the developer experience
+  const baseRoute = env.ZK_MODE === "testnet_public" ? "https://vm.aleo.org/api" : "http://127.0.0.1:3030";
+  const url = `${baseRoute}/testnet3/program/${appName}.aleo/mapping/${mappingName}/${mappingKey}`;
+  // console.log("Trying to fetch from", url);
+  const res = await attemptFetch(url);
+  const value = res.data;
+  return value;
+};
+
 type ExecuteZkLogicParams = LeoRunParams & SnarkOsExecuteParams;
 
 export const zkRun = (params: ExecuteZkLogicParams, bracketPattern?: string): Promise<Record<string, unknown>> => {
-  console.log("ZK_MODE", env.ZK_MODE);
+  // console.log("ZK_MODE", env.ZK_MODE);
   if (env.ZK_MODE === "leo") {
     return leoRun(params, bracketPattern);
   } else {
-    return snarkOsExecute(params);
+    return snarkOsExecute(params, bracketPattern);
   }
 };
 
@@ -434,7 +451,7 @@ export const zkRun = (params: ExecuteZkLogicParams, bracketPattern?: string): Pr
  */
 export const deployPrograms = async () => {
   const privateKey = env.DEPLOY_PRIVATE_KEY;
-  console.log(privateKey);
+  // console.log(privateKey);
   if (!privateKey) return;
 
   const fees = {
