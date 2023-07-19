@@ -1,5 +1,5 @@
-// The 'gangstabet_engine' program.
-program gangstabet_engine.aleo {
+// The 'gangwar_engine' program.
+program gangwar_engine.aleo {
 
     struct PrimaryStats {
         strength: u128,
@@ -120,15 +120,15 @@ program gangstabet_engine.aleo {
     // can be extended for settings[0u1..0u255]
     mapping settings: u128 => u128;
 
-    transition initialize(random_seed: u128) {
+    // TODO: 
+    // input parameter is added just to make it compatible with the aleo-development-server
+    transition initialize(placeholder: u128) {
         // assert_eq(self.caller, '');
-        return then finalize(random_seed);
+        return then finalize();
     }
 
-    finalize initialize(random_seed: u128) {
-        // maybe replace block.height with rand_chacha in aleo opcode?
-        let scalar_block_height: scalar = block.height as scalar; // block.height is u32
-        let random_number: u128 = BHP256::commit_to_field(random_seed, scalar_block_height) as u128;
+    finalize initialize() {
+        let random_number: u128 = ChaCha::rand_u128();
         Mapping::set(settings, 0u128, random_number);
     }
 
@@ -175,8 +175,7 @@ program gangstabet_engine.aleo {
     finalize start_game(initial_random_seed: u128, new_random_seed: u128) {
         let saved_random_seed: u128 = Mapping::get_or_use(settings, 0u128, 0u128);
         assert_eq(initial_random_seed, saved_random_seed);
-        let scalar_block_height: scalar = block.height as scalar; // block.height is u32
-        let new_random_number: u128 = BHP256::commit_to_field(new_random_seed, scalar_block_height) as u128;
+        let new_random_number: u128 = ChaCha::rand_u128();
         Mapping::set(settings, 0u128, new_random_number);
     }
 
@@ -209,8 +208,7 @@ program gangstabet_engine.aleo {
     finalize game_loop(initial_random_seed: u128, new_random_seed: u128) {
         let saved_random_seed: u128 = Mapping::get_or_use(settings, 0u128, 0u128);
         assert_eq(initial_random_seed, saved_random_seed);
-        let scalar_block_height: scalar = block.height as scalar; // block.height is u32
-        let new_random_number: u128 = BHP256::commit_to_field(new_random_seed, scalar_block_height) as u128;
+        let new_random_number: u128 = ChaCha::rand_u128();
         Mapping::set(settings, 0u128, new_random_number);
     }
 
