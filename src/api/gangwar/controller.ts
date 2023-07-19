@@ -10,8 +10,8 @@ interface GangwarController {
 
 export const gangwarController: GangwarController = {
   initialize: async (req, res) => {
-    const { owner, randomSeed, privateKey, viewKey } = req.body;
-    const initialized = await leo.gangwar.initialize(privateKey, viewKey, randomSeed);
+    const { owner, privateKey, viewKey } = req.body;
+    const initialized = await leo.gangwar.initialize(privateKey, viewKey);
     res.send({ initialized });
   },
   startGame: async (req, res) => {

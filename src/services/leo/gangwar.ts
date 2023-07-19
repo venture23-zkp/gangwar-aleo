@@ -1,6 +1,6 @@
 import { join } from "path";
 
-import { FEE, programNames } from "../../constants";
+import { env, FEE, programNames } from "../../constants";
 import { LeoAddress, leoAddressSchema, LeoPrivateKey, LeoU128, LeoViewKey } from "../../types";
 import { Team, War, warBracketPattern } from "../../types/gangwar";
 import { leoParse } from "../../utils";
@@ -11,13 +11,18 @@ const gangwarPath = join(contractsPath, "gangwar_engine");
 
 const initialize = async (
   privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  randomSeed: LeoU128
+  viewKey: LeoViewKey
   // TODO: verify return type
 ): Promise<any> => {
   const transition = "initialize";
-  const params = [randomSeed];
 
+  let leoRandomSeed = convertProbToUInt128(Math.random());
+  if (env.ZK_MODE !== "leo") {
+  }
+
+  const params = [leoRandomSeed];
+
+  console.log("gangwar.ts Trying to initialize with ", leoRandomSeed);
   await zkRun({
     privateKey,
     viewKey,

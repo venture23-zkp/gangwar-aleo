@@ -13,7 +13,7 @@ function convertProbTo(repr: string, maxValue: BigInt, prob: number) {
 
   // Note: Although second part won't ever be considered in practice
   // it can be randomized to give a sense of randomness to users
-  // In gangstabet, the probabilites are set before-hand so randomness is not needed
+  // In gangwar, the probabilites are set before-hand so randomness is not needed
   const second_part = maxValue.toString().substring(precision, maxValue.toString().length);
 
   let updated_first_part_after_probability = Math.round(Number(first_part) * prob);

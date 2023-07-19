@@ -434,17 +434,11 @@ export const zkRun = (params: ExecuteZkLogicParams, bracketPattern?: string): Pr
  */
 export const deployPrograms = async () => {
   const privateKey = env.DEPLOY_PRIVATE_KEY;
+  console.log(privateKey);
   if (!privateKey) return;
 
   const fees = {
     gangwar_engine: 15,
-    boloney_match: 5,
-    boloney_match_summary: 5,
-    dice: 16,
-    hash_chain: 5,
-    power_up: 15,
-    power_up_2a: 5,
-    rng: 5,
   };
 
   const successfulPrograms: string[] = [];

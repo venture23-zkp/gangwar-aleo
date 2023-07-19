@@ -8,7 +8,6 @@ export const schemas = {
       privateKey: leoPrivateKeySchema,
       viewKey: leoViewKeySchema,
       owner: leoAddressSchema,
-      randomSeed: leoU128Schema,
     }),
     startGame: z.object({
       privateKey: leoPrivateKeySchema,
@@ -17,13 +16,11 @@ export const schemas = {
       simulationId: z.number(),
       teamA: teamSchema,
       teamB: teamSchema,
-      randomSeed: z.number(),
     }),
     gameLoop: z.object({
       privateKey: leoPrivateKeySchema,
       viewKey: leoViewKeySchema,
       owner: leoAddressSchema,
-      randomSeed: z.number(),
       war: warSchema,
     }),
   },
