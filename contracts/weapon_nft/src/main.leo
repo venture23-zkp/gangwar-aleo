@@ -19,10 +19,22 @@ program weapon_nft.aleo {
         data: u128 // The sybmol's ascii text represented in bits, and the u128 value of the bitstring.
     }
 
+    struct Stats {
+        w_type: u128, // Melee | Range | Support
+        consumption_rate: u128,
+        critical_chance: u128,
+        dura_ammo: u128, // For default weapon (weapon on NFT), dura_ammo is infinity
+        damage: u128,
+        hit_chance: u128,
+        number_of_hits: u128,
+        is_broken: bool
+    }
+
     record NFT {
         private owner: address,
         private data: TokenId,
         private edition: scalar, // which edition of the nft this particular one is -- will be 0 for unique NFTs
+        private stats: Stats
     }
 
     // a way to prove ownership of an nft privately
@@ -30,11 +42,13 @@ program weapon_nft.aleo {
         private owner: address,
         private nft_owner: address,
         private data: TokenId,
+        private stats: Stats,
         private edition: scalar, // which edition of the nft this particular one is -- will be 0 for unique NFTs
     }
 
     mapping nft_totals: field => u8;
     mapping nft_owners: field => address;
+    mapping nft_stats: field => Stats;
     mapping settings: u8 => u128;
     mapping whitelist: address => u8;
 
@@ -169,13 +183,17 @@ program weapon_nft.aleo {
         settings.set(9u8, 1u128);
     }
 
-    transition mint(public tokenId: TokenId, public edition: scalar) -> NFT {
+    // TODO: Relace mint with claim
+    // Merkle root needs to be stored in settings as u128
+
+    transition mint(public tokenId: TokenId, public edition: scalar, stats: Stats) -> NFT {
         let tokenHash: field = BHP256::hash_to_field(tokenId);
         let tokenEditionHash: field = BHP256::commit_to_field(tokenHash, edition);
         return NFT {
             owner: self.caller,
             data: tokenId,
-            edition
+            edition,
+            stats
         } then finalize(self.caller, tokenEditionHash);
     }
 
@@ -201,7 +219,8 @@ program weapon_nft.aleo {
         return NFT {
             owner: receiver,
             data: nft.data,
-            edition: nft.edition
+            edition: nft.edition,
+            stats: nft.stats
         };
     }
 
@@ -233,21 +252,24 @@ program weapon_nft.aleo {
     {
         let tokenHash: field = BHP256::hash_to_field(nft.data);
         let tokenEditionHash: field = BHP256::commit_to_field(tokenHash, nft.edition);
-        return then finalize(nft.owner, tokenEditionHash);
+        return then finalize(nft.owner, tokenEditionHash, nft.stats);
     }
 
     finalize convert_private_to_public(
         public owner: address,
-        public tokenEditionHash: field
+        public tokenEditionHash: field,
+        public stats: Stats
     )
     {
         nft_owners.set(tokenEditionHash, owner);
+        nft_stats.set(tokenEditionHash, stats);
     }
 
     transition convert_public_to_private(
         private owner: address,
         private data: TokenId,
-        private edition: scalar
+        private edition: scalar,
+        private stats: Stats,
     ) -> NFT
     {
         assert_eq(owner, self.caller);
@@ -256,16 +278,19 @@ program weapon_nft.aleo {
         return NFT {
             owner,
             data,
-            edition
-        } then finalize(owner, tokenEditionHash);
+            edition,
+            stats
+        } then finalize(owner, tokenEditionHash, stats);
     }
 
     finalize convert_public_to_private(
         public owner: address,
-        public tokenEditionHash: field
+        public tokenEditionHash: field,
+        public stats: Stats
     )
     {
         assert_eq(owner, nft_owners.get(tokenEditionHash));
+        assert_eq(stats, nft_stats.get(tokenEditionHash));
         // mapping::remove is not implemented yet, so instead we set the owner to be a dummy address that cannot publicly transfer or convert to private
         nft_owners.set(tokenEditionHash, aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc);
     }
@@ -275,14 +300,18 @@ program weapon_nft.aleo {
             NFT {
                 owner: nft.owner,
                 data: nft.data,
-                edition: nft.edition
+                edition: nft.edition,
+                stats: nft.stats
             },
             NFT_ownership {
                 owner: prove_to,
                 nft_owner: nft.owner,
                 data: nft.data,
-                edition: nft.edition
+                edition: nft.edition,
+                stats: nft.stats
             }
         );
     }
+
 }
+

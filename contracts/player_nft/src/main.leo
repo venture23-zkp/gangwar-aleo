@@ -19,10 +19,20 @@ program player_nft.aleo {
         data: u128 // The sybmol's ascii text represented in bits, and the u128 value of the bitstring.
     }
 
+    struct Stats {
+        strength: u128,
+        health: u128,
+        dodge_chance: u128,
+        hit_chance: u128,
+        critical_chance: u128,
+        melee_damage: u128
+    }
+
     record NFT {
         private owner: address,
         private data: TokenId,
         private edition: scalar, // which edition of the nft this particular one is -- will be 0 for unique NFTs
+        private stats: Stats
     }
 
     // a way to prove ownership of an nft privately
@@ -30,11 +40,13 @@ program player_nft.aleo {
         private owner: address,
         private nft_owner: address,
         private data: TokenId,
+        private stats: Stats,
         private edition: scalar, // which edition of the nft this particular one is -- will be 0 for unique NFTs
     }
 
     mapping nft_totals: field => u8;
     mapping nft_owners: field => address;
+    mapping nft_stats: field => Stats;
     mapping settings: u8 => u128;
     mapping whitelist: address => u8;
 
@@ -169,29 +181,32 @@ program player_nft.aleo {
         settings.set(9u8, 1u128);
     }
 
-    transition mint(public tokenId: TokenId, public edition: scalar) -> NFT {
-        let tokenHash: field = BHP256::hash_to_field(tokenId);
-        let tokenEditionHash: field = BHP256::commit_to_field(tokenHash, edition);
-        return NFT {
-            owner: self.caller,
-            data: tokenId,
-            edition
-        } then finalize(self.caller, tokenEditionHash);
-    }
+    // TODO: Relace mint with claim
+    // Merkle root needs to be stored in settings as u128
 
-    finalize mint(public owner: address, public tokenEditionHash: field) {
-        // Ensure mint is live
-        let is_live: u128 = settings.get(2u8);
-        assert_eq(is_live, 1u128);
+    // transition mint(public tokenId: TokenId, public edition: scalar) -> NFT {
+    //     let tokenHash: field = BHP256::hash_to_field(tokenId);
+    //     let tokenEditionHash: field = BHP256::commit_to_field(tokenHash, edition);
+    //     return NFT {
+    //         owner: self.caller,
+    //         data: tokenId,
+    //         edition
+    //     } then finalize(self.caller, tokenEditionHash);
+    // }
 
-        // Ensure owner can mint and decrease remaining mints (overflow protection)
-        let remaining: u8 = whitelist.get(owner);
-        whitelist.set(owner, remaining - 1u8);
+    // finalize mint(public owner: address, public tokenEditionHash: field) {
+    //     // Ensure mint is live
+    //     let is_live: u128 = settings.get(2u8);
+    //     assert_eq(is_live, 1u128);
 
-        // Ensure more editions can be made and decrease remaining editions (overflow protection)
-        let amount: u8 = nft_totals.get(tokenEditionHash);
-        nft_totals.set(tokenEditionHash, amount - 1u8);
-    }
+    //     // Ensure owner can mint and decrease remaining mints (overflow protection)
+    //     let remaining: u8 = whitelist.get(owner);
+    //     whitelist.set(owner, remaining - 1u8);
+
+    //     // Ensure more editions can be made and decrease remaining editions (overflow protection)
+    //     let amount: u8 = nft_totals.get(tokenEditionHash);
+    //     nft_totals.set(tokenEditionHash, amount - 1u8);
+    // }
 
     transition transfer_private(
         nft: NFT,
@@ -201,7 +216,8 @@ program player_nft.aleo {
         return NFT {
             owner: receiver,
             data: nft.data,
-            edition: nft.edition
+            edition: nft.edition,
+            stats: nft.stats
         };
     }
 
@@ -233,21 +249,24 @@ program player_nft.aleo {
     {
         let tokenHash: field = BHP256::hash_to_field(nft.data);
         let tokenEditionHash: field = BHP256::commit_to_field(tokenHash, nft.edition);
-        return then finalize(nft.owner, tokenEditionHash);
+        return then finalize(nft.owner, tokenEditionHash, nft.stats);
     }
 
     finalize convert_private_to_public(
         public owner: address,
-        public tokenEditionHash: field
+        public tokenEditionHash: field,
+        public stats: Stats
     )
     {
         nft_owners.set(tokenEditionHash, owner);
+        nft_stats.set(tokenEditionHash, stats);
     }
 
     transition convert_public_to_private(
         private owner: address,
         private data: TokenId,
-        private edition: scalar
+        private edition: scalar,
+        private stats: Stats,
     ) -> NFT
     {
         assert_eq(owner, self.caller);
@@ -256,16 +275,19 @@ program player_nft.aleo {
         return NFT {
             owner,
             data,
-            edition
-        } then finalize(owner, tokenEditionHash);
+            edition,
+            stats
+        } then finalize(owner, tokenEditionHash, stats);
     }
 
     finalize convert_public_to_private(
         public owner: address,
-        public tokenEditionHash: field
+        public tokenEditionHash: field,
+        public stats: Stats
     )
     {
         assert_eq(owner, nft_owners.get(tokenEditionHash));
+        assert_eq(stats, nft_stats.get(tokenEditionHash));
         // mapping::remove is not implemented yet, so instead we set the owner to be a dummy address that cannot publicly transfer or convert to private
         nft_owners.set(tokenEditionHash, aleo1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3ljyzc);
     }
@@ -275,13 +297,15 @@ program player_nft.aleo {
             NFT {
                 owner: nft.owner,
                 data: nft.data,
-                edition: nft.edition
+                edition: nft.edition,
+                stats: nft.stats
             },
             NFT_ownership {
                 owner: prove_to,
                 nft_owner: nft.owner,
                 data: nft.data,
-                edition: nft.edition
+                edition: nft.edition,
+                stats: nft.stats
             }
         );
     }
