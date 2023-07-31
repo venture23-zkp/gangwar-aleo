@@ -1,0 +1,10 @@
+{
+    "program": "gangwar.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpJ4Wf7jVvEB7V9EwGXcREA63tYMX5AoZygXdaGFGDP5gK",
+        "address": "aleo1vhztlwxmqphujgq4j8cxqaqvpevujghnk02g5vjvsl3yx0n3sgyq0uxhnl"
+    },
+    "license": "MIT"
+}
