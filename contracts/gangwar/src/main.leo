@@ -1,52 +1,77 @@
 // The 'gangwar' program.
 
-import player_nft.leo;
+import weapon_nft.leo;
 import creditsb.leo;
 
 program gangwar.aleo {
 
-    struct GangwarPlayerStats {
-        strength: u128,
-        health: u128,
-        dodge_chance: u128,
-        hit_chance: u128,
-        critical_chance: u128,
-        melee_damage: u128
+    struct PrimaryStats {
+        strength: u16,
     }
 
-    struct GangwarWeaponStats {
-        w_type: u128, // Melee | Range | Support
-        consumption_rate: u128,
-        critical_chance: u128,
-        dura_ammo: u128, // For default weapon (weapon on NFT), dura_ammo is infinity
-        damage: u128,
-        hit_chance: u128,
-        number_of_hits: u128,
+    struct SecondaryStats {
+        health: u16,
+        dodge_chance: u16,
+        hit_chance: u16,
+        critical_chance: u16,
+        melee_damage: u16
+    }
+
+    struct Weapon {
+        w_type: u16, // Melee | Range | Support
+        consumption_rate: u16,
+        critical_chance: u16,
+        dura_ammo: u16, // For default weapon (weapon on NFT), dura_ammo is infinity
+        damage: u16,
+        hit_chance: u16,
+        number_of_hits: u16,
         is_broken: bool
     }
 
-
-    record GangwarPlayer {
+    record Player {
         owner: address,
-        simulation_id: u128,
-        nft_id: u128,
-        player_stats: GangwarPlayerStats,
-        primary_equipment: GangwarWeaponStats,
+        nft_owner: address,
+        primary_stats: PrimaryStats,
+        secondary_stats: SecondaryStats,
+        primary_equipment: Weapon
     }
 
-    transition mint_public(
-        public token_mint_id: u8,
-        public payment: creditsb.leo/credits_with_struct,
-        public treasury: address,
-        public price: u64,
-    ) -> (creditsb.leo/credits_with_struct, creditsb.leo/credits_with_struct) {
-        let (out_seller, out_buyer): (credits_with_struct, credits_with_struct) 
-            = creditsb.leo/transfer_private_with_struct(
-                payment,
-                treasury,
-                price
-            );
-        return (out_buyer, out_seller) ;
-    } 
+
+
+    // Users will be able to join game with their NFTs
+    transition join_game(weapon: weapon_nft.leo/LockedNFT) -> Player {
+        let primary_stats: PrimaryStats = PrimaryStats {
+            strength: 100u16
+        };
+
+        let secondary_stats: SecondaryStats = SecondaryStats {
+            health: 100u16,
+            dodge_chance: 100u16,
+            hit_chance: 100u16,
+            critical_chance: 100u16,
+            melee_damage: 100u16
+        };
+
+        let primary_equipment: Weapon = Weapon {
+            w_type: weapon.w_type, // Melee | Range | Support
+            consumption_rate: weapon.consumption_rate,
+            critical_chance: weapon.critical_chance,
+            dura_ammo: weapon.dura_ammo, // For default weapon (weapon on NFT), dura_ammo is infinity
+            damage: weapon.damage,
+            hit_chance: weapon.hit_chance,
+            number_of_hits: weapon.number_of_hits,
+            is_broken: false
+        };
+
+        let player: Player = Player {
+            owner: aleo1vhztlwxmqphujgq4j8cxqaqvpevujghnk02g5vjvsl3yx0n3sgyq0uxhnl,
+            nft_owner: weapon.token_owner,
+            primary_stats,
+            secondary_stats,
+            primary_equipment
+        };
+
+        return player;
+    }
 
 }
