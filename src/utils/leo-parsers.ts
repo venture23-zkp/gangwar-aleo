@@ -39,6 +39,7 @@ import {
   WeaponLeo,
   weaponLeoSchema,
 } from "../types";
+import { BaseURILeo, baseURILeoSchma } from "../types/nft";
 import { apiError } from "./error";
 import { encodeId } from "./id";
 
@@ -118,6 +119,11 @@ const u128 = (value: number | string): LeoU128 => {
   return leoU128Schema.parse(parsed);
 };
 
+const u128String = (value: string): LeoU128 => {
+  const parsed = value + "u128";
+  return leoU128Schema.parse(parsed);
+};
+
 const bool = (value: boolean): LeoU128 => {
   const val = value ? "true" : "false";
   return leoBooleanSchema.parse(val);
@@ -135,6 +141,62 @@ const u128Prob = (value: number): LeoU128 => {
   const MAX_UINT128 = BigInt("340282366920938463463374607431768211455"); // 2^128 - 1
   const parsed = prob("u128", MAX_UINT128, value);
   return leoU128Schema.parse(parsed);
+};
+
+// TODO: Figure out how it is encoded
+const symbol = (sym: string): LeoU128 => {
+  const MAX_CHARS_PER_U128 = 128 / 8; // Represented as u128 / 8 bits per character
+  if (sym.length > MAX_CHARS_PER_U128) throw apiError("symbol parsing failed");
+
+  // Represent each character as HEX
+  let symHex = sym
+    .split("")
+    .map((x) => x.charCodeAt(0).toString(16))
+    .join("");
+
+  // Convert hex to integer
+  let symInt = parseInt(symHex, 16).toString();
+
+  return u128(symInt);
+};
+
+// TODO: Figure out how it is encoded
+const baseURI = (uri: string): BaseURILeo => {
+  const MAX_CHARS_PER_U128 = 128 / 8;
+  const U128_IN_BASE_URI = 4;
+  if (uri.length > MAX_CHARS_PER_U128 * U128_IN_BASE_URI) throw apiError("baseURI parsing failed");
+  let uriParts = [];
+  for (let i = 0; i < U128_IN_BASE_URI; i++) {
+    let vals = [];
+    for (let j = 0; j < MAX_CHARS_PER_U128; j++) {
+      let char = uri[i * MAX_CHARS_PER_U128 + j];
+      let val;
+      // Represent each character as HEX
+      if (!char) {
+        val = "00";
+      } else {
+        val = char.charCodeAt(0).toString(16);
+      }
+      vals.push(val);
+    }
+    // Convert hex to integer and push in array
+    const partOfURIInHex = vals.join("");
+    const partOfURIInInt = BigInt("0x" + partOfURIInHex).toString();
+    uriParts.push(partOfURIInInt);
+  }
+
+  console.log(u128String);
+
+  let baseURILeo: BaseURILeo = {
+    data0: u128String(uriParts[0]),
+    data1: u128String(uriParts[1]),
+    data2: u128String(uriParts[2]),
+    data3: u128String(uriParts[3]),
+  };
+
+  console.log(baseURILeo);
+
+  return baseURILeoSchma.parse(baseURILeo);
 };
 
 const primaryStats = (primaryStats: PrimaryStats): PrimaryStatsLeo => {
@@ -315,4 +377,6 @@ export const leoParse = {
   team,
   war,
   warRecord,
+  symbol,
+  baseURI,
 };
