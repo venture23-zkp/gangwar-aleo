@@ -20,14 +20,13 @@ program weapon_nft.aleo {
     }
 
     struct Stats {
-        w_type: u128, // Melee | Range | Support
-        consumption_rate: u128,
-        critical_chance: u128,
-        dura_ammo: u128, // For default weapon (weapon on NFT), dura_ammo is infinity
-        damage: u128,
-        hit_chance: u128,
-        number_of_hits: u128,
-        is_broken: bool
+        w_type: u16, // Melee | Range | Support
+        consumption_rate: u16,
+        critical_chance: u16,
+        dura_ammo: u16, // For default weapon (weapon on NFT), dura_ammo is infinity
+        damage: u16,
+        hit_chance: u16,
+        number_of_hits: u16,
     }
 
     record NFT {
@@ -36,6 +35,36 @@ program weapon_nft.aleo {
         private edition: scalar, // which edition of the nft this particular one is -- will be 0 for unique NFTs
         private stats: Stats
     }
+
+    record LockedNFT {
+        owner: address,
+        token_owner: address,
+        token_id_data1: u128,
+        token_id_data2: u128,
+        edition: scalar,
+        w_type: u16, // Melee | Range | Support
+        consumption_rate: u16,
+        critical_chance: u16,
+        dura_ammo: u16, // For default weapon (weapon on NFT), dura_ammo is infinity
+        damage: u16,
+        hit_chance: u16,
+        number_of_hits: u16,
+    }
+
+    record UnlockedNFT {
+        owner: address,
+        token_id_data1: u128,
+        token_id_data2: u128,
+        edition: scalar,
+        w_type: u16, // Melee | Range | Support
+        consumption_rate: u16,
+        critical_chance: u16,
+        dura_ammo: u16, // For default weapon (weapon on NFT), dura_ammo is infinity
+        damage: u16,
+        hit_chance: u16,
+        number_of_hits: u16,
+    }
+
 
     // a way to prove ownership of an nft privately
     record NFT_ownership {
@@ -57,7 +86,7 @@ program weapon_nft.aleo {
         public symbol: u128,
         public base_uri: BaseURI,
     ) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy); // TODO: change server address
         return then finalize(total, symbol, base_uri);
     }
 
@@ -85,7 +114,7 @@ program weapon_nft.aleo {
     // Load the data into the mapping
     // Enables someone to mint an NFT with provided image data
     transition add_nft(public tokenId: TokenId, public edition: scalar) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy); // TODO: change server address
         let tokenHash: field = BHP256::hash_to_field(tokenId);
         let tokenEditionHash: field = BHP256::commit_to_field(tokenHash, edition);
         return then finalize(tokenEditionHash);
@@ -105,7 +134,7 @@ program weapon_nft.aleo {
     }
 
     transition add_minter(public minter: address, public amount: u8) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy); // TODO: change server address
         return then finalize(minter, amount);
     }
 
@@ -121,7 +150,7 @@ program weapon_nft.aleo {
     }
 
     transition set_mint_status(public status: u128) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy); // TODO: change server address
         return then finalize(status);
     }
 
@@ -133,7 +162,7 @@ program weapon_nft.aleo {
     }
 
     transition set_mint_block(public mint_block: u128) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy); // TODO: change server address
         return then finalize(mint_block);
     }
 
@@ -145,7 +174,7 @@ program weapon_nft.aleo {
     }
 
     transition update_symbol(public symbol: u128) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy); // TODO: change server address
         return then finalize(symbol);
     }
 
@@ -157,7 +186,7 @@ program weapon_nft.aleo {
     }
 
     transition update_base_uri(public base_uri: BaseURI) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy); // TODO: change server address
         return then finalize(base_uri);
     }
 
@@ -172,7 +201,7 @@ program weapon_nft.aleo {
     }
 
     transition freeze() {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy); // TODO: change server address
         return then finalize();
     }
 
@@ -311,6 +340,59 @@ program weapon_nft.aleo {
                 stats: nft.stats
             }
         );
+    }
+
+    transition lock_nft_for_play(private nft: NFT) -> LockedNFT {
+        return LockedNFT {
+            owner: aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy, // TODO: Change server address
+            token_owner: nft.owner,
+            token_id_data1: nft.data.data1,
+            token_id_data2: nft.data.data2,
+            edition: nft.edition,
+            w_type: nft.stats.w_type, // Melee | Range | Support
+            consumption_rate: nft.stats.consumption_rate,
+            critical_chance: nft.stats.critical_chance,
+            dura_ammo: nft.stats.dura_ammo, // For default weapon (weapon on NFT), dura_ammo is infinity
+            damage: nft.stats.damage,
+            hit_chance: nft.stats.hit_chance,
+            number_of_hits: nft.stats.number_of_hits,
+        };
+    }
+
+    transition unlock_nft(private nft: LockedNFT) -> UnlockedNFT {
+        return UnlockedNFT{
+            owner: nft.owner,
+            token_id_data1: nft.token_id_data1,
+            token_id_data2: nft.token_id_data2,
+            edition: nft.edition,
+            w_type: nft.w_type, // Melee | Range | Support
+            consumption_rate: nft.consumption_rate,
+            critical_chance: nft.critical_chance,
+            dura_ammo: nft.dura_ammo, // For default weapon (weapon on NFT), dura_ammo is infinity
+            damage: nft.damage,
+            hit_chance: nft.hit_chance,
+            number_of_hits: nft.number_of_hits,
+        };
+    }
+
+    transition claim_unlocked_nft(private nft: UnlockedNFT) -> NFT {
+        return NFT{
+            owner: nft.owner,
+            data: TokenId{
+                data1: nft.token_id_data1,
+                data2: nft.token_id_data2
+            },
+            edition: nft.edition,
+            stats: Stats {
+                w_type: nft.w_type, // Melee | Range | Support
+                consumption_rate: nft.consumption_rate,
+                critical_chance: nft.critical_chance,
+                dura_ammo: nft.dura_ammo, // For default weapon (weapon on NFT), dura_ammo is infinity
+                damage: nft.damage,
+                hit_chance: nft.hit_chance,
+                number_of_hits: nft.number_of_hits,
+            }
+        };
     }
 
 }
