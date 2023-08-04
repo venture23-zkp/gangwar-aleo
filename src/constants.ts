@@ -22,6 +22,7 @@ const envSchema = z.object({
   DEPLOY_PRIVATE_KEY: leoPrivateKeySchema.optional(),
 
   GANGWAR_ENGINE_VERSION: z.string().optional().transform(transformVersion),
+  GANGWAR_WEAPON_NFT_VERSION: z.string().optional().transform(transformVersion),
 });
 
 export const env = envSchema.parse(process.env);
@@ -32,6 +33,7 @@ export const DELETE_PAYLOAD = { message: "deleted" };
 
 export const programNames = {
   GANGWAR_ENGINE: "gangwar_engine" + env.GANGWAR_ENGINE_VERSION,
+  WEAPON_NFT: "gangwar_weapon_nft" + env.GANGWAR_WEAPON_NFT_VERSION,
 };
 
 export const FEE = 1;

@@ -21,7 +21,7 @@
     "clean": "rm -rf build/",
     "deploy": "DEPLOY_PROGRAMS=true DEPLOY_PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH yarn start",
     "start": "NODE_ENV=development ZK_MODE=testnet_local yarn build && NODE_PATH=. node --enable-source-maps build/src/index.js",
-    "test": "NODE_ENV=development ZK_MODE=testnet_local && NODE_PATH=. jest"
+    "test": "NODE_ENV=development ZK_MODE=leo && NODE_PATH=. jest"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.3",

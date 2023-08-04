@@ -39,7 +39,7 @@ import {
   WeaponLeo,
   weaponLeoSchema,
 } from "../types";
-import { BaseURILeo, baseURILeoSchma } from "../types/nft";
+import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
 import { apiError } from "./error";
 import { encodeId } from "./id";
 
@@ -162,8 +162,6 @@ const symbol = (sym: string): LeoU128 => {
 
 // TODO: Figure out how it is encoded
 const baseURI = (uri: string): BaseURILeo => {
-  const MAX_CHARS_PER_U128 = 128 / 8;
-  const U128_IN_BASE_URI = 4;
   if (uri.length > MAX_CHARS_PER_U128 * U128_IN_BASE_URI) throw apiError("baseURI parsing failed");
   let uriParts = [];
   for (let i = 0; i < U128_IN_BASE_URI; i++) {

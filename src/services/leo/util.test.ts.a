@@ -1,4 +1,5 @@
 import { characterBracketPattern, warBracketPattern } from "../../types";
+import { leoParse } from "../../utils";
 import { decryptRecord, parseRecordString } from "./util";
 
 jest.setTimeout(600000);
@@ -19,5 +20,15 @@ describe("Utilies Test", () => {
   it("Decrypt and test", async () => {
     const decryptedRecord = await decryptRecord(encryptedRecordRaw, viewKey, warBracketPattern(1, 1));
     console.log(decryptedRecord);
+  });
+
+  it("String <-> U128", () => {
+    let symbolInNum = leoParse.symbol("BEN"); // 666978
+    console.log(symbolInNum);
+
+    // let uri = "https://ipfs.io/ipfs/QmYCQudEvXLbkgsnWjGKqBf6JVNREcV4Soni4CuQWxYQLt";
+    let uri = "https://ipfs.io/ipfs/Qm";
+    let uriInNum = leoParse.baseURI(uri);
+    console.log(uriInNum);
   });
 });
