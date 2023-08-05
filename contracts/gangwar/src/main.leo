@@ -1,8 +1,5 @@
 // The 'gangwar' program.
 
-import weapon_nft.leo;
-import creditsb.leo;
-
 program gangwar.aleo {
 
     struct PrimaryStats {
@@ -18,6 +15,7 @@ program gangwar.aleo {
     }
 
     struct Weapon {
+        id: u16,
         w_type: u16, // Melee | Range | Support
         consumption_rate: u16,
         critical_chance: u16,
@@ -28,50 +26,92 @@ program gangwar.aleo {
         is_broken: bool
     }
 
-    record Player {
-        owner: address,
-        nft_owner: address,
+    struct Character {
+        nft_id: u16,
+        player_addr: address,
         primary_stats: PrimaryStats,
         secondary_stats: SecondaryStats,
-        primary_equipment: Weapon
+        primary_equipment: Weapon,
+    }
+
+    record Player {
+        owner: address,
+        simulation_id: field,
+        nft_id: u16,
+        player_addr: address,
+        primary_stats: PrimaryStats,
+        secondary_stats: SecondaryStats,
+        primary_equipment: Weapon,
+    }
+
+    struct Signature {
+        r: group,
+        s: group,
+        validity_timestamp: u128
+    }
+
+    struct HashStruct {
+        m: Character,
+        r: group
+    }
+
+    struct GangwarSettings {
+        deadline_to_register: u32,
+        max_number_of_players: u8,
+        gameloop_count: u8
+    }
+
+    mapping gangwar_settings: u32 => GangwarSettings;
+
+    transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, gameloop_count: u8) {
+        assert_eq(self.caller, aleo1vhztlwxmqphujgq4j8cxqaqvpevujghnk02g5vjvsl3yx0n3sgyq0uxhnl); // SERVER ADDRESS
+        // TODO: add other asserts
+        // 1. Check if the time is sufficient for other to join
+        // 2. Check if the max_number_of_players is upto how much we support
+        return then finalize(simulation_id, registration_time, max_number_of_players, gameloop_count);
+    }
+
+    finalize create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, gameloop_count: u8) {
+        // TODO: add asserts
+        // 1. Check if the simulation id already exist
+        let deadline_to_register: u32 = block.height + registration_time;
+        let settings: GangwarSettings = GangwarSettings {
+            deadline_to_register,
+            max_number_of_players,
+            gameloop_count
+        };
+        Mapping::set(gangwar_settings, simulation_id, settings);
     }
 
 
-
-    // Users will be able to join game with their NFTs
-    transition join_game(weapon: weapon_nft.leo/LockedNFT) -> Player {
-        let primary_stats: PrimaryStats = PrimaryStats {
-            strength: 100u16
+    function verify(m: Character, pk: group, signature: Signature) -> bool {
+        let h: HashStruct = HashStruct {
+            m,
+            r: signature.r
         };
+        let e: scalar = BHP256::hash_to_scalar(h);
 
-        let secondary_stats: SecondaryStats = SecondaryStats {
-            health: 100u16,
-            dodge_chance: 100u16,
-            hit_chance: 100u16,
-            critical_chance: 100u16,
-            melee_damage: 100u16
-        };
+        let right: group = signature.r + pk.mul(e);
+        let verified:bool = right.eq(signature.s);
 
-        let primary_equipment: Weapon = Weapon {
-            w_type: weapon.w_type, // Melee | Range | Support
-            consumption_rate: weapon.consumption_rate,
-            critical_chance: weapon.critical_chance,
-            dura_ammo: weapon.dura_ammo, // For default weapon (weapon on NFT), dura_ammo is infinity
-            damage: weapon.damage,
-            hit_chance: weapon.hit_chance,
-            number_of_hits: weapon.number_of_hits,
-            is_broken: false
-        };
+        return verified;
+    }
 
-        let player: Player = Player {
+    /// To join a game, submit a Character and it's corresponding signature by the server address
+    /// signature should be valid for time
+    transition join_game(char: Character, signature: Signature, simulation_id: field) -> Player {
+        assert(verify(char, 1540945439182663264862696551825005342995406165131907382295858612069623286213group, signature)); // SERVER SIGNING PUBLIC KEY
+        return Player {
             owner: aleo1vhztlwxmqphujgq4j8cxqaqvpevujghnk02g5vjvsl3yx0n3sgyq0uxhnl,
-            nft_owner: weapon.token_owner,
-            primary_stats,
-            secondary_stats,
-            primary_equipment
+            simulation_id,
+            nft_id: char.nft_id,
+            player_addr: self.caller,
+            primary_stats: char.primary_stats,
+            secondary_stats: char.secondary_stats,
+            primary_equipment: char.primary_equipment,
         };
-
-        return player;
     }
+
+
 
 }
