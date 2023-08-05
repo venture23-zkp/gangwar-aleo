@@ -1,3 +1,4 @@
+import { sign } from "crypto";
 import { env } from "../constants";
 import {
   Character,
@@ -9,6 +10,8 @@ import {
   leoBooleanSchema,
   LeoField,
   leoFieldSchema,
+  LeoScalar,
+  leoScalarSchema,
   LeoU128,
   leoU128Schema,
   LeoU16,
@@ -39,6 +42,7 @@ import {
   WeaponLeo,
   weaponLeoSchema,
 } from "../types";
+import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema } from "../types/dsa";
 // import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
 import { apiError } from "./error";
 import { encodeId } from "./id";
@@ -73,9 +77,14 @@ function prob(repr: string, maxValue: BigInt, prob: number) {
   return final;
 }
 
-const field = (value: bigint): LeoField => {
+const field = (value: BigInt): LeoField => {
   const parsed = value + "field";
   return leoFieldSchema.parse(parsed);
+};
+
+const scalar = (value: BigInt): LeoScalar => {
+  const parsed = value + "scalar";
+  return leoScalarSchema.parse(parsed);
 };
 
 const id = (value: string): LeoField => {
@@ -145,7 +154,7 @@ const u128Prob = (value: number): LeoU128 => {
 
 const u16Prob = (value: number): LeoU128 => {
   const MAX_UINT16 = BigInt("65535"); // 2^128 - 1
-  const parsed = prob("u128", MAX_UINT16, value);
+  const parsed = prob("u16", MAX_UINT16, value);
   return leoU16Schema.parse(parsed);
 };
 
@@ -202,6 +211,15 @@ const u16Prob = (value: number): LeoU128 => {
 
 //   return baseURILeoSchma.parse(baseURILeo);
 // };
+
+const signature = (signature: SchnorrSignature): SchnorrSignatureLeo => {
+  const res: SchnorrSignatureLeo = {
+    r: signature.r,
+    s: signature.s,
+    validity_timestamp: u32(signature.validityTimestamp),
+  };
+  return schnorrSignatureLeoSchema.parse(res);
+};
 
 const primaryStats = (primaryStats: PrimaryStats): PrimaryStatsLeo => {
   const res: PrimaryStatsLeo = {
@@ -304,15 +322,16 @@ const weaponRecord = (weapon: Weapon): WeaponLeo => {
 //   return physicalAttackLeoSchema.parse(res);
 // };
 
-// const character = (character: Character): CharacterLeo => {
-//   const res: CharacterLeo = {
-//     nft_id: u16(character.nftId),
-//     primary_stats: primaryStats(character.primaryStats),
-//     secondary_stats: secondaryStats(character.secondaryStats),
-//     primary_equipment: weapon(character.primaryEquipment),
-//   };
-//   return characterLeoSchema.parse(res);
-// };
+const character = (character: Character): any => {
+  const res: CharacterLeo = {
+    nft_id: u16(character.nftId),
+    player_addr: character.playerAddr,
+    primary_stats: primaryStats(character.primaryStats),
+    secondary_stats: secondaryStats(character.secondaryStats),
+    primary_equipment: weapon(character.primaryEquipment),
+  };
+  return characterLeoSchema.parse(res);
+};
 
 // const characterRecord = (character: Character): CharacterLeo => {
 //   const res: CharacterLeo = {
@@ -370,6 +389,7 @@ const weaponRecord = (weapon: Weapon): WeaponLeo => {
 
 export const leoParse = {
   field,
+  scalar,
   id,
   u8,
   u16,
@@ -377,6 +397,8 @@ export const leoParse = {
   u64,
   u128,
   stringifyLeoCmdParam,
+  character,
+  signature,
   // team,
   // war,
   // warRecord,

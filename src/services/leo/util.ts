@@ -35,6 +35,7 @@ import {
   PhysicalAttackLeo,
   phyiscalAttackSchema,
 } from "../../types";
+import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureSchema } from "../../types/dsa";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
 
 const developmentClient = new DevelopmentClient(env.DEVELOPMENT_SERVER_URL);
@@ -70,6 +71,11 @@ function prob(repr: string, maxValue: BigInt, prob: string) {
 
 const field = (value: string): bigint => {
   const parsed = BigInt(replaceValue(value, "field"));
+  return parsed;
+};
+
+const scalar = (value: string): bigint => {
+  const parsed = BigInt(replaceValue(value, "scalar"));
   return parsed;
 };
 
@@ -132,6 +138,13 @@ const u128Prob = (value: string): number => {
   const parsed = replaceValue(value, "u128");
   const valueInProb = prob("u128", MAX_UINT128, parsed);
   if (isNaN(valueInProb)) throw apiError("u128 probability parsing failed");
+  return valueInProb;
+};
+
+const u16Prob = (value: string): number => {
+  const MAX_UINT16 = (2 ^ 16) - 1;
+  const valueInProb = Number(value) / MAX_UINT16;
+  if (isNaN(valueInProb)) throw apiError("u16 probability parsing failed");
   return valueInProb;
 };
 
@@ -240,7 +253,7 @@ const getTxResult = (tx: LeoTx): string | undefined => {
 
 const primaryStats = (primaryStats: PrimaryStatsLeo): PrimaryStats => {
   const res: PrimaryStats = {
-    strength: u128(primaryStats.strength),
+    strength: u16(primaryStats.strength),
     // accuracy: u128(primaryStats.accuracy),
   };
   return primaryStatsSchema.parse(res);
@@ -249,11 +262,11 @@ const primaryStats = (primaryStats: PrimaryStatsLeo): PrimaryStats => {
 const secondaryStats = (secondaryStats: SecondaryStatsLeo): SecondaryStats => {
   // console.log(secondaryStats);
   const res: SecondaryStats = {
-    health: u128(secondaryStats.health),
-    dodgeChance: u128Prob(secondaryStats.dodge_chance),
-    hitChance: u128Prob(secondaryStats.hit_chance),
-    criticalChance: u128Prob(secondaryStats.critical_chance),
-    meleeDamage: u128Prob(secondaryStats.melee_damage),
+    health: u16(secondaryStats.health),
+    dodgeChance: u16Prob(secondaryStats.dodge_chance),
+    hitChance: u16Prob(secondaryStats.hit_chance),
+    criticalChance: u16Prob(secondaryStats.critical_chance),
+    meleeDamage: u16Prob(secondaryStats.melee_damage),
   };
   // console.log(res);
   return secondaryStatsSchema.parse(res);
@@ -264,10 +277,10 @@ const weapon = (weapon: WeaponLeo): Weapon => {
     id: u128(weapon.id),
     type: u128(weapon.w_type),
     consumptionRate: u128(weapon.consumption_rate),
-    criticalChance: u128Prob(weapon.critical_chance),
+    criticalChance: u16Prob(weapon.critical_chance),
     duraAmmo: u128(weapon.dura_ammo),
     damage: u128(weapon.damage),
-    hitChance: u128Prob(weapon.hit_chance),
+    hitChance: u16Prob(weapon.hit_chance),
     numberOfHits: u128(weapon.number_of_hits),
     isBroken: bool(weapon.is_broken),
   };
@@ -333,7 +346,16 @@ const war = (record: Record<string, unknown>): War => {
   return warSchema.parse(war);
 };
 
-export const parseOutput = { address, field, u8, u32, u64, war };
+const signature = (signature: SchnorrSignatureLeo): SchnorrSignature => {
+  const res: SchnorrSignature = {
+    r: scalar(signature.r).toString(),
+    s: scalar(signature.s).toString(),
+    validityTimestamp: u32(signature.validity_timestamp),
+  };
+  return schnorrSignatureSchema.parse(res);
+};
+
+export const parseOutput = { address, field, u8, u32, u64, war, signature };
 
 export const decryptRecord = async (
   encryptedRecord: LeoRecord,

@@ -1,17 +1,16 @@
 import {
   CDefaultWeaponsName,
-  Character,
   CNormalWeaponsName,
   EDefaultEquipmentID,
   ENormalEquipmentID,
   equipmentTypes,
-  PrimaryStats,
-  SecondaryStats,
   Team,
-  Weapon,
 } from "../types/gangwarEngine";
+
+import { Character, PrimaryStats, SecondaryStats, Weapon } from "../types/gangwar";
 import { leoU128Schema } from "../types";
 import { start } from "repl";
+import { LOCAL_NETWORK_ADDRESS } from "../constants";
 
 const flipACoin = (side1: [any, number], side2: any) => {
   return Math.random() <= side1[1] ? side1[0] : side2;
@@ -127,7 +126,7 @@ const createWeapon = (useType: "Normal" | "Default"): Weapon => {
 //   return items;
 // }
 
-const createCharacter = (count: number = 1, names: string[]): Character[] => {
+export const createCharacters = (count: number = 1, names: string[]): Character[] => {
   const characters: Character[] = [];
 
   for (let i = 0; i < count; i++) {
@@ -155,6 +154,7 @@ const createCharacter = (count: number = 1, names: string[]): Character[] => {
       //name:
       //type
       nftId: randRangeInt(1, 5555),
+      playerAddr: LOCAL_NETWORK_ADDRESS,
       primaryStats,
       secondaryStats,
       primaryEquipment,
@@ -170,8 +170,8 @@ const createCharacter = (count: number = 1, names: string[]): Character[] => {
 const createRandomTeams = (teamANumber: number, teamBNumber: number): { teamA: Team; teamB: Team } => {
   const name1 = ["[DaVinci]", "[Lady Irene]", "[Lakhe]", "[Don Solaire]", "[FlyingWhale]", "[FTX]"];
   const name2 = ["[Grimlock]", "[Harvard University]", "[Toast The Profit]", "[Kenzie]", "[Schaduuuwtje]", "[Jp]"];
-  let teamACharacters = createCharacter(teamANumber, name1);
-  let teamBCharacters = createCharacter(teamBNumber, name2);
+  let teamACharacters = createCharacters(teamANumber, name1);
+  let teamBCharacters = createCharacters(teamBNumber, name2);
   let teamA: Team = {
     player_1: teamACharacters[0],
     // player_2: teamACharacters[1],

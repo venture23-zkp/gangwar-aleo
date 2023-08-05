@@ -1,3 +1,3 @@
-import { createPayload } from "./gangwar";
+import { createPayload, createCharacters } from "./gangwar";
 
-export const core = { createPayload };
+export const core = { createPayload, createCharacters };

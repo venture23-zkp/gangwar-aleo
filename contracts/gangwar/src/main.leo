@@ -47,7 +47,7 @@ program gangwar.aleo {
     struct Signature {
         r: group,
         s: group,
-        validity_timestamp: u128
+        validity_timestamp: u32
     }
 
     struct HashStruct {
@@ -96,6 +96,26 @@ program gangwar.aleo {
 
         return verified;
     }
+    
+    transition sign(m: Character, sk: scalar, k: scalar, validity_timestamp: u32) -> Signature {
+        let r: group = k * group::GEN;
+        let h: HashStruct = HashStruct {
+            m,
+            r
+        };
+        let e: scalar = BHP256::hash_to_scalar(h);
+
+        let s: group = k*group::GEN + e.mul(group::GEN).mul(sk); 
+
+        let signature: Signature = Signature{
+            r,
+            s,
+            validity_timestamp
+        };
+        
+        return signature;
+    }
+
 
     /// To join a game, submit a Character and it's corresponding signature by the server address
     /// signature should be valid for time
