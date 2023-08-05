@@ -287,6 +287,7 @@ const item = (item: ItemLeo): Item => {
 const character = (character: CharacterLeo): Character => {
   const res: Character = {
     nftId: u16(character.nft_id),
+    playerAddr: character.player_addr,
     primaryStats: primaryStats(character.primary_stats),
     secondaryStats: secondaryStats(character.secondary_stats),
     primaryEquipment: weapon(character.primary_equipment),
@@ -357,7 +358,7 @@ const leoRun = async (
   const cmd = `cd ${contractPath} && leo run ${transition} ${stringedParams}`;
 
   const { stdout } = await execute(cmd);
-  // console.log(stdout);
+  console.log(stdout);
   const parsed = parseCmdOutput(stdout, correctBracketPattern);
 
   return parsed;

@@ -3,9 +3,9 @@ import {
   Character,
   CharacterLeo,
   characterLeoSchema,
-  Item,
-  ItemLeo,
-  itemLeoSchema,
+  // Item,
+  // ItemLeo,
+  // itemLeoSchema,
   leoBooleanSchema,
   LeoField,
   leoFieldSchema,
@@ -19,9 +19,9 @@ import {
   leoU64Schema,
   LeoU8,
   leoU8Schema,
-  PhysicalAttack,
-  PhysicalAttackLeo,
-  physicalAttackLeoSchema,
+  // PhysicalAttack,
+  // PhysicalAttackLeo,
+  // physicalAttackLeoSchema,
   PrimaryStats,
   PrimaryStatsLeo,
   primaryStatsLeoSchema,
@@ -29,17 +29,17 @@ import {
   SecondaryStatsLeo,
   secondaryStatsLeoSchema,
   secondaryStatsSchema,
-  Team,
-  TeamLeo,
-  teamLeoSchema,
-  War,
-  WarLeo,
-  warLeoSchema,
+  // Team,
+  // TeamLeo,
+  // teamLeoSchema,
+  // War,
+  // WarLeo,
+  // warLeoSchema,
   Weapon,
   WeaponLeo,
   weaponLeoSchema,
 } from "../types";
-import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
+// import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
 import { apiError } from "./error";
 import { encodeId } from "./id";
 
@@ -143,238 +143,243 @@ const u128Prob = (value: number): LeoU128 => {
   return leoU128Schema.parse(parsed);
 };
 
-// TODO: Figure out how it is encoded
-const symbol = (sym: string): LeoU128 => {
-  const MAX_CHARS_PER_U128 = 128 / 8; // Represented as u128 / 8 bits per character
-  if (sym.length > MAX_CHARS_PER_U128) throw apiError("symbol parsing failed");
-
-  // Represent each character as HEX
-  let symHex = sym
-    .split("")
-    .map((x) => x.charCodeAt(0).toString(16))
-    .join("");
-
-  // Convert hex to integer
-  let symInt = parseInt(symHex, 16).toString();
-
-  return u128(symInt);
+const u16Prob = (value: number): LeoU128 => {
+  const MAX_UINT16 = BigInt("65535"); // 2^128 - 1
+  const parsed = prob("u128", MAX_UINT16, value);
+  return leoU16Schema.parse(parsed);
 };
 
 // TODO: Figure out how it is encoded
-const baseURI = (uri: string): BaseURILeo => {
-  if (uri.length > MAX_CHARS_PER_U128 * U128_IN_BASE_URI) throw apiError("baseURI parsing failed");
-  let uriParts = [];
-  for (let i = 0; i < U128_IN_BASE_URI; i++) {
-    let vals = [];
-    for (let j = 0; j < MAX_CHARS_PER_U128; j++) {
-      let char = uri[i * MAX_CHARS_PER_U128 + j];
-      let val;
-      // Represent each character as HEX
-      if (!char) {
-        val = "00";
-      } else {
-        val = char.charCodeAt(0).toString(16);
-      }
-      vals.push(val);
-    }
-    // Convert hex to integer and push in array
-    const partOfURIInHex = vals.join("");
-    const partOfURIInInt = BigInt("0x" + partOfURIInHex).toString();
-    uriParts.push(partOfURIInInt);
-  }
+// const symbol = (sym: string): LeoU128 => {
+//   const MAX_CHARS_PER_U128 = 128 / 8; // Represented as u128 / 8 bits per character
+//   if (sym.length > MAX_CHARS_PER_U128) throw apiError("symbol parsing failed");
 
-  console.log(u128String);
+//   // Represent each character as HEX
+//   let symHex = sym
+//     .split("")
+//     .map((x) => x.charCodeAt(0).toString(16))
+//     .join("");
 
-  let baseURILeo: BaseURILeo = {
-    data0: u128String(uriParts[0]),
-    data1: u128String(uriParts[1]),
-    data2: u128String(uriParts[2]),
-    data3: u128String(uriParts[3]),
-  };
+//   // Convert hex to integer
+//   let symInt = parseInt(symHex, 16).toString();
 
-  console.log(baseURILeo);
+//   return u128(symInt);
+// };
 
-  return baseURILeoSchma.parse(baseURILeo);
-};
+// TODO: Figure out how it is encoded
+// const baseURI = (uri: string): BaseURILeo => {
+//   if (uri.length > MAX_CHARS_PER_U128 * U128_IN_BASE_URI) throw apiError("baseURI parsing failed");
+//   let uriParts = [];
+//   for (let i = 0; i < U128_IN_BASE_URI; i++) {
+//     let vals = [];
+//     for (let j = 0; j < MAX_CHARS_PER_U128; j++) {
+//       let char = uri[i * MAX_CHARS_PER_U128 + j];
+//       let val;
+//       // Represent each character as HEX
+//       if (!char) {
+//         val = "00";
+//       } else {
+//         val = char.charCodeAt(0).toString(16);
+//       }
+//       vals.push(val);
+//     }
+//     // Convert hex to integer and push in array
+//     const partOfURIInHex = vals.join("");
+//     const partOfURIInInt = BigInt("0x" + partOfURIInHex).toString();
+//     uriParts.push(partOfURIInInt);
+//   }
+
+//   console.log(u128String);
+
+//   let baseURILeo: BaseURILeo = {
+//     data0: u128String(uriParts[0]),
+//     data1: u128String(uriParts[1]),
+//     data2: u128String(uriParts[2]),
+//     data3: u128String(uriParts[3]),
+//   };
+
+//   console.log(baseURILeo);
+
+//   return baseURILeoSchma.parse(baseURILeo);
+// };
 
 const primaryStats = (primaryStats: PrimaryStats): PrimaryStatsLeo => {
   const res: PrimaryStatsLeo = {
-    strength: u128(primaryStats.strength),
-    // accuracy: u128(primaryStats.accuracy),
+    strength: u16(primaryStats.strength),
   };
   return primaryStatsLeoSchema.parse(res);
 };
 
 const primaryStatsRecord = (primaryStats: PrimaryStats): PrimaryStatsLeo => {
   const res: PrimaryStatsLeo = {
-    strength: privateField(u128(primaryStats.strength)),
-    // accuracy: u128(primaryStats.accuracy),
+    strength: privateField(u16(primaryStats.strength)),
   };
   return primaryStatsLeoSchema.parse(res);
 };
 
 const secondaryStats = (secondaryStats: SecondaryStats): SecondaryStatsLeo => {
   const res: SecondaryStatsLeo = {
-    health: u128(secondaryStats.health),
-    dodge_chance: u128Prob(secondaryStats.dodgeChance),
-    hit_chance: u128Prob(secondaryStats.hitChance),
-    critical_chance: u128Prob(secondaryStats.criticalChance),
-    melee_damage: u128Prob(secondaryStats.meleeDamage),
+    health: u16(secondaryStats.health),
+    dodge_chance: u16Prob(secondaryStats.dodgeChance),
+    hit_chance: u16Prob(secondaryStats.hitChance),
+    critical_chance: u16Prob(secondaryStats.criticalChance),
+    melee_damage: u16Prob(secondaryStats.meleeDamage),
   };
   return secondaryStatsLeoSchema.parse(res);
 };
 
 const secondaryStatsRecord = (secondaryStats: SecondaryStats): SecondaryStatsLeo => {
   const res: SecondaryStatsLeo = {
-    health: privateField(u128(secondaryStats.health)),
-    dodge_chance: privateField(u128Prob(secondaryStats.dodgeChance)),
-    hit_chance: privateField(u128Prob(secondaryStats.hitChance)),
-    critical_chance: privateField(u128Prob(secondaryStats.criticalChance)),
-    melee_damage: privateField(u128Prob(secondaryStats.meleeDamage)),
+    health: privateField(u16(secondaryStats.health)),
+    dodge_chance: privateField(u16Prob(secondaryStats.dodgeChance)),
+    hit_chance: privateField(u16Prob(secondaryStats.hitChance)),
+    critical_chance: privateField(u16Prob(secondaryStats.criticalChance)),
+    melee_damage: privateField(u16Prob(secondaryStats.meleeDamage)),
   };
   return secondaryStatsLeoSchema.parse(res);
 };
 
 const weapon = (weapon: Weapon): WeaponLeo => {
   const res: WeaponLeo = {
-    id: u128(weapon.id),
-    w_type: u128(weapon.type),
-    consumption_rate: u128(weapon.consumptionRate),
-    critical_chance: u128Prob(weapon.criticalChance),
-    dura_ammo: u128(weapon.duraAmmo),
-    damage: u128(weapon.damage),
-    hit_chance: u128Prob(weapon.hitChance),
-    number_of_hits: u128(weapon.numberOfHits),
+    id: u16(weapon.id),
+    w_type: u16(weapon.type),
+    consumption_rate: u16(weapon.consumptionRate),
+    critical_chance: u16Prob(weapon.criticalChance),
+    dura_ammo: u16(weapon.duraAmmo),
+    damage: u16(weapon.damage),
+    hit_chance: u16Prob(weapon.hitChance),
+    number_of_hits: u16(weapon.numberOfHits),
     is_broken: bool(weapon.isBroken),
   };
   return weaponLeoSchema.parse(res);
 };
 const weaponRecord = (weapon: Weapon): WeaponLeo => {
   const res: WeaponLeo = {
-    id: privateField(u128(weapon.id)),
-    w_type: privateField(u128(weapon.type)),
-    consumption_rate: privateField(u128(weapon.consumptionRate)),
-    critical_chance: privateField(u128Prob(weapon.criticalChance)),
-    dura_ammo: privateField(u128(weapon.duraAmmo)),
-    damage: privateField(u128(weapon.damage)),
-    hit_chance: privateField(u128Prob(weapon.hitChance)),
-    number_of_hits: privateField(u128(weapon.numberOfHits)),
+    id: privateField(u16(weapon.id)),
+    w_type: privateField(u16(weapon.type)),
+    consumption_rate: privateField(u16(weapon.consumptionRate)),
+    critical_chance: privateField(u16Prob(weapon.criticalChance)),
+    dura_ammo: privateField(u16(weapon.duraAmmo)),
+    damage: privateField(u16(weapon.damage)),
+    hit_chance: privateField(u16Prob(weapon.hitChance)),
+    number_of_hits: privateField(u16(weapon.numberOfHits)),
     is_broken: privateField(bool(weapon.isBroken)),
   };
   return weaponLeoSchema.parse(res);
 };
 
-const item = (item: Item): ItemLeo => {
-  const res: ItemLeo = {
-    item_id: u128(item.itemId),
-    item_count: u128(item.itemCount),
-    stat_boost: item.statBoost,
-    rank: item.rank,
-  };
-  return itemLeoSchema.parse(res);
-};
+// const item = (item: Item): ItemLeo => {
+//   const res: ItemLeo = {
+//     item_id: u16(item.itemId),
+//     item_count: u16(item.itemCount),
+//     stat_boost: item.statBoost,
+//     rank: item.rank,
+//   };
+//   return itemLeoSchema.parse(res);
+// };
 
-const physicalAttack = (damage: PhysicalAttack): PhysicalAttackLeo => {
-  const res: PhysicalAttackLeo = {
-    is_dodged: bool(damage.isDodged),
-    is_hit: bool(damage.isHit),
-    is_critical: bool(damage.isCritical),
-    total_critical_hits: u128(damage.totalCriticalHits),
-    total_normal_hits: u128(damage.totalNormalHits),
-    total_hits: u128(damage.totalHits),
-    damage: u128(damage.damage),
-  };
-  return physicalAttackLeoSchema.parse(res);
-};
+// const physicalAttack = (damage: PhysicalAttack): PhysicalAttackLeo => {
+//   const res: PhysicalAttackLeo = {
+//     is_dodged: bool(damage.isDodged),
+//     is_hit: bool(damage.isHit),
+//     is_critical: bool(damage.isCritical),
+//     total_critical_hits: u16(damage.totalCriticalHits),
+//     total_normal_hits: u16(damage.totalNormalHits),
+//     total_hits: u16(damage.totalHits),
+//     damage: u16(damage.damage),
+//   };
+//   return physicalAttackLeoSchema.parse(res);
+// };
 
-const physicalAttackRecord = (damage: PhysicalAttack): PhysicalAttackLeo => {
-  const res: PhysicalAttackLeo = {
-    is_dodged: privateField(bool(damage.isDodged)),
-    is_hit: privateField(bool(damage.isHit)),
-    is_critical: privateField(bool(damage.isCritical)),
-    total_critical_hits: privateField(u128(damage.totalCriticalHits)),
-    total_normal_hits: privateField(u128(damage.totalNormalHits)),
-    total_hits: privateField(u128(damage.totalHits)),
-    damage: privateField(u128(damage.damage)),
-  };
-  return physicalAttackLeoSchema.parse(res);
-};
+// const physicalAttackRecord = (damage: PhysicalAttack): PhysicalAttackLeo => {
+//   const res: PhysicalAttackLeo = {
+//     is_dodged: privateField(bool(damage.isDodged)),
+//     is_hit: privateField(bool(damage.isHit)),
+//     is_critical: privateField(bool(damage.isCritical)),
+//     total_critical_hits: privateField(u16(damage.totalCriticalHits)),
+//     total_normal_hits: privateField(u16(damage.totalNormalHits)),
+//     total_hits: privateField(u16(damage.totalHits)),
+//     damage: privateField(u16(damage.damage)),
+//   };
+//   return physicalAttackLeoSchema.parse(res);
+// };
 
-const character = (character: Character): CharacterLeo => {
-  const res: CharacterLeo = {
-    nft_id: u16(character.nftId),
-    primary_stats: primaryStats(character.primaryStats),
-    secondary_stats: secondaryStats(character.secondaryStats),
-    primary_equipment: weapon(character.primaryEquipment),
-  };
-  return characterLeoSchema.parse(res);
-};
+// const character = (character: Character): CharacterLeo => {
+//   const res: CharacterLeo = {
+//     nft_id: u16(character.nftId),
+//     primary_stats: primaryStats(character.primaryStats),
+//     secondary_stats: secondaryStats(character.secondaryStats),
+//     primary_equipment: weapon(character.primaryEquipment),
+//   };
+//   return characterLeoSchema.parse(res);
+// };
 
-const characterRecord = (character: Character): CharacterLeo => {
-  const res: CharacterLeo = {
-    nft_id: privateField(u16(character.nftId)),
-    primary_stats: primaryStatsRecord(character.primaryStats),
-    secondary_stats: secondaryStatsRecord(character.secondaryStats),
-    primary_equipment: weaponRecord(character.primaryEquipment),
-  };
-  return characterLeoSchema.parse(res);
-};
+// const characterRecord = (character: Character): CharacterLeo => {
+//   const res: CharacterLeo = {
+//     nft_id: privateField(u16(character.nftId)),
+//     primary_stats: primaryStatsRecord(character.primaryStats),
+//     secondary_stats: secondaryStatsRecord(character.secondaryStats),
+//     primary_equipment: weaponRecord(character.primaryEquipment),
+//   };
+//   return characterLeoSchema.parse(res);
+// };
 
-const team = (team: Team): TeamLeo => {
-  const res: TeamLeo = {
-    player_1: character(team.player_1),
-    // player_2: character(team.player_2),
-  };
-  return res;
-  // return teamLeoSchema.parse(team);
-};
+// const team = (team: Team): TeamLeo => {
+//   const res: TeamLeo = {
+//     player_1: character(team.player_1),
+//     // player_2: character(team.player_2),
+//   };
+//   return res;
+//   // return teamLeoSchema.parse(team);
+// };
 
-const teamRecord = (team: Team): TeamLeo => {
-  const res: TeamLeo = {
-    player_1: characterRecord(team.player_1),
-    // player_2: character(team.player_2),
-  };
-  return res;
-  // return teamLeoSchema.parse(team);
-};
+// const teamRecord = (team: Team): TeamLeo => {
+//   const res: TeamLeo = {
+//     player_1: characterRecord(team.player_1),
+//     // player_2: character(team.player_2),
+//   };
+//   return res;
+//   // return teamLeoSchema.parse(team);
+// };
 
-const war = (war: War): WarLeo => {
-  const res: WarLeo = {
-    owner: war.owner,
-    simulation_id: war.simulationId,
-    round: privateField(u128(war.round)),
-    main_team: team(war.mainTeam),
-    target_team: team(war.targetTeam),
-    physical_attack: physicalAttack(war.physicalAttack),
-    _nonce: war._nonce,
-  };
-  return warLeoSchema.parse(res);
-};
+// const war = (war: War): WarLeo => {
+//   const res: WarLeo = {
+//     owner: war.owner,
+//     simulation_id: war.simulationId,
+//     round: privateField(u16(war.round)),
+//     main_team: team(war.mainTeam),
+//     target_team: team(war.targetTeam),
+//     physical_attack: physicalAttack(war.physicalAttack),
+//     _nonce: war._nonce,
+//   };
+//   return warLeoSchema.parse(res);
+// };
 
-const warRecord = (war: War): WarLeo => {
-  const res: WarLeo = {
-    owner: war.owner,
-    simulation_id: war.simulationId,
-    round: privateField(u128(war.round)),
-    main_team: teamRecord(war.mainTeam),
-    target_team: teamRecord(war.targetTeam),
-    physical_attack: physicalAttackRecord(war.physicalAttack),
-    _nonce: war._nonce,
-  };
-  return warLeoSchema.parse(res);
-};
+// const warRecord = (war: War): WarLeo => {
+//   const res: WarLeo = {
+//     owner: war.owner,
+//     simulation_id: war.simulationId,
+//     round: privateField(u128(war.round)),
+//     main_team: teamRecord(war.mainTeam),
+//     target_team: teamRecord(war.targetTeam),
+//     physical_attack: physicalAttackRecord(war.physicalAttack),
+//     _nonce: war._nonce,
+//   };
+//   return warLeoSchema.parse(res);
+// };
 
 export const leoParse = {
   field,
   id,
   u8,
+  u16,
   u32,
   u64,
   u128,
   stringifyLeoCmdParam,
-  team,
-  war,
-  warRecord,
-  symbol,
-  baseURI,
+  // team,
+  // war,
+  // warRecord,
+  // symbol,
+  // baseURI,
 };

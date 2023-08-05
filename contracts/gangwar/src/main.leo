@@ -36,7 +36,7 @@ program gangwar.aleo {
 
     record Player {
         owner: address,
-        simulation_id: field,
+        simulation_id: u32,
         nft_id: u16,
         player_addr: address,
         primary_stats: PrimaryStats,
@@ -99,7 +99,7 @@ program gangwar.aleo {
 
     /// To join a game, submit a Character and it's corresponding signature by the server address
     /// signature should be valid for time
-    transition join_game(char: Character, signature: Signature, simulation_id: field) -> Player {
+    transition join_game(char: Character, signature: Signature, simulation_id: u32) -> Player {
         assert(verify(char, 1540945439182663264862696551825005342995406165131907382295858612069623286213group, signature)); // SERVER SIGNING PUBLIC KEY
         return Player {
             owner: aleo1vhztlwxmqphujgq4j8cxqaqvpevujghnk02g5vjvsl3yx0n3sgyq0uxhnl,

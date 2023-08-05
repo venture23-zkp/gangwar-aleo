@@ -26,5 +26,5 @@ export type NFTBaseURILeo = z.infer<typeof nftBaseURILeoSchma>;
 export const baseURISchema = z.string().max(MAX_CHARS_PER_U128 * U128_IN_BASE_URI);
 export type BaseURI = z.infer<typeof baseURISchema>;
 
-export const nftSymbolSchema = z.string().max(MAX_CHARS_PER_U128);
-export const NFTSymbol = z.infer<typeof nftSymbolSchema>;
+// export const nftSymbolSchema = z.string().max(MAX_CHARS_PER_U128);
+// export const NFTSymbol = z.infer<typeof nftSymbolSchema>;

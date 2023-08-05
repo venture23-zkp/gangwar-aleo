@@ -2,7 +2,7 @@ import { join } from "path";
 
 import { env, FEE, programNames } from "../../constants";
 import { LeoAddress, leoAddressSchema, LeoPrivateKey, LeoU128, LeoViewKey } from "../../types";
-import { Team, War, warBracketPattern } from "../../types/gangwar";
+import { Team, War, warBracketPattern } from "../../types/gangwarEngine";
 import { leoParse } from "../../utils";
 import { convertProbToUInt128 } from "./probability";
 import { contractsPath, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";

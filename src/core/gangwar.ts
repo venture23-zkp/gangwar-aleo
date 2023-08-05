@@ -9,7 +9,7 @@ import {
   SecondaryStats,
   Team,
   Weapon,
-} from "../types/gangwar";
+} from "../types/gangwarEngine";
 import { leoU128Schema } from "../types";
 import { start } from "repl";
 
