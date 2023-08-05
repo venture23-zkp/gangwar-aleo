@@ -1,0 +1,10 @@
+{
+    "program": "dsa.aleo",
+    "version": "0.0.0",
+    "description": "",
+    "development": {
+        "private_key": "APrivateKey1zkpFMEB4PX18cGArQUiMLMc5YAFxefspthq5eqSiK5tZCHs",
+        "address": "aleo1jpjpyfvmav6gzwwcg7kwvx3susny6gjpl47m0l2dlqkesly3wgzqggfv7p"
+    },
+    "license": "MIT"
+}

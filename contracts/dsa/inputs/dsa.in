@@ -1,0 +1,25 @@
+[get_public_key]
+sk: scalar = 1scalar;
+
+[sign]
+payload: Payload = Payload{
+    m1: 1field,
+    m2: 2field,
+    m3: 3field
+};
+sk: scalar = 1scalar;
+k: scalar = 1scalar;
+
+[verify]
+payload: Payload = Payload{
+    m1: 1field,
+    m2: 2field,
+    m3: 3field
+};
+pk: group = 1540945439182663264862696551825005342995406165131907382295858612069623286213group;
+s: Signature = Signature {
+  r: 1540945439182663264862696551825005342995406165131907382295858612069623286213group,
+  s: 6475273319291345392698961835535887009519493842484411517443291483916493037219group,
+};
+
+
