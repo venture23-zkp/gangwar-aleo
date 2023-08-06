@@ -1,3 +1,4 @@
+import { Signature } from "@aleohq/wasm";
 import { join } from "path";
 
 import { env, FEE, programNames } from "../../constants";
@@ -83,7 +84,9 @@ const sign = async (
     fee: FEE,
   });
 
-  return res;
+  const signature = parseOutput.signature(res);
+
+  return signature;
 };
 
 const joinGame = async (

@@ -43,6 +43,7 @@ describe("Gangwar Service", () => {
 
     const validityTimestamp = 200; // 100 blocks
     const signature = await gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);
-    // console.log(signature);
+    console.log(signature);
+    // Add assertions
   });
 });

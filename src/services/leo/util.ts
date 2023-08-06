@@ -35,7 +35,7 @@ import {
   PhysicalAttackLeo,
   phyiscalAttackSchema,
 } from "../../types";
-import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureSchema } from "../../types/dsa";
+import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema, schnorrSignatureSchema } from "../../types/dsa";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
 
 const developmentClient = new DevelopmentClient(env.DEVELOPMENT_SERVER_URL);
@@ -76,6 +76,11 @@ const field = (value: string): bigint => {
 
 const scalar = (value: string): bigint => {
   const parsed = BigInt(replaceValue(value, "scalar"));
+  return parsed;
+};
+
+const group = (value: string): bigint => {
+  const parsed = BigInt(replaceValue(value, "group"));
   return parsed;
 };
 
@@ -346,11 +351,12 @@ const war = (record: Record<string, unknown>): War => {
   return warSchema.parse(war);
 };
 
-const signature = (signature: SchnorrSignatureLeo): SchnorrSignature => {
+const signature = (record: Record<string, unknown>): SchnorrSignature => {
+  const parsed = schnorrSignatureLeoSchema.parse(record);
   const res: SchnorrSignature = {
-    r: scalar(signature.r).toString(),
-    s: scalar(signature.s).toString(),
-    validityTimestamp: u32(signature.validity_timestamp),
+    r: group(parsed.r).toString(),
+    s: group(parsed.s).toString(),
+    validityTimestamp: u32(parsed.validity_timestamp),
   };
   return schnorrSignatureSchema.parse(res);
 };
