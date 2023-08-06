@@ -21,8 +21,8 @@ const envSchema = z.object({
   DEPLOY_PROGRAMS: z.string().default("false").transform(transformBool),
   DEPLOY_PRIVATE_KEY: leoPrivateKeySchema.optional(),
 
-  GANGWAR_ENGINE_VERSION: z.string().optional().transform(transformVersion),
   GANGWAR_VERSION: z.string().optional().transform(transformVersion),
+  GANGWAR_ENGINE_VERSION: z.string().optional().transform(transformVersion),
   GANGWAR_WEAPON_NFT_VERSION: z.string().optional().transform(transformVersion),
 });
 
@@ -33,8 +33,8 @@ export const BASE_URL = `localhost:${env.PORT}`;
 export const DELETE_PAYLOAD = { message: "deleted" };
 
 export const programNames = {
-  GANGWAR_ENGINE: "gangwar_engine" + env.GANGWAR_ENGINE_VERSION,
   GANGWAR: "gangwar" + env.GANGWAR_VERSION,
+  GANGWAR_ENGINE: "gangwar_engine" + env.GANGWAR_ENGINE_VERSION,
   WEAPON_NFT: "gangwar_weapon_nft" + env.GANGWAR_WEAPON_NFT_VERSION,
 };
 

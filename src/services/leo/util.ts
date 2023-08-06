@@ -405,7 +405,7 @@ const leoRun = async (
 ): Promise<Record<string, unknown>> => {
   const stringedParams = params.join(" ");
   const cmd = `cd ${contractPath} && leo run ${transition} ${stringedParams}`;
-
+  console.log(cmd);
   const { stdout } = await execute(cmd);
   console.log(stdout);
   const parsed = parseCmdOutput(stdout, correctBracketPattern);

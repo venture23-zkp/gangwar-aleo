@@ -9,19 +9,19 @@ export const schemas = {
       viewKey: leoViewKeySchema,
       owner: leoAddressSchema,
     }),
-    startGame: z.object({
-      privateKey: leoPrivateKeySchema,
-      viewKey: leoViewKeySchema,
-      owner: leoAddressSchema,
-      simulationId: z.number(),
-      teamA: teamSchema,
-      teamB: teamSchema,
-    }),
-    gameLoop: z.object({
-      privateKey: leoPrivateKeySchema,
-      viewKey: leoViewKeySchema,
-      owner: leoAddressSchema,
-      war: warSchema,
-    }),
+    // startGame: z.object({
+    //   privateKey: leoPrivateKeySchema,
+    //   viewKey: leoViewKeySchema,
+    //   owner: leoAddressSchema,
+    //   simulationId: z.number(),
+    //   teamA: teamSchema,
+    //   teamB: teamSchema,
+    // }),
+    // gameLoop: z.object({
+    //   privateKey: leoPrivateKeySchema,
+    //   viewKey: leoViewKeySchema,
+    //   owner: leoAddressSchema,
+    //   war: warSchema,
+    // }),
   },
 };

@@ -42,94 +42,95 @@ const initialize = async (
   return leoRandomSeed;
 };
 
-const startGame = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  owner: LeoAddress,
-  simulationId: string,
-  teamA: Team,
-  teamB: Team
-): Promise<War> => {
-  leoAddressSchema.parse(owner);
+// const startGame = async (
+//   privateKey: LeoPrivateKey,
+//   viewKey: LeoViewKey,
+//   owner: LeoAddress,
+//   simulationId: string,
+//   teamA: Team,
+//   teamB: Team
+// ): Promise<War> => {
+//   leoAddressSchema.parse(owner);
 
-  const leoTeamA = leoParse.team(teamA);
-  const leoTeamB = leoParse.team(teamB);
-  const leoSimulationId = leoParse.u128(simulationId);
+//   const leoTeamA = leoParse.team(teamA);
+//   const leoTeamB = leoParse.team(teamB);
+//   const leoSimulationId = leoParse.u128(simulationId);
 
-  // Query blockchain for the randomSeed
-  let leoRandomSeed = convertProbToUInt128(Math.random());
-  if (env.ZK_MODE !== "leo") {
-    leoRandomSeed = await snarkOsFetchMappingValue({
-      appName: programNames.GANGWAR_ENGINE,
-      mappingName: "settings",
-      mappingKey: "0u128",
-    });
-  }
+//   // Query blockchain for the randomSeed
+//   let leoRandomSeed = convertProbToUInt128(Math.random());
+//   if (env.ZK_MODE !== "leo") {
+//     leoRandomSeed = await snarkOsFetchMappingValue({
+//       appName: programNames.GANGWAR_ENGINE,
+//       mappingName: "settings",
+//       mappingKey: "0u128",
+//     });
+//   }
 
-  // console.log("gangwar.ts Trying to startgame with ", leoTeamA, leoTeamB, leoRandomSeed);
+//   // console.log("gangwar.ts Trying to startgame with ", leoTeamA, leoTeamB, leoRandomSeed);
 
-  const teamAParam = leoParse.stringifyLeoCmdParam(leoTeamA);
-  const teamBParam = leoParse.stringifyLeoCmdParam(leoTeamB);
+//   const teamAParam = leoParse.stringifyLeoCmdParam(leoTeamA);
+//   const teamBParam = leoParse.stringifyLeoCmdParam(leoTeamB);
 
-  const transition = "start_game";
-  const params = [leoSimulationId, teamAParam, teamBParam, leoRandomSeed];
+//   const transition = "start_game";
+//   const params = [leoSimulationId, teamAParam, teamBParam, leoRandomSeed];
 
-  const correctBracketPattern = warBracketPattern(1, 1); // TODO
+//   const correctBracketPattern = warBracketPattern(1, 1); // TODO
 
-  const record = await zkRun(
-    {
-      privateKey,
-      viewKey,
-      appName: programNames.GANGWAR_ENGINE,
-      contractPath: gangwarPath,
-      transition,
-      params,
-      fee: FEE,
-    },
-    correctBracketPattern
-  );
+//   const record = await zkRun(
+//     {
+//       privateKey,
+//       viewKey,
+//       appName: programNames.GANGWAR_ENGINE,
+//       contractPath: gangwarPath,
+//       transition,
+//       params,
+//       fee: FEE,
+//     },
+//     correctBracketPattern
+//   );
 
-  // console.log(JSON.stringify(record));
+//   // console.log(JSON.stringify(record));
 
-  return parseOutput.war(record);
-};
+//   return parseOutput.war(record);
+// };
 
-const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: LeoAddress, war: War): Promise<War> => {
-  // console.log(war);
-  leoAddressSchema.parse(owner);
+// const gameLoop = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, owner: LeoAddress, war: War): Promise<War> => {
+//   // console.log(war);
+//   leoAddressSchema.parse(owner);
 
-  const leoWar = leoParse.warRecord(war);
-  const warParam = leoParse.stringifyLeoCmdParam(leoWar);
+//   const leoWar = leoParse.warRecord(war);
+//   const warParam = leoParse.stringifyLeoCmdParam(leoWar);
 
-  // Query blockchain for the randomSeed
-  let leoRandomSeed = convertProbToUInt128(Math.random());
-  if (env.ZK_MODE !== "leo") {
-    leoRandomSeed = await snarkOsFetchMappingValue({
-      appName: programNames.GANGWAR_ENGINE,
-      mappingName: "settings",
-      mappingKey: "0u128",
-    });
-  }
+//   // Query blockchain for the randomSeed
+//   let leoRandomSeed = convertProbToUInt128(Math.random());
+//   if (env.ZK_MODE !== "leo") {
+//     leoRandomSeed = await snarkOsFetchMappingValue({
+//       appName: programNames.GANGWAR_ENGINE,
+//       mappingName: "settings",
+//       mappingKey: "0u128",
+//     });
+//   }
 
-  const transition = "game_loop";
-  const params = [warParam, leoRandomSeed];
+//   const transition = "game_loop";
+//   const params = [warParam, leoRandomSeed];
 
-  const correctBracketPattern = warBracketPattern(1, 1); // TODO
+//   const correctBracketPattern = warBracketPattern(1, 1); // TODO
 
-  const record = await zkRun(
-    {
-      privateKey,
-      viewKey,
-      appName: programNames.GANGWAR_ENGINE,
-      contractPath: gangwarPath,
-      transition,
-      params,
-      fee: FEE,
-    },
-    correctBracketPattern
-  );
+//   const record = await zkRun(
+//     {
+//       privateKey,
+//       viewKey,
+//       appName: programNames.GANGWAR_ENGINE,
+//       contractPath: gangwarPath,
+//       transition,
+//       params,
+//       fee: FEE,
+//     },
+//     correctBracketPattern
+//   );
 
-  return parseOutput.war(record);
-};
+//   return parseOutput.war(record);
+// };
 
-export const gangwar = { startGame, initialize, gameLoop };
+// export const gangwar = { startGame, initialize, gameLoop };
+export const gangwarEngine = { initialize };
