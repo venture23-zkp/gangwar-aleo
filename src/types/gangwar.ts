@@ -15,6 +15,7 @@ export const gangwarSettingsLeoSchema = z.object({
   deadline_to_register: leoU32Schema,
   max_number_of_players: leoU8Schema,
   gameloop_count: leoU8Schema,
+  registered_players: leoU8Schema,
 });
 export type GangwarSettingsLeo = z.infer<typeof gangwarSettingsLeoSchema>;
 
@@ -22,6 +23,7 @@ export const gangwarSettingsSchema = z.object({
   deadlineToRegister: z.number(), // TODO: Additional checks on limit
   maxNumberOfPlayers: z.number(), // TODO: Additional checks on limit
   gameloopCount: z.number(), // TODO: Additional checks on limit
+  registeredPlayers: z.number(), // TODO: Additional checks on limit
 });
 export type GangwarSettings = z.infer<typeof gangwarSettingsSchema>;
 

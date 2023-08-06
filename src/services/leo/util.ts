@@ -39,6 +39,9 @@ import {
   leoAddressSchema,
   PlayerRecord,
   playerRecordSchema,
+  GangwarSettings,
+  gangwarSettingsLeoSchema,
+  gangwarSettingsSchema,
 } from "../../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema, schnorrSignatureSchema } from "../../types/dsa";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
@@ -224,6 +227,18 @@ const signature = (record: Record<string, unknown>): SchnorrSignature => {
   return schnorrSignatureSchema.parse(res);
 };
 
+const settings = (record: Record<string, unknown>): GangwarSettings => {
+  const parsed = gangwarSettingsLeoSchema.parse(record);
+  // console.log(parsed);
+  const gangwarSettings: GangwarSettings = {
+    deadlineToRegister: u32(parsed.deadline_to_register),
+    maxNumberOfPlayers: u8(parsed.max_number_of_players),
+    gameloopCount: u8(parsed.gameloop_count),
+    registeredPlayers: u8(parsed.registered_players),
+  };
+  return gangwarSettingsSchema.parse(gangwarSettings);
+};
+
 const playerRecord = (record: Record<string, unknown>): PlayerRecord => {
   const parsed = playerLeoRecordSchema.parse(record);
   // console.log(parsed);
@@ -279,7 +294,7 @@ const war = (record: Record<string, unknown>): War => {
   return warSchema.parse(war);
 };
 
-export const parseOutput = { address, field, u8, u32, u64, war, signature, playerRecord };
+export const parseOutput = { address, field, u8, u32, u64, war, signature, settings, playerRecord };
 
 const immediatelyRepeatingNumberClosingBracket = (value: string) => {
   let count = 0;
@@ -506,6 +521,7 @@ export const deployPrograms = async () => {
 
   const fees = {
     gangwar_engine: 15,
+    gangwar: 15,
   };
 
   const successfulPrograms: string[] = [];

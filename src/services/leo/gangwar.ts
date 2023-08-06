@@ -4,6 +4,7 @@ import { join } from "path";
 import { env, FEE, programNames } from "../../constants";
 import {
   Character,
+  GangwarSettings,
   LeoAddress,
   leoAddressSchema,
   LeoPrivateKey,
@@ -17,7 +18,7 @@ import { SchnorrSignature } from "../../types/dsa";
 import { Team, War, warBracketPattern } from "../../types/gangwarEngine";
 import { leoParse } from "../../utils";
 import { convertProbToUInt128 } from "./probability";
-import { contractsPath, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";
+import { contractsPath, parseOutput, parseRecordString, snarkOsFetchMappingValue, zkRun } from "./util";
 
 const gangwarPath = join(contractsPath, "gangwar");
 
@@ -50,16 +51,23 @@ const createGame = async (
   });
 
   // Query blockchain for the settings
-  let setting: any;
+  let res: any;
   if (env.ZK_MODE !== "leo") {
-    setting = await snarkOsFetchMappingValue({
-      appName: programNames.GANGWAR,
-      mappingName: "settings",
-      mappingKey: leoSimulationId,
-    });
+    const gangwarSettings = fetchGangwarSettings(simulationId);
+    return gangwarSettings;
   }
+};
 
-  return setting;
+const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettings> => {
+  const leoSimulationId = leoParse.u32(simulationId);
+  const res = await snarkOsFetchMappingValue({
+    appName: programNames.GANGWAR,
+    mappingName: "gangwar_settings",
+    mappingKey: leoSimulationId,
+  });
+  const gangwarSettingsLeo = parseRecordString(res);
+  const gangwarSettings = parseOutput.settings(gangwarSettingsLeo);
+  return gangwarSettings;
 };
 
 // TODO: separate out the logic to sign
@@ -134,4 +142,4 @@ const joinGame = async (
   return playerRecord;
 };
 
-export const gangwar = { createGame, sign, joinGame };
+export const gangwar = { createGame, sign, joinGame, fetchGangwarSettings };

@@ -31,15 +31,15 @@ const initialize = async (
   });
 
   // Query blockchain for the randomSeed
-  if (env.ZK_MODE !== "leo") {
-    leoRandomSeed = await snarkOsFetchMappingValue({
-      appName: programNames.GANGWAR_ENGINE,
-      mappingName: "settings",
-      mappingKey: "0u128",
-    });
-  }
+  // if (env.ZK_MODE !== "leo") {
+  //   leoRandomSeed = await snarkOsFetchMappingValue({
+  //     appName: programNames.GANGWAR_ENGINE,
+  //     mappingName: "settings",
+  //     mappingKey: "0u128",
+  //   });
+  // }
 
-  return leoRandomSeed;
+  // return leoRandomSeed;
 };
 
 // const startGame = async (
