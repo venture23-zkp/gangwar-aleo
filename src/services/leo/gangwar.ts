@@ -2,7 +2,17 @@ import { Signature } from "@aleohq/wasm";
 import { join } from "path";
 
 import { env, FEE, programNames } from "../../constants";
-import { Character, LeoAddress, leoAddressSchema, LeoPrivateKey, LeoScalar, leoScalarSchema, LeoU128, LeoViewKey } from "../../types";
+import {
+  Character,
+  LeoAddress,
+  leoAddressSchema,
+  LeoPrivateKey,
+  LeoScalar,
+  leoScalarSchema,
+  LeoU128,
+  LeoViewKey,
+  PlayerRecord,
+} from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
 import { Team, War, warBracketPattern } from "../../types/gangwarEngine";
 import { leoParse } from "../../utils";
@@ -60,7 +70,7 @@ const sign = async (
   sk: string, // Secret key
   k: string, // Nonce for signing
   validityTimestamp: number
-): Promise<any> => {
+): Promise<SchnorrSignature> => {
   const transition = "sign";
 
   // const leoSk: LeoScalar = leoScalarSchema.parse(sk);
@@ -96,7 +106,7 @@ const joinGame = async (
   character: Character,
   signature: SchnorrSignature
   // TODO: verify return type
-): Promise<any> => {
+): Promise<PlayerRecord> => {
   const transition = "join_game";
 
   const leoSimulationId = leoParse.u32(simulationId);
@@ -121,8 +131,7 @@ const joinGame = async (
   });
 
   const playerRecord = parseOutput.playerRecord(res);
-
-  console.log(playerRecord);
+  return playerRecord;
 };
 
 export const gangwar = { createGame, sign, joinGame };

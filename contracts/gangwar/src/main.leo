@@ -58,7 +58,8 @@ program gangwar.aleo {
     struct GangwarSettings {
         deadline_to_register: u32,
         max_number_of_players: u8,
-        gameloop_count: u8
+        gameloop_count: u8,
+        registered_players: u8,
     }
 
     mapping gangwar_settings: u32 => GangwarSettings;
@@ -78,7 +79,8 @@ program gangwar.aleo {
         let settings: GangwarSettings = GangwarSettings {
             deadline_to_register,
             max_number_of_players,
-            gameloop_count
+            gameloop_count,
+            registered_players: 0u8
         };
         Mapping::set(gangwar_settings, simulation_id, settings);
     }
@@ -129,9 +131,22 @@ program gangwar.aleo {
             primary_stats: char.primary_stats,
             secondary_stats: char.secondary_stats,
             primary_equipment: char.primary_equipment,
-        };
+        } then finalize(simulation_id, signature.validity_timestamp);
     }
 
+    finalize join_game(simulation_id: u32, validity_timestamp: u32) {
+        assert(validity_timestamp < block.height);
+        let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
+        assert(settings.registered_players < settings.max_number_of_players);
+        assert(settings.deadline_to_register > block.height);
 
+        let updated_settings: GangwarSettings = GangwarSettings {
+            deadline_to_register: settings.deadline_to_register,
+            max_number_of_players: settings.max_number_of_players,
+            gameloop_count: settings.gameloop_count,
+            registered_players: settings.registered_players + 1u8,
+        };
+        Mapping::set(gangwar_settings, simulation_id, updated_settings);
+    }
 
 }
