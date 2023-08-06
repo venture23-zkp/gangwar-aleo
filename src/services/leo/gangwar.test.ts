@@ -35,7 +35,18 @@ describe("Gangwar Service", () => {
   //   );
   // });
 
-  it("Sign a Character", async () => {
+  // it("Sign a Character", async () => {
+  //   const { owner, privateKey, viewKey } = keys;
+  //   const { sk, k } = schnorrKeys;
+
+  //   const character = createCharacters(1, ["Apple"])[0];
+
+  //   const validityTimestamp = 200; // 100 blocks
+  //   const signature = await gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);
+  //   console.log(signature);
+  // });
+
+  it("Join a Game", async () => {
     const { owner, privateKey, viewKey } = keys;
     const { sk, k } = schnorrKeys;
 
@@ -43,7 +54,8 @@ describe("Gangwar Service", () => {
 
     const validityTimestamp = 200; // 100 blocks
     const signature = await gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);
-    console.log(signature);
-    // Add assertions
+
+    const simulationId = 1;
+    await gangwar.joinGame(privateKey, viewKey, simulationId, character, signature);
   });
 });

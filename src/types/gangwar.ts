@@ -97,24 +97,26 @@ export const characterSchema = z.object({
 });
 export type Character = z.infer<typeof characterSchema>;
 
-export const playerLeoSchema = z.object({
+export const playerLeoRecordSchema = z.object({
   owner: leoAddressSchema,
-  simulation_id: leoFieldSchema,
+  simulation_id: leoU32Schema,
   nft_id: leoU16Schema,
   player_addr: leoAddressSchema,
   primary_stats: primaryStatsLeoSchema,
   secondary_stats: secondaryStatsLeoSchema,
   primary_equipment: weaponLeoSchema,
+  _nonce: leoGroupSchema,
 });
-export type PlayerLeo = z.infer<typeof playerLeoSchema>;
+export type PlayerLeoRecord = z.infer<typeof playerLeoRecordSchema>;
 
-export const playerSchema = z.object({
+export const playerRecordSchema = z.object({
   owner: leoAddressSchema,
-  simulationId: z.string(),
-  nftId: leoU16Schema,
+  simulationId: z.number(),
+  nftId: z.number(),
   playerAddr: leoAddressSchema,
   primaryStats: primaryStatsSchema,
   secondaryStats: secondaryStatsSchema,
   primaryEquipment: weaponSchema,
+  _nonce: z.bigint(),
 });
-export type Player = z.infer<typeof playerLeoSchema>;
+export type PlayerRecord = z.infer<typeof playerRecordSchema>;

@@ -34,6 +34,11 @@ import {
   PhysicalAttack,
   PhysicalAttackLeo,
   phyiscalAttackSchema,
+  playerLeoRecordSchema,
+  PlayerLeoRecord,
+  leoAddressSchema,
+  PlayerRecord,
+  playerRecordSchema,
 } from "../../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema, schnorrSignatureSchema } from "../../types/dsa";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
@@ -147,11 +152,134 @@ const u128Prob = (value: string): number => {
 };
 
 const u16Prob = (value: string): number => {
-  const MAX_UINT16 = (2 ^ 16) - 1;
-  const valueInProb = Number(value) / MAX_UINT16;
+  const MAX_UINT16 = Math.pow(2, 16);
+  const parsed = replaceValue(value, "u16");
+  const valueInProb = Number(parsed) / MAX_UINT16;
   if (isNaN(valueInProb)) throw apiError("u16 probability parsing failed");
   return valueInProb;
 };
+
+const primaryStats = (primaryStats: PrimaryStatsLeo): PrimaryStats => {
+  const res: PrimaryStats = {
+    strength: u16(primaryStats.strength),
+  };
+  return primaryStatsSchema.parse(res);
+};
+
+const secondaryStats = (secondaryStats: SecondaryStatsLeo): SecondaryStats => {
+  const res: SecondaryStats = {
+    health: u16(secondaryStats.health),
+    dodgeChance: u16Prob(secondaryStats.dodge_chance),
+    hitChance: u16Prob(secondaryStats.hit_chance),
+    criticalChance: u16Prob(secondaryStats.critical_chance),
+    meleeDamage: u16Prob(secondaryStats.melee_damage),
+  };
+  // console.log(res);
+  return secondaryStatsSchema.parse(res);
+};
+
+const weapon = (weapon: WeaponLeo): Weapon => {
+  const res: Weapon = {
+    id: u16(weapon.id),
+    type: u16(weapon.w_type),
+    consumptionRate: u16(weapon.consumption_rate),
+    criticalChance: u16Prob(weapon.critical_chance),
+    duraAmmo: u16(weapon.dura_ammo),
+    damage: u16(weapon.damage),
+    hitChance: u16Prob(weapon.hit_chance),
+    numberOfHits: u16(weapon.number_of_hits),
+    isBroken: bool(weapon.is_broken),
+  };
+  return weaponSchema.parse(res);
+};
+
+const item = (item: ItemLeo): Item => {
+  const res: Item = {
+    itemId: u128(item.item_id),
+    itemCount: u128(item.item_count),
+    statBoost: item.stat_boost,
+    rank: item.rank,
+  };
+  return itemSchema.parse(res);
+};
+
+const character = (character: CharacterLeo): Character => {
+  const res: Character = {
+    nftId: u16(character.nft_id),
+    playerAddr: character.player_addr,
+    primaryStats: primaryStats(character.primary_stats),
+    secondaryStats: secondaryStats(character.secondary_stats),
+    primaryEquipment: weapon(character.primary_equipment),
+  };
+  return characterSchema.parse(res);
+};
+
+const signature = (record: Record<string, unknown>): SchnorrSignature => {
+  const parsed = schnorrSignatureLeoSchema.parse(record);
+  const res: SchnorrSignature = {
+    r: group(parsed.r),
+    s: group(parsed.s),
+    validityTimestamp: u32(parsed.validity_timestamp),
+  };
+  return schnorrSignatureSchema.parse(res);
+};
+
+const playerRecord = (record: Record<string, unknown>): PlayerRecord => {
+  const parsed = playerLeoRecordSchema.parse(record);
+  // console.log(parsed);
+  const player: PlayerRecord = {
+    owner: replaceValue(parsed.owner),
+    simulationId: u32(parsed.simulation_id),
+    nftId: u16(parsed.nft_id),
+    playerAddr: replaceValue(parsed.player_addr),
+    primaryStats: primaryStats(parsed.primary_stats),
+    secondaryStats: secondaryStats(parsed.secondary_stats),
+    primaryEquipment: weapon(parsed.primary_equipment),
+    _nonce: group(parsed._nonce),
+  };
+  // console.log(player);
+  return playerRecordSchema.parse(player);
+};
+
+const team = (team: TeamLeo): Team => {
+  const res: Team = {
+    player_1: character(team.player_1),
+    // player_2: character(team.player_2),
+  };
+  return teamSchema.parse(res);
+};
+
+const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
+  const res: PhysicalAttack = {
+    isDodged: bool(damage.is_dodged),
+    isHit: bool(damage.is_hit),
+    isCritical: bool(damage.is_critical),
+    totalCriticalHits: u128(damage.total_critical_hits),
+    totalNormalHits: u128(damage.total_normal_hits),
+    totalHits: u128(damage.total_hits),
+    damage: u128(damage.damage),
+  };
+  return phyiscalAttackSchema.parse(res);
+};
+
+const war = (record: Record<string, unknown>): War => {
+  const parsed = warLeoSchema.parse(record);
+  // console.log(parsed);
+  const { main_team, target_team } = parsed;
+  const war: War = {
+    owner: parsed.owner,
+    simulationId: parsed.simulation_id,
+    round: u128(parsed.round),
+    mainTeam: team(main_team),
+    targetTeam: team(target_team),
+    physicalAttack: physicalAttack(parsed.physical_attack),
+    _nonce: parsed._nonce,
+  };
+
+  return warSchema.parse(war);
+};
+
+export const parseOutput = { address, field, u8, u32, u64, war, signature, playerRecord };
 
 const immediatelyRepeatingNumberClosingBracket = (value: string) => {
   let count = 0;
@@ -255,113 +383,6 @@ const parseCmdOutput = (cmdOutput: string, correctBracketPattern?: string): Reco
 const getTxResult = (tx: LeoTx): string | undefined => {
   return tx.execution.transitions.at(0)?.outputs.at(0)?.value;
 };
-
-const primaryStats = (primaryStats: PrimaryStatsLeo): PrimaryStats => {
-  const res: PrimaryStats = {
-    strength: u16(primaryStats.strength),
-    // accuracy: u128(primaryStats.accuracy),
-  };
-  return primaryStatsSchema.parse(res);
-};
-
-const secondaryStats = (secondaryStats: SecondaryStatsLeo): SecondaryStats => {
-  // console.log(secondaryStats);
-  const res: SecondaryStats = {
-    health: u16(secondaryStats.health),
-    dodgeChance: u16Prob(secondaryStats.dodge_chance),
-    hitChance: u16Prob(secondaryStats.hit_chance),
-    criticalChance: u16Prob(secondaryStats.critical_chance),
-    meleeDamage: u16Prob(secondaryStats.melee_damage),
-  };
-  // console.log(res);
-  return secondaryStatsSchema.parse(res);
-};
-
-const weapon = (weapon: WeaponLeo): Weapon => {
-  const res: Weapon = {
-    id: u128(weapon.id),
-    type: u128(weapon.w_type),
-    consumptionRate: u128(weapon.consumption_rate),
-    criticalChance: u16Prob(weapon.critical_chance),
-    duraAmmo: u128(weapon.dura_ammo),
-    damage: u128(weapon.damage),
-    hitChance: u16Prob(weapon.hit_chance),
-    numberOfHits: u128(weapon.number_of_hits),
-    isBroken: bool(weapon.is_broken),
-  };
-  return weaponSchema.parse(res);
-};
-
-const item = (item: ItemLeo): Item => {
-  const res: Item = {
-    itemId: u128(item.item_id),
-    itemCount: u128(item.item_count),
-    statBoost: item.stat_boost,
-    rank: item.rank,
-  };
-  return itemSchema.parse(res);
-};
-
-const character = (character: CharacterLeo): Character => {
-  const res: Character = {
-    nftId: u16(character.nft_id),
-    playerAddr: character.player_addr,
-    primaryStats: primaryStats(character.primary_stats),
-    secondaryStats: secondaryStats(character.secondary_stats),
-    primaryEquipment: weapon(character.primary_equipment),
-  };
-  return characterSchema.parse(res);
-};
-
-const team = (team: TeamLeo): Team => {
-  const res: Team = {
-    player_1: character(team.player_1),
-    // player_2: character(team.player_2),
-  };
-  return teamSchema.parse(res);
-};
-
-const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
-  const res: PhysicalAttack = {
-    isDodged: bool(damage.is_dodged),
-    isHit: bool(damage.is_hit),
-    isCritical: bool(damage.is_critical),
-    totalCriticalHits: u128(damage.total_critical_hits),
-    totalNormalHits: u128(damage.total_normal_hits),
-    totalHits: u128(damage.total_hits),
-    damage: u128(damage.damage),
-  };
-  return phyiscalAttackSchema.parse(res);
-};
-
-const war = (record: Record<string, unknown>): War => {
-  const parsed = warLeoSchema.parse(record);
-  // console.log(parsed);
-  const { main_team, target_team } = parsed;
-  const war: War = {
-    owner: parsed.owner,
-    simulationId: parsed.simulation_id,
-    round: u128(parsed.round),
-    mainTeam: team(main_team),
-    targetTeam: team(target_team),
-    physicalAttack: physicalAttack(parsed.physical_attack),
-    _nonce: parsed._nonce,
-  };
-
-  return warSchema.parse(war);
-};
-
-const signature = (record: Record<string, unknown>): SchnorrSignature => {
-  const parsed = schnorrSignatureLeoSchema.parse(record);
-  const res: SchnorrSignature = {
-    r: group(parsed.r).toString(),
-    s: group(parsed.s).toString(),
-    validityTimestamp: u32(parsed.validity_timestamp),
-  };
-  return schnorrSignatureSchema.parse(res);
-};
-
-export const parseOutput = { address, field, u8, u32, u64, war, signature };
 
 export const decryptRecord = async (
   encryptedRecord: LeoRecord,

@@ -10,6 +10,8 @@ import {
   leoBooleanSchema,
   LeoField,
   leoFieldSchema,
+  LeoGroup,
+  leoGroupSchema,
   LeoScalar,
   leoScalarSchema,
   LeoU128,
@@ -85,6 +87,11 @@ const field = (value: BigInt): LeoField => {
 const scalar = (value: BigInt): LeoScalar => {
   const parsed = value + "scalar";
   return leoScalarSchema.parse(parsed);
+};
+
+const group = (value: BigInt): LeoGroup => {
+  const parsed = value + "group";
+  return leoGroupSchema.parse(parsed);
 };
 
 const id = (value: string): LeoField => {
@@ -214,8 +221,8 @@ const u16Prob = (value: number): LeoU128 => {
 
 const signature = (signature: SchnorrSignature): SchnorrSignatureLeo => {
   const res: SchnorrSignatureLeo = {
-    r: signature.r,
-    s: signature.s,
+    r: group(signature.r),
+    s: group(signature.s),
     validity_timestamp: u32(signature.validityTimestamp),
   };
   return schnorrSignatureLeoSchema.parse(res);

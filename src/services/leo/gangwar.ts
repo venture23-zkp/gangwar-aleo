@@ -108,10 +108,9 @@ const joinGame = async (
   const leoSignatureParam = leoParse.stringifyLeoCmdParam(leoSignature);
 
   const params = [leoSimulationId, leoCharacterParam, leoSignatureParam];
-  console.log(params);
 
-  // console.log("gangwar.ts Trying to create game with ", simulationId);
-  await zkRun({
+  // console.log("gangwar.ts Joining game ", simulationId);
+  let res = await zkRun({
     privateKey,
     viewKey,
     appName: programNames.GANGWAR_ENGINE,
@@ -120,6 +119,10 @@ const joinGame = async (
     params,
     fee: FEE,
   });
+
+  const playerRecord = parseOutput.playerRecord(res);
+
+  console.log(playerRecord);
 };
 
 export const gangwar = { createGame, sign, joinGame };

@@ -9,8 +9,8 @@ export const schnorrSignatureLeoSchema = z.object({
 export type SchnorrSignatureLeo = z.infer<typeof schnorrSignatureLeoSchema>;
 
 export const schnorrSignatureSchema = z.object({
-  r: z.string(),
-  s: z.string(),
+  r: z.bigint(),
+  s: z.bigint(),
   validityTimestamp: z.number(),
 });
 export type SchnorrSignature = z.infer<typeof schnorrSignatureSchema>;
