@@ -18,7 +18,7 @@ import { SchnorrSignature } from "../../types/dsa";
 import { Team, War, warBracketPattern } from "../../types/gangwarEngine";
 import { leoParse } from "../../utils";
 import { convertProbToUInt128 } from "./probability";
-import { contractsPath, parseOutput, parseRecordString, snarkOsFetchMappingValue, zkRun } from "./util";
+import { contractsPath, leoRun, parseOutput, parseRecordString, snarkOsFetchMappingValue, zkRun } from "./util";
 
 const gangwarPath = join(contractsPath, "gangwar");
 
@@ -70,7 +70,7 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
   return gangwarSettings;
 };
 
-// TODO: separate out the logic to sign
+// TODO: to check in deployment
 const sign = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey,
@@ -88,18 +88,19 @@ const sign = async (
   const leoValidityTimestamp = leoParse.u32(validityTimestamp);
   const leoCharacter = leoParse.character(character);
   console.log(leoCharacter);
-  const leoCharacterParam = leoParse.stringifyLeoCmdParam(leoCharacter);
+  let leoCharacterParam = leoParse.stringifyLeoCmdParam(leoCharacter);
+
+  // TODO: search if there's a better approach
+  if (!leoCharacterParam.startsWith('"') || !leoCharacterParam.endsWith('"')) {
+    leoCharacterParam = '"' + leoCharacterParam + '"';
+  }
   const params = [leoCharacterParam, leoSk, leoK, leoValidityTimestamp];
 
   // console.log("gangwar.ts Trying to create game with ", simulationId);
-  const res = await zkRun({
-    privateKey,
-    viewKey,
-    appName: programNames.GANGWAR,
+  const res = await leoRun({
     contractPath: gangwarPath,
     transition,
     params,
-    fee: FEE,
   });
 
   const signature = parseOutput.signature(res);

@@ -221,8 +221,8 @@ const u16Prob = (value: number): LeoU128 => {
 
 const signature = (signature: SchnorrSignature): SchnorrSignatureLeo => {
   const res: SchnorrSignatureLeo = {
-    r: group(signature.r),
-    s: group(signature.s),
+    r: group(BigInt(signature.r)),
+    s: group(BigInt(signature.s)),
     validity_timestamp: u32(signature.validityTimestamp),
   };
   return schnorrSignatureLeoSchema.parse(res);

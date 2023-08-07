@@ -220,8 +220,8 @@ const character = (character: CharacterLeo): Character => {
 const signature = (record: Record<string, unknown>): SchnorrSignature => {
   const parsed = schnorrSignatureLeoSchema.parse(record);
   const res: SchnorrSignature = {
-    r: group(parsed.r),
-    s: group(parsed.s),
+    r: group(parsed.r).toString(),
+    s: group(parsed.s).toString(),
     validityTimestamp: u32(parsed.validity_timestamp),
   };
   return schnorrSignatureSchema.parse(res);
@@ -405,6 +405,7 @@ export const decryptRecord = async (
   correctBracketPattern?: string
 ): Promise<Record<string, unknown>> => {
   let decrypted = ViewKey.from_string(viewKey).decrypt(encryptedRecord).replaceAll("\n", "").replaceAll(" ", "");
+  // console.log("decrypted", decrypted);
   return parseRecordString(decrypted, correctBracketPattern);
 };
 
@@ -414,7 +415,7 @@ interface LeoRunParams {
   transition?: string;
 }
 
-const leoRun = async (
+export const leoRun = async (
   { contractPath, params = [], transition = "main" }: LeoRunParams,
   correctBracketPattern?: string
 ): Promise<Record<string, unknown>> => {
@@ -474,9 +475,8 @@ const snarkOsExecute = async (
   // I know a ternary would be cool, but it creates some weird concurrency issues sometimes
   let parsed = {};
   if (result) {
-    // console.log("trying to decrypt", result);
     parsed = await decryptRecord(result, viewKey, correctBracketPattern);
-    // console.log("decrypted", parsed);
+    console.log("decrypted", parsed);
   }
 
   return parsed;
