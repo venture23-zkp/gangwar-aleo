@@ -170,9 +170,16 @@ program gangwar.aleo {
     }
 
     finalize join_game(simulation_id: u32, validity_timestamp: u32) {
+
+        // Ensure signature is valid till given time
         assert(validity_timestamp > block.height);
+
         let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
+
+        // Ensure there is room to join
         assert(settings.registered_players < settings.max_number_of_players);
+
+        // Ensure deadline has not passed
         assert(settings.deadline_to_register > block.height);
 
         let new_random_number: u16 = ChaCha::rand_u16();
@@ -267,12 +274,34 @@ program gangwar.aleo {
             physical_attack: no_attack
         };
 
-        return war;
+        return war then finalize(simulation_id, random_seed, coin_flip_output.new_random_number);
+    }
+    
+    finalize start_game(simulation_id: u32, initial_random_seed: u16, new_random_seed: u16) {
+        let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
 
+        // Ensure admin can start game after deadline to join has passed
+        assert(settings.deadline_to_register < block.height);
+
+        // Ensure same random number is used  
+        assert_eq(initial_random_seed, settings.random_number);
+
+        let new_random_number: u16 = ChaCha::rand_u16();
+        let random_number: u16 = new_random_number.xor(new_random_seed);
+
+        let updated_settings: GangwarSettings = GangwarSettings {
+            deadline_to_register: settings.deadline_to_register,
+            max_number_of_players: settings.max_number_of_players,
+            gameloop_count: settings.gameloop_count,
+            registered_players: settings.registered_players + 1u8,
+            random_number,
+        };
+        Mapping::set(gangwar_settings, simulation_id, updated_settings);
     }
 
     function divide_into_teams(p1: Character, p2: Character, p3: Character, p4: Character, p5: Character, p6: Character) -> (Team, Team) {
 
+        // Instead of sorting manually, use a sorted list
         // Verify sorted list
         assert(
             p1.primary_stats.strength >= p2.primary_stats.strength &&
