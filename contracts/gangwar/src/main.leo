@@ -52,7 +52,8 @@ program gangwar.aleo {
 
     struct HashStruct {
         m: Character,
-        r: group
+        r: group,
+        validity_timestamp: u32
     }
 
     struct GangwarSettings {
@@ -89,7 +90,8 @@ program gangwar.aleo {
     function verify(m: Character, pk: group, signature: Signature) -> bool {
         let h: HashStruct = HashStruct {
             m,
-            r: signature.r
+            r: signature.r,
+            validity_timestamp: signature.validity_timestamp
         };
         let e: scalar = BHP256::hash_to_scalar(h);
 
@@ -103,7 +105,8 @@ program gangwar.aleo {
         let r: group = k * group::GEN;
         let h: HashStruct = HashStruct {
             m,
-            r
+            r,
+            validity_timestamp
         };
         let e: scalar = BHP256::hash_to_scalar(h);
 
