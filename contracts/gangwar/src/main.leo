@@ -207,7 +207,7 @@ program gangwar.aleo {
     }
 
 
-    transition start_game(simulation_id: u32, random_seed: u16, p1: Player, p2: Player, p3: Player, p4: Player, p5: Player, p6: Player) {
+    transition start_game(simulation_id: u32, random_seed: u16, p1: Player, p2: Player, p3: Player, p4: Player, p5: Player, p6: Player) -> War {
         assert(
             p1.simulation_id == simulation_id && 
             p2.simulation_id == simulation_id && 
@@ -266,6 +266,8 @@ program gangwar.aleo {
             target_team,
             physical_attack: no_attack
         };
+
+        return war;
 
     }
 

@@ -24,6 +24,9 @@ import {
   leoU64Schema,
   LeoU8,
   leoU8Schema,
+  PlayerLeo,
+  playerLeoSchema,
+  Player,
   // PhysicalAttack,
   // PhysicalAttackLeo,
   // physicalAttackLeoSchema,
@@ -329,7 +332,7 @@ const weaponRecord = (weapon: Weapon): WeaponLeo => {
 //   return physicalAttackLeoSchema.parse(res);
 // };
 
-const character = (character: Character): any => {
+const character = (character: Character): CharacterLeo => {
   const res: CharacterLeo = {
     nft_id: u16(character.nftId),
     player_addr: character.playerAddr,
@@ -340,15 +343,31 @@ const character = (character: Character): any => {
   return characterLeoSchema.parse(res);
 };
 
-// const characterRecord = (character: Character): CharacterLeo => {
-//   const res: CharacterLeo = {
-//     nft_id: privateField(u16(character.nftId)),
-//     primary_stats: primaryStatsRecord(character.primaryStats),
-//     secondary_stats: secondaryStatsRecord(character.secondaryStats),
-//     primary_equipment: weaponRecord(character.primaryEquipment),
-//   };
-//   return characterLeoSchema.parse(res);
-// };
+const characterRecord = (character: Character): CharacterLeo => {
+  // console.log(privateField(u16(character.nftId)));
+  // console.log(privateField(character.playerAddr));
+  // console.log(primaryStatsRecord(character.primaryStats));
+  // console.log(secondaryStatsRecord(character.secondaryStats));
+  // console.log(weaponRecord(character.primaryEquipment));
+  const res: CharacterLeo = {
+    nft_id: privateField(u16(character.nftId)),
+    player_addr: privateField(character.playerAddr),
+    primary_stats: primaryStatsRecord(character.primaryStats),
+    secondary_stats: secondaryStatsRecord(character.secondaryStats),
+    primary_equipment: weaponRecord(character.primaryEquipment),
+  };
+  return characterLeoSchema.parse(res);
+};
+
+const playerRecord = (player: Player): PlayerLeo => {
+  const res: PlayerLeo = {
+    owner: privateField(player.owner),
+    simulation_id: privateField(u32(player.simulationId)),
+    char: characterRecord(player.char),
+    _nonce: publicField(group(BigInt(player._nonce))),
+  };
+  return playerLeoSchema.parse(res);
+};
 
 // const team = (team: Team): TeamLeo => {
 //   const res: TeamLeo = {
@@ -406,6 +425,7 @@ export const leoParse = {
   stringifyLeoCmdParam,
   character,
   signature,
+  playerRecord,
   // team,
   // war,
   // warRecord,

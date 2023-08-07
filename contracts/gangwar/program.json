@@ -1,10 +1,10 @@
 {
-    "program": "gangwar.aleo",
-    "version": "0.0.0",
-    "description": "",
-    "development": {
-        "private_key": "APrivateKey1zkpJ4Wf7jVvEB7V9EwGXcREA63tYMX5AoZygXdaGFGDP5gK",
-        "address": "aleo1vhztlwxmqphujgq4j8cxqaqvpevujghnk02g5vjvsl3yx0n3sgyq0uxhnl"
-    },
-    "license": "MIT"
+  "program": "gangwar.aleo",
+  "version": "0.0.0",
+  "description": "",
+  "development": {
+    "private_key": "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH",
+    "address": "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px"
+  },
+  "license": "MIT"
 }

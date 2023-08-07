@@ -1,4 +1,4 @@
-import { characterSchema, GangwarSettings } from "../../types";
+import { characterSchema, GangwarSettings, Player } from "../../types";
 import { gangwar } from "./gangwar";
 import { createCharacters } from "../../core/gangwar";
 import { leoParse } from "../../utils";
@@ -16,6 +16,8 @@ describe("Gangwar Service", () => {
     sk: "2", // secret key
     k: "1", // one time signature key
   };
+
+  let playerRecord: Player;
 
   // it("Create game", async () => {
   //   const { owner, privateKey, viewKey } = keys;
@@ -35,18 +37,18 @@ describe("Gangwar Service", () => {
   //   );
   // });
 
-  it("Sign a Character", async () => {
-    const { owner, privateKey, viewKey } = keys;
-    const { sk, k } = schnorrKeys;
+  // it("Sign a Character", async () => {
+  //   const { owner, privateKey, viewKey } = keys;
+  //   const { sk, k } = schnorrKeys;
 
-    const character = createCharacters(1, ["Apple"])[0];
-    console.log(character);
-    console.log(JSON.stringify(character));
+  //   const character = createCharacters(1, ["Apple"])[0];
+  //   console.log(character);
+  //   console.log(JSON.stringify(character));
 
-    const validityTimestamp = 200; // 100 blocks
-    const signature = await gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);
-    console.log(signature);
-  });
+  //   const validityTimestamp = 200; // 100 blocks
+  //   const signature = await gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);
+  //   console.log(signature);
+  // });
 
   it("Join a Game", async () => {
     const { owner, privateKey, viewKey } = keys;
@@ -58,7 +60,15 @@ describe("Gangwar Service", () => {
     const signature = await gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);
 
     const simulationId = 1;
-    const playerRecord = await gangwar.joinGame(privateKey, viewKey, simulationId, character, signature);
-    console.log(playerRecord);
+    playerRecord = await gangwar.joinGame(privateKey, viewKey, simulationId, character, signature);
+    console.log(JSON.stringify(playerRecord));
+  });
+
+  it("Start the Game", async () => {
+    const { owner, privateKey, viewKey } = keys;
+
+    const simulationId = 1;
+    const war = await gangwar.startGame(privateKey, viewKey, simulationId, playerRecord);
+    console.log(JSON.stringify(war));
   });
 });

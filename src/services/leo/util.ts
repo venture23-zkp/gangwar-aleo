@@ -34,11 +34,11 @@ import {
   PhysicalAttack,
   PhysicalAttackLeo,
   phyiscalAttackSchema,
-  playerLeoRecordSchema,
-  PlayerLeoRecord,
+  playerLeoSchema,
+  PlayerLeo,
   leoAddressSchema,
-  PlayerRecord,
-  playerRecordSchema,
+  Player,
+  playerSchema,
   GangwarSettings,
   gangwarSettingsLeoSchema,
   gangwarSettingsSchema,
@@ -209,7 +209,7 @@ const item = (item: ItemLeo): Item => {
 const character = (character: CharacterLeo): Character => {
   const res: Character = {
     nftId: u16(character.nft_id),
-    playerAddr: character.player_addr,
+    playerAddr: replaceValue(character.player_addr),
     primaryStats: primaryStats(character.primary_stats),
     secondaryStats: secondaryStats(character.secondary_stats),
     primaryEquipment: weapon(character.primary_equipment),
@@ -240,10 +240,10 @@ const settings = (record: Record<string, unknown>): GangwarSettings => {
   return gangwarSettingsSchema.parse(gangwarSettings);
 };
 
-const playerRecord = (record: Record<string, unknown>): PlayerRecord => {
-  const parsed = playerLeoRecordSchema.parse(record);
+const playerRecord = (record: Record<string, unknown>): Player => {
+  const parsed = playerLeoSchema.parse(record);
   // console.log(parsed);
-  const player: PlayerRecord = {
+  const player: Player = {
     owner: replaceValue(parsed.owner),
     simulationId: u32(parsed.simulation_id),
     char: character(parsed.char),
@@ -254,7 +254,7 @@ const playerRecord = (record: Record<string, unknown>): PlayerRecord => {
     // primaryEquipment: weapon(parsed.primary_equipment),
     _nonce: group(parsed._nonce).toString(),
   };
-  return playerRecordSchema.parse(player);
+  return playerSchema.parse(player);
 };
 
 const team = (team: TeamLeo): Team => {
@@ -271,10 +271,10 @@ const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
     isDodged: bool(damage.is_dodged),
     isHit: bool(damage.is_hit),
     isCritical: bool(damage.is_critical),
-    totalCriticalHits: u128(damage.total_critical_hits),
-    totalNormalHits: u128(damage.total_normal_hits),
-    totalHits: u128(damage.total_hits),
-    damage: u128(damage.damage),
+    totalCriticalHits: u16(damage.total_critical_hits),
+    totalNormalHits: u16(damage.total_normal_hits),
+    totalHits: u16(damage.total_hits),
+    damage: u16(damage.damage),
   };
   return phyiscalAttackSchema.parse(res);
 };
@@ -284,13 +284,13 @@ const war = (record: Record<string, unknown>): War => {
   // console.log(parsed);
   const { main_team, target_team } = parsed;
   const war: War = {
-    owner: parsed.owner,
+    owner: replaceValue(parsed.owner),
     simulationId: parsed.simulation_id,
-    round: u128(parsed.round),
+    round: u8(parsed.round),
     mainTeam: team(main_team),
     targetTeam: team(target_team),
     physicalAttack: physicalAttack(parsed.physical_attack),
-    _nonce: parsed._nonce,
+    _nonce: group(parsed._nonce).toString(),
   };
 
   return warSchema.parse(war);

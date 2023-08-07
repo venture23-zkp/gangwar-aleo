@@ -92,7 +92,7 @@ export const characterSchema = z.object({
 });
 export type Character = z.infer<typeof characterSchema>;
 
-export const playerLeoRecordSchema = z.object({
+export const playerLeoSchema = z.object({
   owner: leoAddressSchema,
   simulation_id: leoU32Schema,
   char: characterLeoSchema,
@@ -103,9 +103,9 @@ export const playerLeoRecordSchema = z.object({
   // primary_equipment: weaponLeoSchema,
   _nonce: leoGroupSchema,
 });
-export type PlayerLeoRecord = z.infer<typeof playerLeoRecordSchema>;
+export type PlayerLeo = z.infer<typeof playerLeoSchema>;
 
-export const playerRecordSchema = z.object({
+export const playerSchema = z.object({
   owner: leoAddressSchema,
   simulationId: z.number(),
   char: characterSchema,
@@ -116,7 +116,7 @@ export const playerRecordSchema = z.object({
   // primaryEquipment: weaponSchema,
   _nonce: z.string(),
 });
-export type PlayerRecord = z.infer<typeof playerRecordSchema>;
+export type Player = z.infer<typeof playerSchema>;
 
 export const characterBracketPattern = () => "{p1{pStats}{sStats}{weapon}}";
 export const playerRecordBracketPattern = () => `{${characterBracketPattern}}`;
@@ -175,6 +175,6 @@ export const warSchema = z.object({
   mainTeam: teamSchema,
   targetTeam: teamSchema,
   physicalAttack: phyiscalAttackSchema,
-  _nonce: leoGroupSchema,
+  _nonce: z.string(),
 });
 export type War = z.infer<typeof warSchema>;

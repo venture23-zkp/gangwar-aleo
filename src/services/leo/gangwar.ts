@@ -12,7 +12,7 @@ import {
   leoScalarSchema,
   LeoU128,
   LeoViewKey,
-  PlayerRecord,
+  Player,
   playerRecordBracketPattern,
 } from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
@@ -50,23 +50,30 @@ const createGame = async (
   });
 
   // Query blockchain for the settings
-  let res: any;
-  if (env.ZK_MODE !== "leo") {
-    const gangwarSettings = fetchGangwarSettings(simulationId);
-    return gangwarSettings;
-  }
+  const gangwarSettings = fetchGangwarSettings(simulationId);
+  return gangwarSettings;
 };
 
 const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettings> => {
   const leoSimulationId = leoParse.u32(simulationId);
-  const res = await snarkOsFetchMappingValue({
-    appName: programNames.GANGWAR,
-    mappingName: "gangwar_settings",
-    mappingKey: leoSimulationId,
-  });
-  const gangwarSettingsLeo = parseRecordString(res);
-  const gangwarSettings = parseOutput.settings(gangwarSettingsLeo);
-  return gangwarSettings;
+  if (env.ZK_MODE !== "leo") {
+    const res = await snarkOsFetchMappingValue({
+      appName: programNames.GANGWAR,
+      mappingName: "gangwar_settings",
+      mappingKey: leoSimulationId,
+    });
+    const gangwarSettingsLeo = parseRecordString(res);
+    const gangwarSettings = parseOutput.settings(gangwarSettingsLeo);
+    return gangwarSettings;
+  } else {
+    return {
+      deadlineToRegister: 1000,
+      maxNumberOfPlayers: 10,
+      gameloopCount: 10,
+      registeredPlayers: 1,
+      randomNumber: 100,
+    };
+  }
 };
 
 // TODO: to check in deployment
@@ -90,6 +97,7 @@ const sign = async (
   let leoCharacterParam = leoParse.stringifyLeoCmdParam(leoCharacter);
 
   // TODO: search if there's a better approach
+  // Yes. Implement later. Check stringifyLeoCmdParam function
   if (!leoCharacterParam.startsWith('"') || !leoCharacterParam.endsWith('"')) {
     leoCharacterParam = '"' + leoCharacterParam + '"';
   }
@@ -114,7 +122,7 @@ const joinGame = async (
   character: Character,
   signature: SchnorrSignature
   // TODO: verify return type
-): Promise<PlayerRecord> => {
+): Promise<Player> => {
   const transition = "join_game";
 
   const leoSimulationId = leoParse.u32(simulationId);
@@ -145,40 +153,49 @@ const joinGame = async (
   return playerRecord;
 };
 
-// const startGame = async (
-//   privateKey: LeoPrivateKey,
-//   viewKey: LeoViewKey,
-//   simulationId: number,
-//   players: PlayerRecord[]
-//   // TODO: verify return type
-// ): Promise<PlayerRecord> => {
-//   const transition = "join_game";
+const startGame = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  simulationId: number,
+  player: Player
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "start_game";
 
-//   const leoSimulationId = leoParse.u32(simulationId);
+  const leoSimulationId = leoParse.u32(simulationId);
 
-//   const gangwarSettings = fetchGangwarSettings(simulationId);
-//   const leoRandomSeed = leoParse.u16((await gangwarSettings).randomNumber);
+  const gangwarSettings = fetchGangwarSettings(simulationId);
+  const leoRandomSeed = leoParse.u16((await gangwarSettings).randomNumber);
 
-//   const leoPlayerParams = []
-//   for (let player in players) {
-//     const leoPlayer = leoParse.pla
-//   }
+  // console.log(player);
+  const leoPlayerRecord = leoParse.playerRecord(player);
+  const leoPlayerRecordParam = leoParse.stringifyLeoCmdParam(leoPlayerRecord);
 
-//   const params = [leoSimulationId, leoRandomSeed, leoSignatureParam];
+  const params = [
+    leoSimulationId,
+    leoRandomSeed,
+    leoPlayerRecordParam,
+    leoPlayerRecordParam,
+    leoPlayerRecordParam,
+    leoPlayerRecordParam,
+    leoPlayerRecordParam,
+    leoPlayerRecordParam,
+  ];
 
-//   // console.log("gangwar.ts Joining game ", simulationId);
-//   let res = await zkRun({
-//     privateKey,
-//     viewKey,
-//     appName: programNames.GANGWAR,
-//     contractPath: gangwarPath,
-//     transition,
-//     params,
-//     fee: FEE,
-//   });
+  // console.log("gangwar.ts Joining game ", simulationId);
+  let res = await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.GANGWAR,
+    contractPath: gangwarPath,
+    transition,
+    params,
+    fee: FEE,
+  });
 
-//   const playerRecord = parseOutput.playerRecord(res);
-//   return playerRecord;
-// };
+  const warRecord = parseOutput.war(res);
+  console.log(warRecord);
+  return warRecord;
+};
 
-export const gangwar = { createGame, sign, joinGame, fetchGangwarSettings };
+export const gangwar = { createGame, sign, joinGame, startGame, fetchGangwarSettings };
