@@ -46,6 +46,11 @@ program gangwar.aleo {
         p3: Character
     }
 
+    struct ITeams {
+        team_a: Team,
+        team_b: Team
+    }
+
     struct Signature {
         r: group,
         s: group,
@@ -63,7 +68,33 @@ program gangwar.aleo {
         max_number_of_players: u8,
         gameloop_count: u8,
         registered_players: u8,
+        random_number: u16
     }
+
+    struct CoinFlip {
+        result: bool,
+        new_random_number: u16
+    }
+
+    struct PhysicalAttack {
+        is_dodged: bool,
+        is_hit: bool,
+        is_critical: bool,
+        total_critical_hits: u16,
+        total_normal_hits: u16,
+        total_hits: u16,
+        damage: u16
+    }
+
+    record War {
+        owner: address,
+        simulation_id: u32,
+        round: u8,
+        main_team: Team,
+        target_team: Team,
+        physical_attack: PhysicalAttack
+    }
+
 
     mapping gangwar_settings: u32 => GangwarSettings;
 
@@ -79,11 +110,13 @@ program gangwar.aleo {
         // TODO: add asserts
         // 1. Check if the simulation id already exist
         let deadline_to_register: u32 = block.height + registration_time;
+        let random_number: u16 = ChaCha::rand_u16();
         let settings: GangwarSettings = GangwarSettings {
             deadline_to_register,
             max_number_of_players,
             gameloop_count,
-            registered_players: 0u8
+            registered_players: 0u8,
+            random_number
         };
         Mapping::set(gangwar_settings, simulation_id, settings);
     }
@@ -142,46 +175,151 @@ program gangwar.aleo {
         assert(settings.registered_players < settings.max_number_of_players);
         assert(settings.deadline_to_register > block.height);
 
+        let new_random_number: u16 = ChaCha::rand_u16();
+        let random_number: u16 = new_random_number.xor(settings.random_number);
+
         let updated_settings: GangwarSettings = GangwarSettings {
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             gameloop_count: settings.gameloop_count,
             registered_players: settings.registered_players + 1u8,
+            random_number,
         };
         Mapping::set(gangwar_settings, simulation_id, updated_settings);
     }
 
-    // transition team_formation(p1: Player, p2: Player, p3: Player, p4: Player, p5: Player, p6: Player) {
-
-    //     // Verify sorted list
-    //     assert(
-    //         p1.primary_stats.strength >= p2.primary_stats.strength &&
-    //         p2.primary_stats.strength >= p3.primary_stats.strength &&
-    //         p3.primary_stats.strength >= p4.primary_stats.strength &&
-    //         p4.primary_stats.strength >= p5.primary_stats.strength &&
-    //         p5.primary_stats.strength >= p6.primary_stats.strength &&
-    //    );
-
-    //     // TODO: Compare ABAB method and use the one that results in the least different of strength between two team
-    //     /*
-    //         METHOD II: ABBA METHOD 
-    //         1     4       Team A
-    //           2 3         Team B
-    //         Whichever is the weakest team assign 5th player to that team and remaining to another team
-    //     */
-    //     let team_a_strength: u16 = p1.primary_stats.strength + p4.primary_stats.strength;
-    //     let team_b_strength: u16 = p2.primary_stats.strength + p3.primary_stats.strength;
-
-    //     if (team_a_strength > team_b_strength) {
-    //         // then 5th player goes to team B
-    //         // 6th player comes to team A
-
-    //     } else {
-    //         // 5th player goes to team A
-    //         // 6th player comes to team B
-    //     }
+    /// Returns weighted random
+    inline flip_a_coin(random_number: u16, weight_for_true: u16) -> CoinFlip {
+        // random_number needs to be distributed between 0 to 2^16 - 1
+        // 0 < weight for true < MAX_U16
+        let new_random_number: u16 = BHP256::hash_to_u16(random_number);
+        if (random_number < weight_for_true) {
+            return CoinFlip {
+                result: true,
+                new_random_number
+            };
+        } else {
+            return CoinFlip{
+                result: false,
+                new_random_number
+            };
+        }
+    }
 
 
-    // }
+    transition start_game(simulation_id: u32, random_seed: u16, p1: Player, p2: Player, p3: Player, p4: Player, p5: Player, p6: Player) {
+        assert(
+            p1.simulation_id == simulation_id && 
+            p2.simulation_id == simulation_id && 
+            p3.simulation_id == simulation_id && 
+            p4.simulation_id == simulation_id && 
+            p5.simulation_id == simulation_id && 
+            p6.simulation_id == simulation_id
+        );
+
+        let teams: ITeams = divide_into_teams(p1.char, p2.char, p3.char, p4.char, p5.char, p6.char);
+
+        let team_a: Team = teams.team_a;
+        let team_b: Team = teams.team_b;
+
+        let main_team: Team = teams.team_a;
+        let target_team: Team = teams.team_b;
+
+        let half_u16: u16 = 32767u16; // u16::MAX.div(2)
+        let coin_flip_output: CoinFlip = flip_a_coin(random_seed, half_u16);
+        let team_b_starts: bool = coin_flip_output.result;
+
+        // Commenting out the following lines makes the code work
+        if (team_b_starts) {
+            main_team = team_b;
+            target_team = team_a;
+        } 
+        // let initial_attack: PhysicalAttack = PhysicalAttack {
+        //     is_dodged: true,
+        //     is_hit: false,
+        //     is_critical: false,
+        //     total_critical_hits: 0u16,
+        //     total_normal_hits: 0u16,
+        //     total_hits: 0u16,
+        //     damage: 0u16,
+        // };
+
+        // let war: War = War {
+        //     owner: self.caller, // TODO: Server address
+        //     simulation_id,
+        //     round: 0u8,
+        //     main_team,
+        //     target_team,
+        //     physical_attack: initial_attack
+        // };
+
+    }
+
+    function divide_into_teams(p1: Character, p2: Character, p3: Character, p4: Character, p5: Character, p6: Character) -> ITeams {
+
+        // Verify sorted list
+        assert(
+            p1.primary_stats.strength >= p2.primary_stats.strength &&
+            p2.primary_stats.strength >= p3.primary_stats.strength &&
+            p3.primary_stats.strength >= p4.primary_stats.strength &&
+            p4.primary_stats.strength >= p5.primary_stats.strength &&
+            p5.primary_stats.strength >= p6.primary_stats.strength
+       );
+
+        // TODO: Compare ABAB method and use the one that results in the least different of strength between two team
+        /*
+            METHOD II: ABBA METHOD 
+            1     4       Team A
+              2 3         Team B
+            Whichever is the weakest team assign 5th player to that team and remaining to another team
+        */
+        let team_a_strength: u16 = p1.primary_stats.strength + p4.primary_stats.strength;
+        let team_b_strength: u16 = p2.primary_stats.strength + p3.primary_stats.strength;
+
+        let team_a: Team = Team {
+            p1: p1,
+            p2: p4,
+            p3: p5
+        };
+
+        let team_b: Team = Team {
+            p1: p2,
+            p2: p3,
+            p3: p6
+        };
+
+        if (team_a_strength > team_b_strength) {
+            // then 5th player goes to team B
+            // 6th player comes to team A
+            team_a = Team {
+                p1: p1,
+                p2: p4,
+                p3: p6
+            };
+            team_b = Team {
+                p1: p2,
+                p2: p3,
+                p3: p5
+            };
+
+        } else {
+            // 5th player goes to team A
+            // 6th player comes to team B
+            team_a = Team {
+                p1: p1,
+                p2: p4,
+                p3: p5
+            };
+            team_b = Team {
+                p1: p2,
+                p2: p3,
+                p3: p6
+            };
+        }
+        return ITeams{
+            team_a,
+            team_b
+        };
+    }
 
 }
