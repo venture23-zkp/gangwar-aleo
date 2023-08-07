@@ -245,11 +245,12 @@ const playerRecord = (record: Record<string, unknown>): PlayerRecord => {
   const player: PlayerRecord = {
     owner: replaceValue(parsed.owner),
     simulationId: u32(parsed.simulation_id),
-    nftId: u16(parsed.nft_id),
-    playerAddr: replaceValue(parsed.player_addr),
-    primaryStats: primaryStats(parsed.primary_stats),
-    secondaryStats: secondaryStats(parsed.secondary_stats),
-    primaryEquipment: weapon(parsed.primary_equipment),
+    char: character(parsed.char),
+    // nftId: u16(parsed.nft_id),
+    // playerAddr: replaceValue(parsed.player_addr),
+    // primaryStats: primaryStats(parsed.primary_stats),
+    // secondaryStats: secondaryStats(parsed.secondary_stats),
+    // primaryEquipment: weapon(parsed.primary_equipment),
     _nonce: group(parsed._nonce).toString(),
   };
   return playerRecordSchema.parse(player);

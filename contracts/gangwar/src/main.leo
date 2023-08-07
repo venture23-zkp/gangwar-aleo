@@ -37,11 +37,13 @@ program gangwar.aleo {
     record Player {
         owner: address,
         simulation_id: u32,
-        nft_id: u16,
-        player_addr: address,
-        primary_stats: PrimaryStats,
-        secondary_stats: SecondaryStats,
-        primary_equipment: Weapon,
+        char: Character
+    }
+
+    struct Team {
+        p1: Character,
+        p2: Character,
+        p3: Character
     }
 
     struct Signature {
@@ -126,14 +128,11 @@ program gangwar.aleo {
     /// signature should be valid for time
     transition join_game(simulation_id: u32, char: Character, signature: Signature) -> Player {
         assert(verify(char, 1540945439182663264862696551825005342995406165131907382295858612069623286213group, signature)); // SERVER SCHNORR SIGNING PUBLIC KEY
+        assert_eq(char.player_addr, self.caller);
         return Player {
             owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px, // TODO: SERVER ADDRESS
             simulation_id,
-            nft_id: char.nft_id,
-            player_addr: self.caller,
-            primary_stats: char.primary_stats,
-            secondary_stats: char.secondary_stats,
-            primary_equipment: char.primary_equipment,
+            char
         } then finalize(simulation_id, signature.validity_timestamp);
     }
 
@@ -151,5 +150,38 @@ program gangwar.aleo {
         };
         Mapping::set(gangwar_settings, simulation_id, updated_settings);
     }
+
+    // transition team_formation(p1: Player, p2: Player, p3: Player, p4: Player, p5: Player, p6: Player) {
+
+    //     // Verify sorted list
+    //     assert(
+    //         p1.primary_stats.strength >= p2.primary_stats.strength &&
+    //         p2.primary_stats.strength >= p3.primary_stats.strength &&
+    //         p3.primary_stats.strength >= p4.primary_stats.strength &&
+    //         p4.primary_stats.strength >= p5.primary_stats.strength &&
+    //         p5.primary_stats.strength >= p6.primary_stats.strength &&
+    //    );
+
+    //     // TODO: Compare ABAB method and use the one that results in the least different of strength between two team
+    //     /*
+    //         METHOD II: ABBA METHOD 
+    //         1     4       Team A
+    //           2 3         Team B
+    //         Whichever is the weakest team assign 5th player to that team and remaining to another team
+    //     */
+    //     let team_a_strength: u16 = p1.primary_stats.strength + p4.primary_stats.strength;
+    //     let team_b_strength: u16 = p2.primary_stats.strength + p3.primary_stats.strength;
+
+    //     if (team_a_strength > team_b_strength) {
+    //         // then 5th player goes to team B
+    //         // 6th player comes to team A
+
+    //     } else {
+    //         // 5th player goes to team A
+    //         // 6th player comes to team B
+    //     }
+
+
+    // }
 
 }

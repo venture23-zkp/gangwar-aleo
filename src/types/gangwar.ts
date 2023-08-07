@@ -102,11 +102,12 @@ export type Character = z.infer<typeof characterSchema>;
 export const playerLeoRecordSchema = z.object({
   owner: leoAddressSchema,
   simulation_id: leoU32Schema,
-  nft_id: leoU16Schema,
-  player_addr: leoAddressSchema,
-  primary_stats: primaryStatsLeoSchema,
-  secondary_stats: secondaryStatsLeoSchema,
-  primary_equipment: weaponLeoSchema,
+  char: characterLeoSchema,
+  // nft_id: leoU16Schema,
+  // player_addr: leoAddressSchema,
+  // primary_stats: primaryStatsLeoSchema,
+  // secondary_stats: secondaryStatsLeoSchema,
+  // primary_equipment: weaponLeoSchema,
   _nonce: leoGroupSchema,
 });
 export type PlayerLeoRecord = z.infer<typeof playerLeoRecordSchema>;
@@ -114,11 +115,12 @@ export type PlayerLeoRecord = z.infer<typeof playerLeoRecordSchema>;
 export const playerRecordSchema = z.object({
   owner: leoAddressSchema,
   simulationId: z.number(),
-  nftId: z.number(),
-  playerAddr: leoAddressSchema,
-  primaryStats: primaryStatsSchema,
-  secondaryStats: secondaryStatsSchema,
-  primaryEquipment: weaponSchema,
+  char: characterSchema,
+  // nftId: z.number(),
+  // playerAddr: leoAddressSchema,
+  // primaryStats: primaryStatsSchema,
+  // secondaryStats: secondaryStatsSchema,
+  // primaryEquipment: weaponSchema,
   _nonce: z.string(),
 });
 export type PlayerRecord = z.infer<typeof playerRecordSchema>;
