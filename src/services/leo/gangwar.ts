@@ -13,11 +13,10 @@ import {
   LeoU128,
   LeoViewKey,
   PlayerRecord,
+  playerRecordBracketPattern,
 } from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
-import { Team, War, warBracketPattern } from "../../types/gangwarEngine";
 import { leoParse } from "../../utils";
-import { convertProbToUInt128 } from "./probability";
 import { contractsPath, leoRun, parseOutput, parseRecordString, snarkOsFetchMappingValue, zkRun } from "./util";
 
 const gangwarPath = join(contractsPath, "gangwar");
@@ -129,18 +128,57 @@ const joinGame = async (
   const params = [leoSimulationId, leoCharacterParam, leoSignatureParam];
 
   // console.log("gangwar.ts Joining game ", simulationId);
-  let res = await zkRun({
-    privateKey,
-    viewKey,
-    appName: programNames.GANGWAR,
-    contractPath: gangwarPath,
-    transition,
-    params,
-    fee: FEE,
-  });
+  let res = await zkRun(
+    {
+      privateKey,
+      viewKey,
+      appName: programNames.GANGWAR,
+      contractPath: gangwarPath,
+      transition,
+      params,
+      fee: FEE,
+    },
+    playerRecordBracketPattern()
+  );
 
   const playerRecord = parseOutput.playerRecord(res);
   return playerRecord;
 };
+
+// const startGame = async (
+//   privateKey: LeoPrivateKey,
+//   viewKey: LeoViewKey,
+//   simulationId: number,
+//   players: PlayerRecord[]
+//   // TODO: verify return type
+// ): Promise<PlayerRecord> => {
+//   const transition = "join_game";
+
+//   const leoSimulationId = leoParse.u32(simulationId);
+
+//   const gangwarSettings = fetchGangwarSettings(simulationId);
+//   const leoRandomSeed = leoParse.u16((await gangwarSettings).randomNumber);
+
+//   const leoPlayerParams = []
+//   for (let player in players) {
+//     const leoPlayer = leoParse.pla
+//   }
+
+//   const params = [leoSimulationId, leoRandomSeed, leoSignatureParam];
+
+//   // console.log("gangwar.ts Joining game ", simulationId);
+//   let res = await zkRun({
+//     privateKey,
+//     viewKey,
+//     appName: programNames.GANGWAR,
+//     contractPath: gangwarPath,
+//     transition,
+//     params,
+//     fee: FEE,
+//   });
+
+//   const playerRecord = parseOutput.playerRecord(res);
+//   return playerRecord;
+// };
 
 export const gangwar = { createGame, sign, joinGame, fetchGangwarSettings };

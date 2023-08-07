@@ -217,57 +217,59 @@ program gangwar.aleo {
             p6.simulation_id == simulation_id
         );
 
-        let teams: ITeams = divide_into_teams(p1.char, p2.char, p3.char, p4.char, p5.char, p6.char);
+        let no_attack: PhysicalAttack = PhysicalAttack {
+            is_dodged: true,
+            is_hit: false,
+            is_critical: false,
+            total_critical_hits: 0u16,
+            total_normal_hits: 0u16,
+            total_hits: 0u16,
+            damage: 0u16,
+        };
 
-        let team_a: Team = teams.team_a;
-        let team_b: Team = teams.team_b;
+
+        let (team_a, team_b): (Team, Team) = divide_into_teams(p1.char, p2.char, p3.char, p4.char, p5.char, p6.char);
 
         let main_team: Team = Team{
-                p1: teams.team_a.p1,
-                p2: teams.team_a.p2,
-                p3: teams.team_a.p3
+                p1: team_a.p1,
+                p2: team_a.p2,
+                p3: team_a.p3
             };
         let target_team: Team = Team{
-                p1: teams.team_b.p1,
-                p2: teams.team_b.p2,
-                p3: teams.team_b.p3
+                p1: team_b.p1,
+                p2: team_b.p2,
+                p3: team_b.p3
             };
 
         let half_u16: u16 = 32767u16; // u16::MAX.div(2)
         let coin_flip_output: CoinFlip = flip_a_coin(random_seed, half_u16);
         let team_b_starts: bool = coin_flip_output.result;
 
-        // Commenting out the following lines makes the code work
         if (team_b_starts) {
             main_team = Team{
                 p1: team_b.p1,
                 p2: team_b.p2,
                 p3: team_b.p3
             };
-            // target_team = team_a;
+            target_team = Team{
+                p1: team_a.p1,
+                p2: team_a.p2,
+                p3: team_a.p3
+            };
         } 
-        // let initial_attack: PhysicalAttack = PhysicalAttack {
-        //     is_dodged: true,
-        //     is_hit: false,
-        //     is_critical: false,
-        //     total_critical_hits: 0u16,
-        //     total_normal_hits: 0u16,
-        //     total_hits: 0u16,
-        //     damage: 0u16,
-        // };
 
-        // let war: War = War {
-        //     owner: self.caller, // TODO: Server address
-        //     simulation_id,
-        //     round: 0u8,
-        //     main_team,
-        //     target_team,
-        //     physical_attack: initial_attack
-        // };
+        let war: War = War {
+            owner: self.caller, // TODO: Server address
+            simulation_id,
+            round: 0u8,
+            main_team,
+            target_team,
+            physical_attack: no_attack
+        };
 
     }
 
-    function divide_into_teams(p1: Character, p2: Character, p3: Character, p4: Character, p5: Character, p6: Character) -> ITeams {
+    function divide_into_teams(p1: Character, p2: Character, p3: Character, p4: Character, p5: Character, p6: Character) -> (Team, Team) {
 
         // Verify sorted list
         assert(
@@ -328,10 +330,8 @@ program gangwar.aleo {
                 p3: p6
             };
         }
-        return ITeams{
-            team_a,
-            team_b
-        };
+
+        return (team_a, team_b);
     }
 
 }

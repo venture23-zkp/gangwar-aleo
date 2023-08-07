@@ -235,6 +235,7 @@ const settings = (record: Record<string, unknown>): GangwarSettings => {
     maxNumberOfPlayers: u8(parsed.max_number_of_players),
     gameloopCount: u8(parsed.gameloop_count),
     registeredPlayers: u8(parsed.registered_players),
+    randomNumber: u16(parsed.random_number),
   };
   return gangwarSettingsSchema.parse(gangwarSettings);
 };
@@ -258,8 +259,9 @@ const playerRecord = (record: Record<string, unknown>): PlayerRecord => {
 
 const team = (team: TeamLeo): Team => {
   const res: Team = {
-    player_1: character(team.player_1),
-    // player_2: character(team.player_2),
+    p1: character(team.p1),
+    p2: character(team.p2),
+    p3: character(team.p3),
   };
   return teamSchema.parse(res);
 };
@@ -404,8 +406,9 @@ export const decryptRecord = async (
   viewKey: LeoViewKey,
   correctBracketPattern?: string
 ): Promise<Record<string, unknown>> => {
+  console.log("trying to decrypt", encryptedRecord);
   let decrypted = ViewKey.from_string(viewKey).decrypt(encryptedRecord).replaceAll("\n", "").replaceAll(" ", "");
-  // console.log("decrypted", decrypted);
+  console.log("decrypted", decrypted);
   return parseRecordString(decrypted, correctBracketPattern);
 };
 

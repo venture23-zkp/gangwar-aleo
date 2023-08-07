@@ -1,13 +1,6 @@
-import {
-  CDefaultWeaponsName,
-  CNormalWeaponsName,
-  EDefaultEquipmentID,
-  ENormalEquipmentID,
-  equipmentTypes,
-  Team,
-} from "../types/gangwarEngine";
+import { CDefaultWeaponsName, CNormalWeaponsName, EDefaultEquipmentID, ENormalEquipmentID, equipmentTypes } from "../types/gangwarEngine";
 
-import { Character, PrimaryStats, SecondaryStats, Weapon } from "../types/gangwar";
+import { Character, PrimaryStats, SecondaryStats, Team, Weapon } from "../types/gangwar";
 import { leoU128Schema } from "../types";
 import { start } from "repl";
 import { LOCAL_NETWORK_ADDRESS } from "../constants";
@@ -173,12 +166,16 @@ const createRandomTeams = (teamANumber: number, teamBNumber: number): { teamA: T
   let teamACharacters = createCharacters(teamANumber, name1);
   let teamBCharacters = createCharacters(teamBNumber, name2);
   let teamA: Team = {
-    player_1: teamACharacters[0],
+    p1: teamACharacters[0],
+    p2: teamACharacters[1],
+    p3: teamACharacters[2],
     // player_2: teamACharacters[1],
     // To be added
   };
   let teamB: Team = {
-    player_1: teamBCharacters[0],
+    p1: teamBCharacters[0],
+    p2: teamBCharacters[1],
+    p3: teamBCharacters[2],
     // player_2: teamBCharacters[1],
     // To be added
   };

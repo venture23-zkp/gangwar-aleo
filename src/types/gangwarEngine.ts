@@ -46,66 +46,7 @@ export const multipliersSchema = z.object({
 });
 export type Multiplers = z.infer<typeof multipliersSchema>;
 
-export const teamLeoSchema = z.object({
-  player_1: characterLeoSchema,
-  // player_2: characterLeoSchema,
-});
-export type TeamLeo = z.infer<typeof teamLeoSchema>;
-
-export const teamSchema = z.object({
-  player_1: characterSchema,
-  // player_2: characterSchema,
-});
-export type Team = z.infer<typeof teamSchema>;
-
-export const physicalAttackLeoSchema = z.object({
-  is_dodged: leoBooleanSchema,
-  is_hit: leoBooleanSchema,
-  is_critical: leoBooleanSchema,
-  total_critical_hits: leoU128Schema,
-  total_normal_hits: leoU128Schema,
-  total_hits: leoU128Schema,
-  damage: leoU128Schema,
-});
-export type PhysicalAttackLeo = z.infer<typeof physicalAttackLeoSchema>;
-
-export const phyiscalAttackSchema = z.object({
-  isDodged: z.boolean(),
-  isHit: z.boolean(),
-  isCritical: z.boolean(),
-  totalCriticalHits: z.number(),
-  totalNormalHits: z.number(),
-  totalHits: z.number(),
-  damage: z.number(),
-});
-export type PhysicalAttack = z.infer<typeof phyiscalAttackSchema>;
-
-export const warLeoSchema = z.object({
-  owner: leoAddressSchema,
-  // room_id: u128,
-  simulation_id: leoU128Schema,
-  round: leoU128Schema,
-  // duration: u128,
-  // objectives: u128 // ??,
-  main_team: teamLeoSchema,
-  target_team: teamLeoSchema,
-  physical_attack: physicalAttackLeoSchema,
-  _nonce: leoGroupSchema,
-});
-export type WarLeo = z.infer<typeof warLeoSchema>;
-
-export const warSchema = z.object({
-  owner: leoAddressSchema,
-  simulationId: z.string(),
-  round: z.number(),
-  mainTeam: teamSchema,
-  targetTeam: teamSchema,
-  physicalAttack: phyiscalAttackSchema,
-  _nonce: leoGroupSchema,
-});
-export type War = z.infer<typeof warSchema>;
-
-export const characterBracketPattern = () => "{p1{pStats}{sStats}{weapon}}";
+const characterBracketPattern = () => "{p1{pStats}{sStats}{weapon}}";
 const teamBracketPattern = (numberOfPlayers: number) => {
   let bracketPattern = "{main/target";
   for (let i = 0; i < numberOfPlayers; i++) {
