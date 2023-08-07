@@ -170,7 +170,7 @@ program gangwar.aleo {
     }
 
     finalize join_game(simulation_id: u32, validity_timestamp: u32) {
-        assert(validity_timestamp < block.height);
+        assert(validity_timestamp > block.height);
         let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
         assert(settings.registered_players < settings.max_number_of_players);
         assert(settings.deadline_to_register > block.height);
