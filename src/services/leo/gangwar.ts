@@ -132,7 +132,7 @@ const joinGame = async (
   let res = await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.GANGWAR_ENGINE,
+    appName: programNames.GANGWAR,
     contractPath: gangwarPath,
     transition,
     params,

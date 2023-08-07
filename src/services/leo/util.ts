@@ -250,9 +250,8 @@ const playerRecord = (record: Record<string, unknown>): PlayerRecord => {
     primaryStats: primaryStats(parsed.primary_stats),
     secondaryStats: secondaryStats(parsed.secondary_stats),
     primaryEquipment: weapon(parsed.primary_equipment),
-    _nonce: group(parsed._nonce),
+    _nonce: group(parsed._nonce).toString(),
   };
-  // console.log(player);
   return playerRecordSchema.parse(player);
 };
 
@@ -520,8 +519,8 @@ export const deployPrograms = async () => {
   if (!privateKey) return;
 
   const fees = {
-    gangwar_engine: 15,
     gangwar: 15,
+    // gangwar_engine: 15,
   };
 
   const successfulPrograms: string[] = [];

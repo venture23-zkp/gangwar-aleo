@@ -119,6 +119,6 @@ export const playerRecordSchema = z.object({
   primaryStats: primaryStatsSchema,
   secondaryStats: secondaryStatsSchema,
   primaryEquipment: weaponSchema,
-  _nonce: z.bigint(),
+  _nonce: z.string(),
 });
 export type PlayerRecord = z.infer<typeof playerRecordSchema>;

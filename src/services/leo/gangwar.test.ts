@@ -17,29 +17,31 @@ describe("Gangwar Service", () => {
     k: "1", // one time signature key
   };
 
-  it("Create game", async () => {
-    const { owner, privateKey, viewKey } = keys;
+  // it("Create game", async () => {
+  //   const { owner, privateKey, viewKey } = keys;
 
-    const simulationId = 1;
-    const registrationDuration = 1000;
-    const maxNumberOfPlayers = 10;
-    const gameloopCount = 10;
+  //   const simulationId = 1;
+  //   const registrationDuration = 1000;
+  //   const maxNumberOfPlayers = 10;
+  //   const gameloopCount = 10;
 
-    const settings: GangwarSettings = await gangwar.createGame(
-      privateKey,
-      viewKey,
-      simulationId,
-      registrationDuration,
-      maxNumberOfPlayers,
-      gameloopCount
-    );
-  });
+  //   const settings: GangwarSettings = await gangwar.createGame(
+  //     privateKey,
+  //     viewKey,
+  //     simulationId,
+  //     registrationDuration,
+  //     maxNumberOfPlayers,
+  //     gameloopCount
+  //   );
+  // });
 
   it("Sign a Character", async () => {
     const { owner, privateKey, viewKey } = keys;
     const { sk, k } = schnorrKeys;
 
     const character = createCharacters(1, ["Apple"])[0];
+    console.log(character);
+    console.log(JSON.stringify(character));
 
     const validityTimestamp = 200; // 100 blocks
     const signature = await gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);

@@ -66,7 +66,7 @@ program gangwar.aleo {
     mapping gangwar_settings: u32 => GangwarSettings;
 
     transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, gameloop_count: u8) {
-        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // SERVER ADDRESS
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
         // TODO: add other asserts
         // 1. Check if the time is sufficient for other to join
         // 2. Check if the max_number_of_players is upto how much we support
@@ -127,7 +127,7 @@ program gangwar.aleo {
     transition join_game(simulation_id: u32, char: Character, signature: Signature) -> Player {
         assert(verify(char, 1540945439182663264862696551825005342995406165131907382295858612069623286213group, signature)); // SERVER SCHNORR SIGNING PUBLIC KEY
         return Player {
-            owner: aleo1vhztlwxmqphujgq4j8cxqaqvpevujghnk02g5vjvsl3yx0n3sgyq0uxhnl,
+            owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px, // TODO: SERVER ADDRESS
             simulation_id,
             nft_id: char.nft_id,
             player_addr: self.caller,
