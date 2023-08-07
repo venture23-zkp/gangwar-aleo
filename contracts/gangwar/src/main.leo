@@ -222,8 +222,16 @@ program gangwar.aleo {
         let team_a: Team = teams.team_a;
         let team_b: Team = teams.team_b;
 
-        let main_team: Team = teams.team_a;
-        let target_team: Team = teams.team_b;
+        let main_team: Team = Team{
+                p1: teams.team_a.p1,
+                p2: teams.team_a.p2,
+                p3: teams.team_a.p3
+            };
+        let target_team: Team = Team{
+                p1: teams.team_b.p1,
+                p2: teams.team_b.p2,
+                p3: teams.team_b.p3
+            };
 
         let half_u16: u16 = 32767u16; // u16::MAX.div(2)
         let coin_flip_output: CoinFlip = flip_a_coin(random_seed, half_u16);
@@ -231,8 +239,12 @@ program gangwar.aleo {
 
         // Commenting out the following lines makes the code work
         if (team_b_starts) {
-            main_team = team_b;
-            target_team = team_a;
+            main_team = Team{
+                p1: team_b.p1,
+                p2: team_b.p2,
+                p3: team_b.p3
+            };
+            // target_team = team_a;
         } 
         // let initial_attack: PhysicalAttack = PhysicalAttack {
         //     is_dodged: true,
