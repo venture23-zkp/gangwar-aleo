@@ -46,11 +46,6 @@ program gangwar.aleo {
         p3: Character
     }
 
-    struct ITeams {
-        team_a: Team,
-        team_b: Team
-    }
-
     struct Signature {
         r: group,
         s: group,
@@ -84,6 +79,13 @@ program gangwar.aleo {
         total_normal_hits: u16,
         total_hits: u16,
         damage: u16
+    }
+
+    struct IPhysicalAttackResponse {
+        updated_main_character: Character,
+        updated_target_character: Character,
+        physical_attack: PhysicalAttack,
+        new_random_number: u16
     }
 
     record War {
@@ -365,7 +367,7 @@ program gangwar.aleo {
         return (team_a, team_b);
     }
 
-    transition get_eligible_player_index(random_number:u16, already_selected_players: u8, alive_players: u8) -> u8 {
+    inline get_eligible_player_index(alive_players: u8, already_selected_players: u8, random_seed: u16) -> u8 {
         /// Representation of players is in u8 as LSBs (Least Significant Bits)
         /// For example: 7u8 => 00000111 => Represent all three players
         /// For example: 4u8 => 00000100 => Represent all third player
@@ -377,7 +379,7 @@ program gangwar.aleo {
 
         // Select a random index to denote the player
         // Since we have 3 players, mod by 3u8
-        let random_player_index: u8 = BHP256::hash_to_u8(random_number).mod(3u8);
+        let random_player_index: u8 = BHP256::hash_to_u8(random_seed).mod(3u8);
 
         // Get a random player
         // If random_player_index = 0u8 => random_player = 00000001 (p1)
@@ -406,9 +408,7 @@ program gangwar.aleo {
             }
         }
         return eligible_player_index;
-
     }
-
 
     inline get_alive_players(team:Team)-> u8{
 
@@ -428,4 +428,277 @@ program gangwar.aleo {
         }
         return alive;
     }
+
+    /// If a>b returns a-b, else returns 0
+    inline sub_to_zero(a: u16, b:u16) -> u16 {
+        if (a > b) {
+            return a.sub_wrapped(b);
+        } else {
+            return 0u16;
+        }
+    }
+    
+    /// If ((a+b > a) && (a+b > b)) return a+b else returns u16::MAX
+    /// TODO: Since this addition is in case of probability, maybe name the function to add_probabilities?
+    inline add_to_max(a: u16, b:u16) -> u16 {
+        let u16_max: u16 = 65535u16;
+        let sum: u16 = a.add_wrapped(b);
+        if ((a > sum) || (b > sum)) {
+            return u16_max;
+        } else {
+            return sum;
+        }
+    }
+
+    // Multiply a value with probability
+    // Split into precision to prevent overflow
+    inline multiply_with_probability(value: u16, probability: u16) -> u16 {
+        let first_precision: u16 = 255u16;
+        let second_precision: u16 = 257u16;
+        let newValue: u16 = (value.mul(probability.div(first_precision))).div(second_precision);
+        return newValue;
+    }
+
+     // TODO: for generalized inputs
+    inline get_total_hits(max_hits: u16, main: Character, target: Character, random_number: u16) -> (u16, u16, u16, u16) {
+        let total_normal_hits: u16 = 0u16;
+        let total_critical_hits: u16 = 0u16;
+        let total_hits: u16 = 0u16;
+
+        let coin_flip_output: CoinFlip = CoinFlip {
+            result: false,
+            new_random_number: random_number
+        };
+
+        for i: u16 in 0u16..5u16{
+            if (i.lt(max_hits)) {
+                // TODO: represent probabilities between 0 and 1 to probabilities between 0 to MAX_U128
+                // Needs to work with multiplication and addition of probabilities
+                // let boost_dc: u16 = target.secondary_stats.dodge_chance.mul(target.multipliers.dodge_chance);
+                let target_final_dodge_chance: u16 = target.secondary_stats.dodge_chance;
+
+                coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, target_final_dodge_chance);
+                let is_dodged: bool = coin_flip_output.result;
+
+                // Note: When setting characters, a case in handled on game_engine where there is no primary equipment
+                // For now let us consider that player always has a primary equipment
+                if (!is_dodged) {
+                    
+                    // TODO: Ensure main_final_hit_chance is less than 1
+                    let main_final_hit_chance: u16 = add_to_max(main.secondary_stats.hit_chance, main.primary_equipment.hit_chance);
+                    coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_final_hit_chance);
+                    let is_hit: bool = coin_flip_output.result;
+
+                    if (is_hit) {
+                        // TODO: Ensure main_critical_chance is less than 1
+                        let main_critical_chance: u16 = add_to_max(main.secondary_stats.critical_chance, main.primary_equipment.critical_chance);
+                        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_critical_chance);
+                        let is_critical: bool = coin_flip_output.result;
+                        if (is_critical) {
+                            total_critical_hits += 1u16;
+                        } else {
+                            total_normal_hits += 1u16;
+                        }
+                        total_hits += 1u16;
+                    }
+                }
+            }
+        }
+        return (total_normal_hits, total_critical_hits, total_hits, coin_flip_output.new_random_number);
+    }
+   
+    function physical_attack_sequence(main: Character, target: Character, random_number: u16) -> IPhysicalAttackResponse {
+        let damage: u16 = 0u16;
+
+        let total_normal_hits: u16 = 0u16;
+        let total_critical_hits: u16 = 0u16;
+        let total_hits: u16 = 0u16;
+        let is_equipment_broken: bool = false;
+
+        let coin_flip_output: CoinFlip = CoinFlip {
+            result: false,
+            new_random_number: random_number
+        };
+
+        let target_final_dodge_chance: u16 = target.secondary_stats.dodge_chance;
+        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, target_final_dodge_chance);
+        let is_dodged: bool = coin_flip_output.result;
+
+        if (is_dodged) {
+            // Add other info for narration
+            let physical_attack: PhysicalAttack = PhysicalAttack {
+                is_dodged: true,
+                is_hit: false,
+                is_critical: false,
+                total_critical_hits,
+                total_normal_hits,
+                total_hits,
+                damage,
+            };
+
+            return IPhysicalAttackResponse{
+                updated_main_character: main,
+                updated_target_character: target,
+                physical_attack,
+                new_random_number: coin_flip_output.new_random_number
+            };
+        }
+
+        // Assume we always have a main.primary_equipment
+        let main_final_hit_chance: u16 = add_to_max(main.secondary_stats.hit_chance, main.primary_equipment.hit_chance);
+        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_final_hit_chance);
+        let is_hit: bool = coin_flip_output.result;
+
+        if (!is_hit) {
+            // Add other info for narration
+            let physical_attack: PhysicalAttack = PhysicalAttack {
+                is_dodged: false,
+                is_hit: false,
+                is_critical: false,
+                total_critical_hits,
+                total_normal_hits,
+                total_hits,
+                damage: 0u16,
+            };
+
+            return IPhysicalAttackResponse{
+                updated_main_character: main,
+                updated_target_character: target,
+                physical_attack,
+                new_random_number: coin_flip_output.new_random_number
+            };
+        }
+
+        let main_critical_chance: u16 = add_to_max(main.secondary_stats.critical_chance,  main.primary_equipment.critical_chance);
+        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_critical_chance);
+        let is_critical: bool = coin_flip_output.result;
+
+        // ignore options
+        if (main.primary_equipment.is_broken) {
+            // if primary equipment is broken use punch
+            damage = main.primary_stats.strength / 5u16;
+        } else {
+            // todo: check if primary equipment is special
+            // special weapon includes: 
+            // Normal: remington_870, grenade, pr_flame_bottles
+            // Default: molotov_cocktail, sawed_off_shotgun, shotgun
+
+            // for now assume special_weapon = true
+
+            // primay_equipment.w_type = 1 = Range
+            if (main.primary_equipment.w_type == 1u16) {
+                damage = main.primary_equipment.damage;
+            // else if primary_equipment.w_type = 0 = Melee
+            } else if (main.primary_equipment.w_type == 0u16) {
+                let extra_damage: u16 = multiply_with_probability(main.primary_equipment.damage, main.secondary_stats.melee_damage); // percentange TODO: handle percentage multiplication
+                damage = extra_damage + main.primary_equipment.damage;
+            }
+
+            let (total_normal_hits, total_critical_hits, total_hits, new_random_number): (u16, u16, u16, u16) = get_total_hits(main.primary_equipment.number_of_hits, main, target, coin_flip_output.new_random_number);
+
+            if (is_critical) {
+                total_critical_hits += 1u16;
+            } else {
+                total_normal_hits += 1u16;
+            }
+            total_hits += 1u16;
+
+            // assume isCollateral = false
+            // TODO: double check; handle when negative; there's more logic
+            is_equipment_broken = sub_to_zero(main.primary_equipment.dura_ammo, main.primary_equipment.consumption_rate) == 0u16;
+
+            let normal_hit_damage: u16 = 0u16;
+            let critical_hit_damage: u16 = 0u16;
+
+            if (total_normal_hits >= 1u16) {
+                let hit_increase_by: u16 = total_normal_hits * damage;
+                normal_hit_damage = hit_increase_by;
+            }
+
+            if (total_critical_hits >= 1u16) {
+                critical_hit_damage = total_critical_hits * damage * 2u16;
+            }
+
+            damage = normal_hit_damage + critical_hit_damage;
+        }
+        // Damage Boost Ignored
+
+        let updated_secondary_stats: SecondaryStats = SecondaryStats{
+            health: sub_to_zero(target.secondary_stats.health, damage),
+            dodge_chance: target.secondary_stats.dodge_chance,
+            hit_chance: target.secondary_stats.hit_chance,
+            critical_chance: target.secondary_stats.critical_chance,
+            melee_damage: target.secondary_stats.melee_damage
+        };
+
+        let updated_weapon: Weapon = Weapon{
+            id: main.primary_equipment.id,
+            w_type: main.primary_equipment.w_type,
+            consumption_rate: main.primary_equipment.consumption_rate,
+            critical_chance: main.primary_equipment.critical_chance,
+            dura_ammo: sub_to_zero(main.primary_equipment.dura_ammo, total_hits),
+            damage: main.primary_equipment.damage,
+            hit_chance: main.primary_equipment.hit_chance,
+            number_of_hits: main.primary_equipment.number_of_hits,
+            is_broken: is_equipment_broken
+        };
+
+        let updated_main_character: Character = Character{
+            nft_id: main.nft_id,
+            player_addr: main.player_addr,
+            primary_stats: main.primary_stats,
+            secondary_stats: main.secondary_stats,
+            primary_equipment: updated_weapon
+        };
+
+        let updated_target_character: Character = Character{
+            nft_id: target.nft_id,
+            player_addr: target.player_addr,
+            primary_stats: target.primary_stats,
+            secondary_stats: updated_secondary_stats,
+            primary_equipment: target.primary_equipment
+        };
+
+        let physical_attack: PhysicalAttack = PhysicalAttack {
+            is_dodged,
+            is_hit,
+            is_critical,
+            total_critical_hits,
+            total_normal_hits,
+            total_hits,
+            damage,
+        };
+
+        return IPhysicalAttackResponse {
+            updated_main_character,
+            updated_target_character,
+            physical_attack,
+            new_random_number
+        };
+    }
+
+    // transition simulate1vs1(war: War, random_seed: u16) {
+
+    //     let alive_players_in_main_team: u8 = get_alive_players(war.main_team);
+    //     assert(alive_players_in_main_team > 0u8);
+
+    //     let alive_players_in_target_team: u8 = get_alive_players(war.target_team);
+    //     assert(alive_players_in_target_team > 0u8);
+
+    //     let eligible_player_in_main_team: u8 = get_eligible_player_index(alive_players_in_main_team, 0u8, random_seed);
+
+    //     let new_random_seed: u16 = BHP256::hash_to_u16(random_seed);
+    //     let eligible_player_in_target_team: u8 = get_eligible_player_index(alive_players_in_target_team, 0u8, new_random_seed);
+
+    //     let physical_attack: PhysicalAttack = {
+    //         is_dodged: true,
+    //         is_hit: false,
+    //         is_critical: false,
+    //         total_critical_hits: 0u16,
+    //         total_normal_hits: 0u16,
+    //         total_hits: 0u16,
+    //         damage: 0u16
+    //     };
+
+    // }
 }
