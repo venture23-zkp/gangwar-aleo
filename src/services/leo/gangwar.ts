@@ -231,4 +231,34 @@ const simulate1vs1 = async (
   return warRecord;
 };
 
-export const gangwar = { createGame, sign, joinGame, startGame, simulate1vs1, fetchGangwarSettings };
+const finishGame = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  war: War
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "finish_game";
+
+  const gangwarSettings = fetchGangwarSettings(war.simulationId);
+  const leoRandomSeed = leoParse.u16((await gangwarSettings).randomNumber);
+  console.log(leoRandomSeed);
+
+  const leoWarRecord = leoParse.warRecord(war);
+
+  const leoWarRecordParam = leoParse.stringifyLeoCmdParam(leoWarRecord);
+
+  const params = [leoWarRecordParam, leoRandomSeed];
+
+  // console.log("gangwar.ts Joining game ", simulationId);
+  await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.GANGWAR,
+    contractPath: gangwarPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+};
+
+export const gangwar = { createGame, sign, joinGame, startGame, simulate1vs1, finishGame, fetchGangwarSettings };
