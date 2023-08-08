@@ -365,8 +365,57 @@ program gangwar.aleo {
         return (team_a, team_b);
     }
 
+    transition get_eligible_player_index(random_number:u16, already_selected_players: u8, alive_players: u8) -> u8 {
+        /// Representation of players is in u8 as LSBs (Least Significant Bits)
+        /// For example: 7u8 => 00000111 => Represent all three players
+        /// For example: 4u8 => 00000100 => Represent all third player
+
+        /// Selects an eligible player based on a random_number
+        /// A player is eligible if he is alive and has not been selected previously
+
+        let eligible_player_index: u8 = 8u8; // Starting with an out of range value
+
+        // Select a random index to denote the player
+        // Since we have 3 players, mod by 3u8
+        let random_player_index: u8 = BHP256::hash_to_u8(random_number).mod(3u8);
+
+        // Get a random player
+        // If random_player_index = 0u8 => random_player = 00000001 (p1)
+        // If random_player_index = 1u8 => random_player = 00000010 (p2)
+        // If random_player_index = 2u8 => random_player = 00000100 (p3)
+        let random_player: u8 = 1u8<<(random_player_index);
+
+        // Ensure the random_player is eligible
+        if (( 
+            (random_player & already_selected_players) == 0u8 ) && // Random player is not selected previously
+            ((random_player & alive_players) != 0u8 )) // Random player is alive
+            {
+                eligible_player_index = random_player_index;
+            }
+        else { // search for a random player
+            for i:u8 in 0u8..2u8{
+                random_player = random_player<< 1u8;   // try with next player
+                random_player_index += 1u8;
+                if (random_player == 8u8) { 
+                    random_player = 1u8;
+                    random_player_index = 0u8;
+                }
+                if ((random_player & already_selected_players)== 0u8 ) && ((random_player & alive_players) != 0u8 ){
+                    eligible_player_index = random_player_index;
+                }
+            }
+        }
+        return eligible_player_index;
+
+    }
+
 
     inline get_alive_players(team:Team)-> u8{
+
+        /// Representation of players is in u8 as LSBs (Least Significant Bits)
+        /// For example: 7u8 => 00000111 => Represent all three players
+        /// For example: 4u8 => 00000100 => Represent all third player
+
         let alive : u8 = 0u8;
         if(team.p1.secondary_stats.health > 0u16){
             alive = alive | 1u8;
