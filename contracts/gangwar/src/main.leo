@@ -365,4 +365,18 @@ program gangwar.aleo {
         return (team_a, team_b);
     }
 
+
+    inline get_alive_players(team:Team)-> u8{
+        let alive : u8 = 0u8;
+        if(team.p1.secondary_stats.health > 0u16){
+            alive = alive | 1u8;
+        }
+        if(team.p2.secondary_stats.health > 0u16){
+            alive = alive | 2u8;
+        }
+        if(team.p3.secondary_stats.health > 0u16){
+            alive = alive | 4u8;
+        }
+        return alive;
+    }
 }
