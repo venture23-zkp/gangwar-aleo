@@ -71,6 +71,14 @@ program gangwar.aleo {
         new_random_number: u16
     }
 
+    // TODO: verify if total_hits is necessary
+    struct IHitData {
+        total_normal_hits: u16,
+        total_critical_hits: u16,
+        total_hits: u16,
+        new_random_number: u16
+    }
+
     struct PhysicalAttack {
         is_dodged: bool,
         is_hit: bool,
@@ -459,8 +467,8 @@ program gangwar.aleo {
         return newValue;
     }
 
-     // TODO: for generalized inputs
-    inline get_total_hits(max_hits: u16, main: Character, target: Character, random_number: u16) -> (u16, u16, u16, u16) {
+        // TODO: for generalized inputs
+    inline get_total_hits(max_hits: u16, main: Character, target: Character, random_number: u16) -> IHitData {
         let total_normal_hits: u16 = 0u16;
         let total_critical_hits: u16 = 0u16;
         let total_hits: u16 = 0u16;
@@ -504,9 +512,18 @@ program gangwar.aleo {
                 }
             }
         }
-        return (total_normal_hits, total_critical_hits, total_hits, coin_flip_output.new_random_number);
+
+        let hit_data: IHitData = IHitData{
+             total_normal_hits,
+             total_critical_hits,
+             total_hits,
+             new_random_number: coin_flip_output.new_random_number
+        };
+
+        return hit_data;
     }
-   
+
+
     function physical_attack_sequence(main: Character, target: Character, random_number: u16) -> IPhysicalAttackResponse {
         let damage: u16 = 0u16;
 
@@ -594,7 +611,10 @@ program gangwar.aleo {
                 damage = extra_damage + main.primary_equipment.damage;
             }
 
-            let (total_normal_hits, total_critical_hits, total_hits, new_random_number): (u16, u16, u16, u16) = get_total_hits(main.primary_equipment.number_of_hits, main, target, coin_flip_output.new_random_number);
+            let hit_data: IHitData = get_total_hits(main.primary_equipment.number_of_hits, main, target, coin_flip_output.new_random_number);
+            total_normal_hits = hit_data.total_normal_hits;
+            total_critical_hits = hit_data.total_critical_hits;
+            total_hits = hit_data.total_hits;
 
             if (is_critical) {
                 total_critical_hits += 1u16;
@@ -673,32 +693,52 @@ program gangwar.aleo {
             updated_main_character,
             updated_target_character,
             physical_attack,
-            new_random_number
+            new_random_number: coin_flip_output.new_random_number
         };
     }
 
-    // transition simulate1vs1(war: War, random_seed: u16) {
 
-    //     let alive_players_in_main_team: u8 = get_alive_players(war.main_team);
-    //     assert(alive_players_in_main_team > 0u8);
+   
+    transition simulate1vs1(w: War, random_seed: u16) {
 
-    //     let alive_players_in_target_team: u8 = get_alive_players(war.target_team);
-    //     assert(alive_players_in_target_team > 0u8);
+        let alive_players_in_main_team: u8 = get_alive_players(w.main_team);
+        assert(alive_players_in_main_team > 0u8);
 
-    //     let eligible_player_in_main_team: u8 = get_eligible_player_index(alive_players_in_main_team, 0u8, random_seed);
+        let alive_players_in_target_team: u8 = get_alive_players(w.target_team);
+        assert(alive_players_in_target_team > 0u8);
 
-    //     let new_random_seed: u16 = BHP256::hash_to_u16(random_seed);
-    //     let eligible_player_in_target_team: u8 = get_eligible_player_index(alive_players_in_target_team, 0u8, new_random_seed);
+        let eligible_player_in_main_team: u8 = get_eligible_player_index(alive_players_in_main_team, 0u8, random_seed);
 
-    //     let physical_attack: PhysicalAttack = {
-    //         is_dodged: true,
-    //         is_hit: false,
-    //         is_critical: false,
-    //         total_critical_hits: 0u16,
-    //         total_normal_hits: 0u16,
-    //         total_hits: 0u16,
-    //         damage: 0u16
-    //     };
+        let new_random_seed: u16 = BHP256::hash_to_u16(random_seed);
+        let eligible_player_in_target_team: u8 = get_eligible_player_index(alive_players_in_target_team, 0u8, new_random_seed);
 
-    // }
+        let dummy_attack: PhysicalAttack = PhysicalAttack {
+            is_dodged: true,
+            is_hit: false,
+            is_critical: false,
+            total_critical_hits: 0u16,
+            total_normal_hits: 0u16,
+            total_hits: 0u16,
+            damage: 0u16
+        };
+
+        let par: IPhysicalAttackResponse = IPhysicalAttackResponse {
+            updated_main_character: w.main_team.p1, 
+            updated_target_character: w.main_team.p1, 
+            physical_attack: dummy_attack, 
+            new_random_number: 0u16
+        };
+
+        let updated_main_team: Team = Team {
+            p1 : w.main_team.p1,     
+            p2: w.main_team.p2, 
+            p3: w.main_team.p3, 
+        };
+        let updated_target_team: Team = Team{
+            p1 : w.target_team.p1,
+            p2: w.target_team.p2, 
+            p3: w.target_team.p3,
+        };
+    }
+
 }
