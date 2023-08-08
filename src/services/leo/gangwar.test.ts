@@ -65,10 +65,15 @@ describe("Gangwar Service", () => {
   });
 
   it("Start the Game", async () => {
+    const PLAYER_COUNT = 6;
     const { owner, privateKey, viewKey } = keys;
-
     const simulationId = 1;
-    const war = await gangwar.startGame(privateKey, viewKey, simulationId, playerRecord);
+
+    const players: Player[] = [];
+    for (let i = 0; i < PLAYER_COUNT; i++) {
+      players.push(playerRecord);
+    }
+    const war = await gangwar.startGame(privateKey, viewKey, simulationId, players);
     console.log(JSON.stringify(war));
   });
 });

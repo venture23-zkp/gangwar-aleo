@@ -153,11 +153,14 @@ const joinGame = async (
   return playerRecord;
 };
 
+// TODO
+const fetchPlayerRecords = async (simulationId: number): Promise<any> => {};
+
 const startGame = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey,
   simulationId: number,
-  player: Player
+  players: Player[]
   // TODO: verify return type
 ): Promise<any> => {
   const transition = "start_game";
@@ -167,20 +170,15 @@ const startGame = async (
   const gangwarSettings = fetchGangwarSettings(simulationId);
   const leoRandomSeed = leoParse.u16((await gangwarSettings).randomNumber);
 
+  const leoPlayerRecordParams = [];
   // console.log(player);
-  const leoPlayerRecord = leoParse.playerRecord(player);
-  const leoPlayerRecordParam = leoParse.stringifyLeoCmdParam(leoPlayerRecord);
+  for (let player of players) {
+    const leoPlayerRecord = leoParse.playerRecord(player);
+    const leoPlayerRecordParam = leoParse.stringifyLeoCmdParam(leoPlayerRecord);
+    leoPlayerRecordParams.push(leoPlayerRecordParam);
+  }
 
-  const params = [
-    leoSimulationId,
-    leoRandomSeed,
-    leoPlayerRecordParam,
-    leoPlayerRecordParam,
-    leoPlayerRecordParam,
-    leoPlayerRecordParam,
-    leoPlayerRecordParam,
-    leoPlayerRecordParam,
-  ];
+  const params = [leoSimulationId, leoRandomSeed, ...leoPlayerRecordParams];
 
   // console.log("gangwar.ts Joining game ", simulationId);
   let res = await zkRun({

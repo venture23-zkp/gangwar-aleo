@@ -6,6 +6,7 @@ import {
   leoPrivateKeySchema,
   leoU128Schema,
   leoViewKeySchema,
+  playerSchema,
   teamSchema,
   uuidSchema,
   warSchema,
@@ -42,6 +43,13 @@ export const schemas = {
       simulationId: z.number(),
       character: characterSchema,
       signature: schnorrSignatureSchema,
+    }),
+    startGame: z.object({
+      privateKey: leoPrivateKeySchema,
+      viewKey: leoViewKeySchema,
+      owner: leoAddressSchema,
+      simulationId: z.number(),
+      players: z.array(playerSchema),
     }),
   },
 };
