@@ -303,7 +303,7 @@ program gangwar.aleo {
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             gameloop_count: settings.gameloop_count,
-            registered_players: settings.registered_players + 1u8,
+            registered_players: settings.registered_players,
             random_number,
         };
         Mapping::set(gangwar_settings, simulation_id, updated_settings);
@@ -870,8 +870,30 @@ program gangwar.aleo {
             main_team: updated_target_team,
             target_team: updated_main_team,
             physical_attack: par.physical_attack
-        };
+        } then finalize(w.simulation_id, random_seed, par.new_random_number);
 
     }
+
+    finalize simulate1vs1(simulation_id: u32, initial_random_seed: u16, new_random_seed: u16) {
+        let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
+
+        // Ensure same random number is used  
+        assert_eq(initial_random_seed, settings.random_number);
+
+        // Generate a new random number
+        let new_random_number: u16 = ChaCha::rand_u16();
+        let random_number: u16 = new_random_number.xor(new_random_seed);
+
+        // Update the settings with new random number
+        let updated_settings: GangwarSettings = GangwarSettings {
+            deadline_to_register: settings.deadline_to_register,
+            max_number_of_players: settings.max_number_of_players,
+            gameloop_count: settings.gameloop_count,
+            registered_players: settings.registered_players,
+            random_number,
+        };
+        Mapping::set(gangwar_settings, simulation_id, updated_settings);
+    }
+
 
 }
