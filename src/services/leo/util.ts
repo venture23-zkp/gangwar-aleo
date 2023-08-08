@@ -285,7 +285,7 @@ const war = (record: Record<string, unknown>): War => {
   const { main_team, target_team } = parsed;
   const war: War = {
     owner: replaceValue(parsed.owner),
-    simulationId: parsed.simulation_id,
+    simulationId: u32(parsed.simulation_id),
     round: u8(parsed.round),
     mainTeam: team(main_team),
     targetTeam: team(target_team),

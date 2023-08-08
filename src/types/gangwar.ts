@@ -170,7 +170,7 @@ export type WarLeo = z.infer<typeof warLeoSchema>;
 
 export const warSchema = z.object({
   owner: leoAddressSchema,
-  simulationId: z.string(),
+  simulationId: z.number(),
   round: z.number(),
   mainTeam: teamSchema,
   targetTeam: teamSchema,

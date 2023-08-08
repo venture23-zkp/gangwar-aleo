@@ -14,6 +14,7 @@ import {
   LeoViewKey,
   Player,
   playerRecordBracketPattern,
+  War,
 } from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
 import { leoParse } from "../../utils";
@@ -71,7 +72,7 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
       maxNumberOfPlayers: 10,
       gameloopCount: 10,
       registeredPlayers: 1,
-      randomNumber: 100,
+      randomNumber: Math.round(Math.random() * (Math.pow(2, 16) - 1)),
     };
   }
 };
@@ -196,4 +197,38 @@ const startGame = async (
   return warRecord;
 };
 
-export const gangwar = { createGame, sign, joinGame, startGame, fetchGangwarSettings };
+const simulate1vs1 = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  war: War
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "simulate1vs1";
+
+  const gangwarSettings = fetchGangwarSettings(war.simulationId);
+  const leoRandomSeed = leoParse.u16((await gangwarSettings).randomNumber);
+  console.log(leoRandomSeed);
+
+  const leoWarRecord = leoParse.warRecord(war);
+
+  const leoWarRecordParam = leoParse.stringifyLeoCmdParam(leoWarRecord);
+
+  const params = [leoWarRecordParam, leoRandomSeed];
+
+  // console.log("gangwar.ts Joining game ", simulationId);
+  let res = await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.GANGWAR,
+    contractPath: gangwarPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+
+  const warRecord = parseOutput.war(res);
+  console.log(warRecord);
+  return warRecord;
+};
+
+export const gangwar = { createGame, sign, joinGame, startGame, simulate1vs1, fetchGangwarSettings };

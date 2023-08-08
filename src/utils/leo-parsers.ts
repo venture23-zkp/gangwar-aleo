@@ -27,9 +27,6 @@ import {
   PlayerLeo,
   playerLeoSchema,
   Player,
-  // PhysicalAttack,
-  // PhysicalAttackLeo,
-  // physicalAttackLeoSchema,
   PrimaryStats,
   PrimaryStatsLeo,
   primaryStatsLeoSchema,
@@ -37,15 +34,18 @@ import {
   SecondaryStatsLeo,
   secondaryStatsLeoSchema,
   secondaryStatsSchema,
-  // Team,
-  // TeamLeo,
-  // teamLeoSchema,
-  // War,
-  // WarLeo,
-  // warLeoSchema,
   Weapon,
   WeaponLeo,
   weaponLeoSchema,
+  TeamLeo,
+  Team,
+  teamLeoSchema,
+  War,
+  WarLeo,
+  PhysicalAttack,
+  PhysicalAttackLeo,
+  physicalAttackLeoSchema,
+  warLeoSchema,
 } from "../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema } from "../types/dsa";
 // import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
@@ -306,31 +306,31 @@ const weaponRecord = (weapon: Weapon): WeaponLeo => {
 //   return itemLeoSchema.parse(res);
 // };
 
-// const physicalAttack = (damage: PhysicalAttack): PhysicalAttackLeo => {
-//   const res: PhysicalAttackLeo = {
-//     is_dodged: bool(damage.isDodged),
-//     is_hit: bool(damage.isHit),
-//     is_critical: bool(damage.isCritical),
-//     total_critical_hits: u16(damage.totalCriticalHits),
-//     total_normal_hits: u16(damage.totalNormalHits),
-//     total_hits: u16(damage.totalHits),
-//     damage: u16(damage.damage),
-//   };
-//   return physicalAttackLeoSchema.parse(res);
-// };
+const physicalAttack = (damage: PhysicalAttack): PhysicalAttackLeo => {
+  const res: PhysicalAttackLeo = {
+    is_dodged: bool(damage.isDodged),
+    is_hit: bool(damage.isHit),
+    is_critical: bool(damage.isCritical),
+    total_critical_hits: u16(damage.totalCriticalHits),
+    total_normal_hits: u16(damage.totalNormalHits),
+    total_hits: u16(damage.totalHits),
+    damage: u16(damage.damage),
+  };
+  return physicalAttackLeoSchema.parse(res);
+};
 
-// const physicalAttackRecord = (damage: PhysicalAttack): PhysicalAttackLeo => {
-//   const res: PhysicalAttackLeo = {
-//     is_dodged: privateField(bool(damage.isDodged)),
-//     is_hit: privateField(bool(damage.isHit)),
-//     is_critical: privateField(bool(damage.isCritical)),
-//     total_critical_hits: privateField(u16(damage.totalCriticalHits)),
-//     total_normal_hits: privateField(u16(damage.totalNormalHits)),
-//     total_hits: privateField(u16(damage.totalHits)),
-//     damage: privateField(u16(damage.damage)),
-//   };
-//   return physicalAttackLeoSchema.parse(res);
-// };
+const physicalAttackRecord = (damage: PhysicalAttack): PhysicalAttackLeo => {
+  const res: PhysicalAttackLeo = {
+    is_dodged: privateField(bool(damage.isDodged)),
+    is_hit: privateField(bool(damage.isHit)),
+    is_critical: privateField(bool(damage.isCritical)),
+    total_critical_hits: privateField(u16(damage.totalCriticalHits)),
+    total_normal_hits: privateField(u16(damage.totalNormalHits)),
+    total_hits: privateField(u16(damage.totalHits)),
+    damage: privateField(u16(damage.damage)),
+  };
+  return physicalAttackLeoSchema.parse(res);
+};
 
 const character = (character: Character): CharacterLeo => {
   const res: CharacterLeo = {
@@ -344,11 +344,6 @@ const character = (character: Character): CharacterLeo => {
 };
 
 const characterRecord = (character: Character): CharacterLeo => {
-  // console.log(privateField(u16(character.nftId)));
-  // console.log(privateField(character.playerAddr));
-  // console.log(primaryStatsRecord(character.primaryStats));
-  // console.log(secondaryStatsRecord(character.secondaryStats));
-  // console.log(weaponRecord(character.primaryEquipment));
   const res: CharacterLeo = {
     nft_id: privateField(u16(character.nftId)),
     player_addr: privateField(character.playerAddr),
@@ -369,49 +364,51 @@ const playerRecord = (player: Player): PlayerLeo => {
   return playerLeoSchema.parse(res);
 };
 
-// const team = (team: Team): TeamLeo => {
-//   const res: TeamLeo = {
-//     player_1: character(team.player_1),
-//     // player_2: character(team.player_2),
-//   };
-//   return res;
-//   // return teamLeoSchema.parse(team);
-// };
+const team = (team: Team): TeamLeo => {
+  const res: TeamLeo = {
+    p1: character(team.p1),
+    p2: character(team.p2),
+    p3: character(team.p3),
+  };
+  // return res;
+  return teamLeoSchema.parse(res);
+};
 
-// const teamRecord = (team: Team): TeamLeo => {
-//   const res: TeamLeo = {
-//     player_1: characterRecord(team.player_1),
-//     // player_2: character(team.player_2),
-//   };
-//   return res;
-//   // return teamLeoSchema.parse(team);
-// };
+const teamRecord = (team: Team): TeamLeo => {
+  const res: TeamLeo = {
+    p1: characterRecord(team.p1),
+    p2: characterRecord(team.p2),
+    p3: characterRecord(team.p3),
+  };
+  // return res;
+  return teamLeoSchema.parse(res);
+};
 
-// const war = (war: War): WarLeo => {
-//   const res: WarLeo = {
-//     owner: war.owner,
-//     simulation_id: war.simulationId,
-//     round: privateField(u16(war.round)),
-//     main_team: team(war.mainTeam),
-//     target_team: team(war.targetTeam),
-//     physical_attack: physicalAttack(war.physicalAttack),
-//     _nonce: war._nonce,
-//   };
-//   return warLeoSchema.parse(res);
-// };
+const war = (war: War): WarLeo => {
+  const res: WarLeo = {
+    owner: war.owner,
+    simulation_id: u32(war.simulationId),
+    round: privateField(u16(war.round)),
+    main_team: team(war.mainTeam),
+    target_team: team(war.targetTeam),
+    physical_attack: physicalAttack(war.physicalAttack),
+    _nonce: war._nonce,
+  };
+  return warLeoSchema.parse(res);
+};
 
-// const warRecord = (war: War): WarLeo => {
-//   const res: WarLeo = {
-//     owner: war.owner,
-//     simulation_id: war.simulationId,
-//     round: privateField(u128(war.round)),
-//     main_team: teamRecord(war.mainTeam),
-//     target_team: teamRecord(war.targetTeam),
-//     physical_attack: physicalAttackRecord(war.physicalAttack),
-//     _nonce: war._nonce,
-//   };
-//   return warLeoSchema.parse(res);
-// };
+const warRecord = (war: War): WarLeo => {
+  const res: WarLeo = {
+    owner: privateField(war.owner),
+    simulation_id: privateField(u32(war.simulationId)),
+    round: privateField(u8(war.round)),
+    main_team: teamRecord(war.mainTeam),
+    target_team: teamRecord(war.targetTeam),
+    physical_attack: physicalAttackRecord(war.physicalAttack),
+    _nonce: publicField(group(BigInt(war._nonce))),
+  };
+  return warLeoSchema.parse(res);
+};
 
 export const leoParse = {
   field,
@@ -428,7 +425,7 @@ export const leoParse = {
   playerRecord,
   // team,
   // war,
-  // warRecord,
+  warRecord,
   // symbol,
   // baseURI,
 };
