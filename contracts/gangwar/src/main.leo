@@ -896,5 +896,80 @@ program gangwar.aleo {
         Mapping::set(gangwar_settings, simulation_id, updated_settings);
     }
 
+    function get_winners(team_a: Team, team_b: Team, random_number: u16) -> (address, address, address, u16, u16) {
+
+        // TODO: Ensure that the sum of the players is less than u16::MAX
+        let team_a_health: u16 = team_a.p1.secondary_stats.health + team_a.p2.secondary_stats.health + team_a.p3.secondary_stats.health;
+        let team_b_health: u16 = team_b.p1.secondary_stats.health + team_b.p2.secondary_stats.health + team_b.p3.secondary_stats.health;
+
+        if (team_a_health > team_b_health) {
+            return (
+                team_a.p1.player_addr,
+                team_a.p2.player_addr,
+                team_a.p3.player_addr,
+                team_a_health,
+                team_b_health
+            );
+        } else if (team_b_health > team_a_health) {
+            return (
+                team_b.p1.player_addr,
+                team_b.p2.player_addr,
+                team_b.p3.player_addr,
+                team_a_health,
+                team_b_health
+            );
+        } else {
+            let coin_flip_output: CoinFlip = flip_a_coin(random_number, 32768u16);
+            let team_a_wins: bool = coin_flip_output.result;
+
+            if (team_a_wins) {
+                return (
+                    team_a.p1.player_addr,
+                    team_a.p2.player_addr,
+                    team_a.p3.player_addr,
+                    team_a_health,
+                    team_b_health
+                );
+            } else {
+                return (
+                    team_b.p1.player_addr,
+                    team_b.p2.player_addr,
+                    team_b.p3.player_addr,
+                    team_a_health,
+                    team_b_health
+                );
+            }
+        }
+    }
+
+    transition finish_game(w: War, random_number: u16) -> (address, address, address) {
+        // TODO: provide some NFTs to the winners?
+        let (w1, w2, w3, h1, h2): (address, address, address, u16, u16) = get_winners(w.main_team, w.target_team, random_number);
+        return (w1, w2, w3) then finalize(w.simulation_id, w.round, h1, h2, random_number);
+    }
+
+    finalize finish_game(simulation_id: u32, round: u8, h1: u16, h2: u16, initial_random_seed: u16) {
+        let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
+
+        // Ensure that either max rounds have reached
+        // or all members of one team has died
+        assert(round >= settings.max_rounds || h1 == 0u16 || h2 == 0u16);
+
+        // Ensure same random number is used  
+        assert_eq(initial_random_seed, settings.random_number);
+
+        // Update the settings with new random number
+        let updated_settings: GangwarSettings = GangwarSettings {
+            deadline_to_register: settings.deadline_to_register,
+            max_number_of_players: settings.max_number_of_players,
+            max_rounds: settings.max_rounds,
+            registered_players: settings.registered_players,
+            random_number: settings.random_number,
+        };
+        Mapping::set(gangwar_settings, simulation_id, updated_settings);
+
+    }
+
+
 
 }
