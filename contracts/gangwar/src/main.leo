@@ -461,8 +461,8 @@ program gangwar.aleo {
     // Multiply a value with probability
     // Split into precision to prevent overflow
     inline multiply_with_probability(value: u16, probability: u16) -> u16 {
-        let first_precision: u16 = 255u16;
-        let second_precision: u16 = 257u16;
+        let first_precision: u16 = 256u16;
+        let second_precision: u16 = 256u16;
         let newValue: u16 = (value.mul(probability.div(first_precision))).div(second_precision);
         return newValue;
     }
@@ -602,13 +602,14 @@ program gangwar.aleo {
 
             // for now assume special_weapon = true
 
-            // primay_equipment.w_type = 1 = Range
-            if (main.primary_equipment.w_type == 1u16) {
-                damage = main.primary_equipment.damage;
             // else if primary_equipment.w_type = 0 = Melee
-            } else if (main.primary_equipment.w_type == 0u16) {
+            if(main.primary_equipment.w_type == 0u16) {
                 let extra_damage: u16 = multiply_with_probability(main.primary_equipment.damage, main.secondary_stats.melee_damage); // percentange TODO: handle percentage multiplication
                 damage = extra_damage + main.primary_equipment.damage;
+            } else {
+                // primay_equipment.w_type = 1 = Range
+                // primay_equipment.w_type = 2 = Support
+                damage = main.primary_equipment.damage;
             }
 
             let hit_data: IHitData = get_total_hits(main.primary_equipment.number_of_hits, main, target, coin_flip_output.new_random_number);
