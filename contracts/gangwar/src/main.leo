@@ -61,7 +61,7 @@ program gangwar.aleo {
     struct GangwarSettings {
         deadline_to_register: u32,
         max_number_of_players: u8,
-        gameloop_count: u8,
+        max_rounds: u8,
         registered_players: u8,
         random_number: u16
     }
@@ -108,15 +108,15 @@ program gangwar.aleo {
 
     mapping gangwar_settings: u32 => GangwarSettings;
 
-    transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, gameloop_count: u8) {
+    transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8) {
         assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
         // TODO: add other asserts
         // 1. Check if the time is sufficient for other to join
         // 2. Check if the max_number_of_players is upto how much we support
-        return then finalize(simulation_id, registration_time, max_number_of_players, gameloop_count);
+        return then finalize(simulation_id, registration_time, max_number_of_players, max_rounds);
     }
 
-    finalize create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, gameloop_count: u8) {
+    finalize create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8) {
         // TODO: add asserts
         // 1. Check if the simulation id already exist
         let deadline_to_register: u32 = block.height + registration_time;
@@ -124,7 +124,7 @@ program gangwar.aleo {
         let settings: GangwarSettings = GangwarSettings {
             deadline_to_register,
             max_number_of_players,
-            gameloop_count,
+            max_rounds,
             registered_players: 0u8,
             random_number
         };
@@ -198,7 +198,7 @@ program gangwar.aleo {
         let updated_settings: GangwarSettings = GangwarSettings {
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
-            gameloop_count: settings.gameloop_count,
+            max_rounds: settings.max_rounds,
             registered_players: settings.registered_players + 1u8,
             random_number,
         };
@@ -302,7 +302,7 @@ program gangwar.aleo {
         let updated_settings: GangwarSettings = GangwarSettings {
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
-            gameloop_count: settings.gameloop_count,
+            max_rounds: settings.max_rounds,
             registered_players: settings.registered_players,
             random_number,
         };
@@ -697,8 +697,6 @@ program gangwar.aleo {
             new_random_number: coin_flip_output.new_random_number
         };
     }
-
-
    
     transition simulate1vs1(w: War, random_seed: u16) -> War {
 
@@ -870,12 +868,15 @@ program gangwar.aleo {
             main_team: updated_target_team,
             target_team: updated_main_team,
             physical_attack: par.physical_attack
-        } then finalize(w.simulation_id, random_seed, par.new_random_number);
+        } then finalize(w.simulation_id, w.round, random_seed, par.new_random_number);
 
     }
 
-    finalize simulate1vs1(simulation_id: u32, initial_random_seed: u16, new_random_seed: u16) {
+    finalize simulate1vs1(simulation_id: u32, round: u8, initial_random_seed: u16, new_random_seed: u16) {
         let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
+
+        // Ensure max number of rounds is not exceeded
+        assert(round < settings.max_rounds);
 
         // Ensure same random number is used  
         assert_eq(initial_random_seed, settings.random_number);
@@ -888,7 +889,7 @@ program gangwar.aleo {
         let updated_settings: GangwarSettings = GangwarSettings {
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
-            gameloop_count: settings.gameloop_count,
+            max_rounds: settings.max_rounds,
             registered_players: settings.registered_players,
             random_number,
         };

@@ -22,7 +22,7 @@ export const schemas = {
       simulationId: z.number(),
       registrationDuration: z.number(),
       maxNumberOfPlayers: z.number(),
-      gameloopCount: z.number(),
+      maxRounds: z.number(),
     }),
     fetchGameSettings: z.object({
       simulationId: z.number(),

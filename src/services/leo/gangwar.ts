@@ -28,7 +28,7 @@ const createGame = async (
   simulationId: number,
   registrationDuration: number,
   maxNumberOfPlayers: number,
-  gameloopCount: number
+  maxRounds: number
   // TODO: verify return type
 ): Promise<any> => {
   const transition = "create_game";
@@ -36,7 +36,7 @@ const createGame = async (
   const leoSimulationId = leoParse.u32(simulationId);
   const leoRegistrationDuration = leoParse.u32(registrationDuration);
   const leoMaxNumberOfPlayers = leoParse.u8(maxNumberOfPlayers);
-  const leoGameLoopCount = leoParse.u8(gameloopCount);
+  const leoGameLoopCount = leoParse.u8(maxRounds);
   const params = [leoSimulationId, leoRegistrationDuration, leoMaxNumberOfPlayers, leoGameLoopCount];
 
   // console.log("gangwar.ts Trying to create game with ", simulationId);
@@ -70,7 +70,7 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
     return {
       deadlineToRegister: 1000,
       maxNumberOfPlayers: 10,
-      gameloopCount: 10,
+      maxRounds: 10,
       registeredPlayers: 1,
       randomNumber: Math.round(Math.random() * (Math.pow(2, 16) - 1)),
     };

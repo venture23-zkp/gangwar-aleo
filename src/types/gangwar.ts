@@ -5,7 +5,7 @@ import { leoAddressSchema, leoBooleanSchema, leoGroupSchema, leoU16Schema, leoU3
 export const gangwarSettingsLeoSchema = z.object({
   deadline_to_register: leoU32Schema,
   max_number_of_players: leoU8Schema,
-  gameloop_count: leoU8Schema,
+  max_rounds: leoU8Schema,
   registered_players: leoU8Schema,
   random_number: leoU16Schema,
 });
@@ -14,7 +14,7 @@ export type GangwarSettingsLeo = z.infer<typeof gangwarSettingsLeoSchema>;
 export const gangwarSettingsSchema = z.object({
   deadlineToRegister: z.number(), // TODO: Additional checks on limit
   maxNumberOfPlayers: z.number(), // TODO: Additional checks on limit
-  gameloopCount: z.number(), // TODO: Additional checks on limit
+  maxRounds: z.number(), // TODO: Additional checks on limit
   registeredPlayers: z.number(), // TODO: Additional checks on limit
   randomNumber: z.number(),
 });
