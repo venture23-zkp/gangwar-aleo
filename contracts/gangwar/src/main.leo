@@ -699,7 +699,7 @@ program gangwar.aleo {
 
 
    
-    transition simulate1vs1(w: War, random_seed: u16) {
+    transition simulate1vs1(w: War, random_seed: u16) -> War {
 
         let alive_players_in_main_team: u8 = get_alive_players(w.main_team);
         assert(alive_players_in_main_team > 0u8);
@@ -711,6 +711,7 @@ program gangwar.aleo {
 
         let new_random_seed: u16 = BHP256::hash_to_u16(random_seed);
         let eligible_player_in_target_team: u8 = get_eligible_player_index(alive_players_in_target_team, 0u8, new_random_seed);
+        new_random_seed = BHP256::hash_to_u16(new_random_seed);
 
         let dummy_attack: PhysicalAttack = PhysicalAttack {
             is_dodged: true,
@@ -739,6 +740,137 @@ program gangwar.aleo {
             p2: w.target_team.p2, 
             p3: w.target_team.p3,
         };
+
+        // TODO: Use array when it's available
+
+        if (eligible_player_in_main_team == 0u8 && eligible_player_in_target_team == 0u8) {
+            // p1 vs p1
+            par = physical_attack_sequence(w.main_team.p1, w.target_team.p1, new_random_seed);
+            updated_main_team = Team {
+                p1: par.updated_main_character,
+                p2: w.main_team.p2,
+                p3: w.main_team.p3
+            };
+            updated_target_team = Team {
+                p1: par.updated_target_character,
+                p2: w.target_team.p2,
+                p3: w.target_team.p3
+            };
+        } else if (eligible_player_in_main_team == 0u8 && eligible_player_in_target_team == 1u8) {
+            // p1 vs p2
+            par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+            updated_main_team = Team {
+                p1: par.updated_main_character,
+                p2: w.main_team.p2,
+                p3: w.main_team.p3
+            };
+            updated_target_team = Team {
+                p1: w.target_team.p1,
+                p2: par.updated_target_character,
+                p3: w.target_team.p3
+            };
+        } else if (eligible_player_in_main_team == 0u8 && eligible_player_in_target_team == 2u8) {
+            // p1 vs p3
+            par = physical_attack_sequence(w.main_team.p1, w.target_team.p3, new_random_seed);
+            updated_main_team = Team {
+                p1: par.updated_main_character,
+                p2: w.main_team.p2,
+                p3: w.main_team.p3
+            };
+            updated_target_team = Team {
+                p1: w.target_team.p1,
+                p2: w.target_team.p2,
+                p3: par.updated_target_character
+            };
+        } else if (eligible_player_in_main_team == 1u8 && eligible_player_in_target_team == 0u8) {
+            // p2 vs p1
+            par = physical_attack_sequence(w.main_team.p2, w.target_team.p1, new_random_seed);
+            updated_main_team = Team {
+                p1: w.main_team.p1,
+                p2: par.updated_main_character,
+                p3: w.main_team.p3
+            };
+            updated_target_team = Team {
+                p1: par.updated_target_character,
+                p2: w.target_team.p2,
+                p3: w.target_team.p3
+            };
+        } else if (eligible_player_in_main_team == 1u8 && eligible_player_in_target_team == 1u8) {
+            // p2 vs p2
+            par = physical_attack_sequence(w.main_team.p2, w.target_team.p2, new_random_seed);
+            updated_main_team = Team {
+                p1: w.main_team.p1,
+                p2: par.updated_main_character,
+                p3: w.main_team.p3
+            };
+            updated_target_team = Team {
+                p1: w.target_team.p1,
+                p2: par.updated_target_character,
+                p3: w.target_team.p3
+            };
+        } else if (eligible_player_in_main_team == 1u8 && eligible_player_in_target_team == 2u8) {
+            // p2 vs p3
+            par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+            updated_main_team = Team {
+                p1: w.main_team.p1,
+                p2: par.updated_main_character,
+                p3: w.main_team.p3
+            };
+            updated_target_team = Team {
+                p1: w.target_team.p1,
+                p2: w.target_team.p2,
+                p3: par.updated_target_character
+            };
+        } else if (eligible_player_in_main_team == 2u8 && eligible_player_in_target_team == 0u8) {
+            // p3 vs p1
+            par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+            updated_main_team = Team {
+                p1: w.main_team.p1,
+                p2: w.main_team.p2,
+                p3: par.updated_main_character,
+            };
+            updated_target_team = Team {
+                p1: par.updated_target_character,
+                p2: w.target_team.p2,
+                p3: w.target_team.p3
+            };
+        } else if (eligible_player_in_main_team == 2u8 && eligible_player_in_target_team == 1u8) {
+            // p3 vs p2
+            par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+            updated_main_team = Team {
+                p1: w.main_team.p1,
+                p2: w.main_team.p2,
+                p3: par.updated_main_character,
+            };
+            updated_target_team = Team {
+                p1: w.target_team.p1,
+                p2: par.updated_target_character,
+                p3: w.target_team.p3
+            };
+        } else if (eligible_player_in_main_team == 2u8 && eligible_player_in_target_team == 2u8) {
+            // p3 vs p3
+            par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+            updated_main_team = Team {
+                p1: par.updated_main_character,
+                p2: w.main_team.p2,
+                p3: w.main_team.p3
+            };
+            updated_target_team = Team {
+                p1: w.target_team.p1,
+                p2: w.target_team.p2,
+                p3: par.updated_target_character
+            };
+        }
+
+        return War {
+            owner: self.caller, // TODO: Server address
+            simulation_id: w.simulation_id,
+            round: w.round.add(1u8),
+            main_team: updated_target_team,
+            target_team: updated_main_team,
+            physical_attack: par.physical_attack
+        };
+
     }
 
 }
