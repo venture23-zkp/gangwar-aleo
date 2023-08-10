@@ -71,14 +71,6 @@ program gangwar.aleo {
         new_random_number: u16
     }
 
-    // TODO: verify if total_hits is necessary
-    struct IHitData {
-        total_normal_hits: u16,
-        total_critical_hits: u16,
-        total_hits: u16,
-        new_random_number: u16
-    }
-
     struct PhysicalAttack {
         is_dodged: bool,
         is_hit: bool,
@@ -467,63 +459,6 @@ program gangwar.aleo {
         return newValue;
     }
 
-        // TODO: for generalized inputs
-    inline get_total_hits(max_hits: u16, main: Character, target: Character, random_number: u16) -> IHitData {
-        let total_normal_hits: u16 = 0u16;
-        let total_critical_hits: u16 = 0u16;
-        let total_hits: u16 = 0u16;
-
-        let coin_flip_output: CoinFlip = CoinFlip {
-            result: false,
-            new_random_number: random_number
-        };
-
-        for i: u16 in 0u16..5u16{
-            if (i.lt(max_hits)) {
-                // TODO: represent probabilities between 0 and 1 to probabilities between 0 to MAX_U128
-                // Needs to work with multiplication and addition of probabilities
-                // let boost_dc: u16 = target.secondary_stats.dodge_chance.mul(target.multipliers.dodge_chance);
-                let target_final_dodge_chance: u16 = target.secondary_stats.dodge_chance;
-
-                coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, target_final_dodge_chance);
-                let is_dodged: bool = coin_flip_output.result;
-
-                // Note: When setting characters, a case in handled on game_engine where there is no primary equipment
-                // For now let us consider that player always has a primary equipment
-                if (!is_dodged) {
-                    
-                    // TODO: Ensure main_final_hit_chance is less than 1
-                    let main_final_hit_chance: u16 = add_to_max(main.secondary_stats.hit_chance, main.primary_equipment.hit_chance);
-                    coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_final_hit_chance);
-                    let is_hit: bool = coin_flip_output.result;
-
-                    if (is_hit) {
-                        // TODO: Ensure main_critical_chance is less than 1
-                        let main_critical_chance: u16 = add_to_max(main.secondary_stats.critical_chance, main.primary_equipment.critical_chance);
-                        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_critical_chance);
-                        let is_critical: bool = coin_flip_output.result;
-                        if (is_critical) {
-                            total_critical_hits += 1u16;
-                        } else {
-                            total_normal_hits += 1u16;
-                        }
-                        total_hits += 1u16;
-                    }
-                }
-            }
-        }
-
-        let hit_data: IHitData = IHitData{
-             total_normal_hits,
-             total_critical_hits,
-             total_hits,
-             new_random_number: coin_flip_output.new_random_number
-        };
-
-        return hit_data;
-    }
-
-
     function physical_attack_sequence(main: Character, target: Character, random_number: u16) -> IPhysicalAttackResponse {
         let damage: u16 = 0u16;
 
@@ -602,43 +537,25 @@ program gangwar.aleo {
 
             // for now assume special_weapon = true
 
-            // else if primary_equipment.w_type = 0 = Melee
+            // primay_equipment.w_type = 1 = Range
+            // primay_equipment.w_type = 2 = Support
+            damage = main.primary_equipment.damage;
+            // if primary_equipment.w_type = 0 = Melee ; add extra damage
             if(main.primary_equipment.w_type == 0u16) {
                 let extra_damage: u16 = multiply_with_probability(main.primary_equipment.damage, main.secondary_stats.melee_damage); // percentange TODO: handle percentage multiplication
-                damage = extra_damage + main.primary_equipment.damage;
-            } else {
-                // primay_equipment.w_type = 1 = Range
-                // primay_equipment.w_type = 2 = Support
-                damage = main.primary_equipment.damage;
-            }
+                damage += extra_damage;
+            } 
 
-            let hit_data: IHitData = get_total_hits(main.primary_equipment.number_of_hits, main, target, coin_flip_output.new_random_number);
-            total_normal_hits = hit_data.total_normal_hits;
-            total_critical_hits = hit_data.total_critical_hits;
-            total_hits = hit_data.total_hits;
-
-            if (is_critical) {
-                total_critical_hits += 1u16;
-            } else {
-                total_normal_hits += 1u16;
-            }
-            total_hits += 1u16;
+            total_hits = multiply_with_probability(multiply_with_probability(main.primary_equipment.number_of_hits, main_final_hit_chance), 65535u16 - target_final_dodge_chance);
+            total_critical_hits = multiply_with_probability(total_hits, main_critical_chance);
+            total_normal_hits = total_hits - total_critical_hits;
 
             // assume isCollateral = false
             // TODO: double check; handle when negative; there's more logic
             is_equipment_broken = sub_to_zero(main.primary_equipment.dura_ammo, main.primary_equipment.consumption_rate) == 0u16;
 
-            let normal_hit_damage: u16 = 0u16;
-            let critical_hit_damage: u16 = 0u16;
-
-            if (total_normal_hits >= 1u16) {
-                let hit_increase_by: u16 = total_normal_hits * damage;
-                normal_hit_damage = hit_increase_by;
-            }
-
-            if (total_critical_hits >= 1u16) {
-                critical_hit_damage = total_critical_hits * damage * 2u16;
-            }
+            let normal_hit_damage: u16 = total_normal_hits * damage;
+            let critical_hit_damage: u16 = total_critical_hits * damage * 2u16;
 
             damage = normal_hit_damage + critical_hit_damage;
         }
