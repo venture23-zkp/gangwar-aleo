@@ -100,6 +100,7 @@ program gangwar.aleo {
 
     mapping gangwar_settings: u32 => GangwarSettings;
 
+    /// 8 constraints
     transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8) {
         assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
         // TODO: add other asserts
@@ -124,6 +125,7 @@ program gangwar.aleo {
     }
 
 
+    /// 10,318 constraints
     function verify(m: Character, pk: group, signature: Signature) -> bool {
         let h: HashStruct = HashStruct {
             m,
@@ -138,6 +140,7 @@ program gangwar.aleo {
         return verified;
     }
     
+    /// 28,100 constraints
     transition sign(m: Character, sk: scalar, k: scalar, validity_timestamp: u32) -> Signature {
         let r: group = k * group::GEN;
         let h: HashStruct = HashStruct {
@@ -161,6 +164,7 @@ program gangwar.aleo {
 
     /// To join a game, submit a Character and it's corresponding signature by the server address
     /// signature should be valid for time
+    /// 21,377 constraints
     transition join_game(simulation_id: u32, char: Character, signature: Signature) -> Player {
         assert(verify(char, 1540945439182663264862696551825005342995406165131907382295858612069623286213group, signature)); // SERVER SCHNORR SIGNING PUBLIC KEY
         assert_eq(char.player_addr, self.caller);
@@ -198,6 +202,7 @@ program gangwar.aleo {
     }
 
     /// Returns weighted random
+    /// 575 constraints
     inline flip_a_coin(random_number: u16, weight_for_true: u16) -> CoinFlip {
         // random_number needs to be distributed between 0 to 2^16 - 1
         // 0 < weight for true < MAX_U16
@@ -216,6 +221,8 @@ program gangwar.aleo {
     }
 
 
+
+    /// 5,686 constraints
     transition start_game(simulation_id: u32, random_seed: u16, p1: Player, p2: Player, p3: Player, p4: Player, p5: Player, p6: Player) -> War {
         assert(
             p1.simulation_id == simulation_id && 
@@ -301,6 +308,7 @@ program gangwar.aleo {
         Mapping::set(gangwar_settings, simulation_id, updated_settings);
     }
 
+    /// 1609 constraints
     function divide_into_teams(p1: Character, p2: Character, p3: Character, p4: Character, p5: Character, p6: Character) -> (Team, Team) {
 
         // Instead of sorting manually, use a sorted list
@@ -367,6 +375,7 @@ program gangwar.aleo {
         return (team_a, team_b);
     }
 
+    /// 1,233 constraints
     inline get_eligible_player_index(alive_players: u8, already_selected_players: u8, random_seed: u16) -> u8 {
         /// Representation of players is in u8 as LSBs (Least Significant Bits)
         /// For example: 7u8 => 00000111 => Represent all three players
@@ -410,6 +419,7 @@ program gangwar.aleo {
         return eligible_player_index;
     }
 
+    /// 57 constraints
     inline get_alive_players(team:Team)-> u8{
 
         /// Representation of players is in u8 as LSBs (Least Significant Bits)
@@ -430,6 +440,7 @@ program gangwar.aleo {
     }
 
     /// If a>b returns a-b, else returns 0
+    /// 52 constraints
     inline sub_to_zero(a: u16, b:u16) -> u16 {
         if (a > b) {
             return a.sub_wrapped(b);
@@ -440,6 +451,7 @@ program gangwar.aleo {
     
     /// If ((a+b > a) && (a+b > b)) return a+b else returns u16::MAX
     /// TODO: Since this addition is in case of probability, maybe name the function to add_probabilities?
+    /// 71 constraints
     inline add_to_max(a: u16, b:u16) -> u16 {
         let u16_max: u16 = 65535u16;
         let sum: u16 = a.add_wrapped(b);
@@ -452,6 +464,7 @@ program gangwar.aleo {
 
     // Multiply a value with probability
     // Split into precision to prevent overflow
+    /// 154 constraints
     inline multiply_with_probability(value: u16, probability: u16) -> u16 {
         let first_precision: u16 = 256u16;
         let second_precision: u16 = 256u16;
@@ -459,6 +472,7 @@ program gangwar.aleo {
         return newValue;
     }
 
+    /// Constraints: 4,141
     function physical_attack_sequence(main: Character, target: Character, random_number: u16) -> IPhysicalAttackResponse {
         let damage: u16 = 0u16;
 
@@ -615,6 +629,7 @@ program gangwar.aleo {
         };
     }
    
+    /// 61,188 constraints
     transition simulate1vs1(w: War, random_seed: u16) -> War {
 
         let alive_players_in_main_team: u8 = get_alive_players(w.main_team);
@@ -813,6 +828,7 @@ program gangwar.aleo {
         Mapping::set(gangwar_settings, simulation_id, updated_settings);
     }
 
+    /// 816 constraints
     function get_winners(team_a: Team, team_b: Team, random_number: u16) -> (address, address, address, u16, u16) {
 
         // TODO: Ensure that the sum of the players is less than u16::MAX
@@ -859,6 +875,7 @@ program gangwar.aleo {
         }
     }
 
+    /// 816 constraints
     transition finish_game(w: War, random_number: u16) -> (address, address, address) {
         // TODO: provide some NFTs to the winners?
         let (w1, w2, w3, h1, h2): (address, address, address, u16, u16) = get_winners(w.main_team, w.target_team, random_number);
