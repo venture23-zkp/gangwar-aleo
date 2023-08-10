@@ -2,6 +2,10 @@
 
 program gangwar.aleo {
 
+    ///////////////////////////////////
+    //////////// STRUCTS //////////////
+    ///////////////////////////////////
+
     struct PrimaryStats {
         strength: u16,
     }
@@ -34,16 +38,28 @@ program gangwar.aleo {
         primary_equipment: Weapon,
     }
 
-    record Player {
-        owner: address,
-        simulation_id: u32,
-        char: Character
-    }
-
     struct Team {
         p1: Character,
         p2: Character,
         p3: Character
+    }
+
+    struct GangwarSettings {
+        deadline_to_register: u32,
+        max_number_of_players: u8,
+        max_rounds: u8,
+        registered_players: u8,
+        random_number: u16
+    }
+
+    struct PhysicalAttack {
+        is_dodged: bool,
+        is_hit: bool,
+        is_critical: bool,
+        total_critical_hits: u16,
+        total_normal_hits: u16,
+        total_hits: u16,
+        damage: u16
     }
 
     struct Signature {
@@ -58,27 +74,10 @@ program gangwar.aleo {
         validity_timestamp: u32
     }
 
-    struct GangwarSettings {
-        deadline_to_register: u32,
-        max_number_of_players: u8,
-        max_rounds: u8,
-        registered_players: u8,
-        random_number: u16
-    }
 
     struct CoinFlip {
         result: bool,
         new_random_number: u16
-    }
-
-    struct PhysicalAttack {
-        is_dodged: bool,
-        is_hit: bool,
-        is_critical: bool,
-        total_critical_hits: u16,
-        total_normal_hits: u16,
-        total_hits: u16,
-        damage: u16
     }
 
     struct IPhysicalAttackResponse {
@@ -87,6 +86,10 @@ program gangwar.aleo {
         physical_attack: PhysicalAttack,
         new_random_number: u16
     }
+
+    ///////////////////////////////////
+    //////////// RECORDS //////////////
+    ///////////////////////////////////
 
     record War {
         owner: address,
@@ -97,8 +100,22 @@ program gangwar.aleo {
         physical_attack: PhysicalAttack
     }
 
+    record Player {
+        owner: address,
+        simulation_id: u32,
+        char: Character
+    }
+
+
+    ///////////////////////////////////
+    //////////// MAPPINGS /////////////
+    ///////////////////////////////////
 
     mapping gangwar_settings: u32 => GangwarSettings;
+
+    ///////////////////////////////////
+    /////////// TRANSITIONS ///////////
+    ///////////////////////////////////
 
     /// 8 constraints
     transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8) {
@@ -125,21 +142,6 @@ program gangwar.aleo {
     }
 
 
-    /// 10,318 constraints
-    function verify(m: Character, pk: group, signature: Signature) -> bool {
-        let h: HashStruct = HashStruct {
-            m,
-            r: signature.r,
-            validity_timestamp: signature.validity_timestamp
-        };
-        let e: scalar = BHP256::hash_to_scalar(h);
-
-        let right: group = signature.r + pk.mul(e);
-        let verified:bool = right.eq(signature.s);
-
-        return verified;
-    }
-    
     /// 28,100 constraints
     transition sign(m: Character, sk: scalar, k: scalar, validity_timestamp: u32) -> Signature {
         let r: group = k * group::GEN;
@@ -199,25 +201,6 @@ program gangwar.aleo {
             random_number,
         };
         Mapping::set(gangwar_settings, simulation_id, updated_settings);
-    }
-
-    /// Returns weighted random
-    /// 575 constraints
-    inline flip_a_coin(random_number: u16, weight_for_true: u16) -> CoinFlip {
-        // random_number needs to be distributed between 0 to 2^16 - 1
-        // 0 < weight for true < MAX_U16
-        let new_random_number: u16 = BHP256::hash_to_u16(random_number);
-        if (random_number < weight_for_true) {
-            return CoinFlip {
-                result: true,
-                new_random_number
-            };
-        } else {
-            return CoinFlip{
-                result: false,
-                new_random_number
-            };
-        }
     }
 
 
@@ -308,328 +291,6 @@ program gangwar.aleo {
         Mapping::set(gangwar_settings, simulation_id, updated_settings);
     }
 
-    /// 1609 constraints
-    function divide_into_teams(p1: Character, p2: Character, p3: Character, p4: Character, p5: Character, p6: Character) -> (Team, Team) {
-
-        // Instead of sorting manually, use a sorted list
-        // Verify sorted list
-        assert(
-            p1.primary_stats.strength >= p2.primary_stats.strength &&
-            p2.primary_stats.strength >= p3.primary_stats.strength &&
-            p3.primary_stats.strength >= p4.primary_stats.strength &&
-            p4.primary_stats.strength >= p5.primary_stats.strength &&
-            p5.primary_stats.strength >= p6.primary_stats.strength
-       );
-
-        // TODO: Compare ABAB method and use the one that results in the least different of strength between two team
-        /*
-            METHOD II: ABBA METHOD 
-            1     4       Team A
-              2 3         Team B
-            Whichever is the weakest team assign 5th player to that team and remaining to another team
-        */
-        let team_a_strength: u16 = p1.primary_stats.strength + p4.primary_stats.strength;
-        let team_b_strength: u16 = p2.primary_stats.strength + p3.primary_stats.strength;
-
-        let team_a: Team = Team {
-            p1: p1,
-            p2: p4,
-            p3: p5
-        };
-
-        let team_b: Team = Team {
-            p1: p2,
-            p2: p3,
-            p3: p6
-        };
-
-        if (team_a_strength > team_b_strength) {
-            // then 5th player goes to team B
-            // 6th player comes to team A
-            team_a = Team {
-                p1: p1,
-                p2: p4,
-                p3: p6
-            };
-            team_b = Team {
-                p1: p2,
-                p2: p3,
-                p3: p5
-            };
-
-        } else {
-            // 5th player goes to team A
-            // 6th player comes to team B
-            team_a = Team {
-                p1: p1,
-                p2: p4,
-                p3: p5
-            };
-            team_b = Team {
-                p1: p2,
-                p2: p3,
-                p3: p6
-            };
-        }
-
-        return (team_a, team_b);
-    }
-
-    /// 1,233 constraints
-    inline get_eligible_player_index(alive_players: u8, already_selected_players: u8, random_seed: u16) -> u8 {
-        /// Representation of players is in u8 as LSBs (Least Significant Bits)
-        /// For example: 7u8 => 00000111 => Represent all three players
-        /// For example: 4u8 => 00000100 => Represent all third player
-
-        /// Selects an eligible player based on a random_number
-        /// A player is eligible if he is alive and has not been selected previously
-
-        let eligible_player_index: u8 = 8u8; // Starting with an out of range value
-
-        // Select a random index to denote the player
-        // Since we have 3 players, mod by 3u8
-        let random_player_index: u8 = BHP256::hash_to_u8(random_seed).mod(3u8);
-
-        // Get a random player
-        // If random_player_index = 0u8 => random_player = 00000001 (p1)
-        // If random_player_index = 1u8 => random_player = 00000010 (p2)
-        // If random_player_index = 2u8 => random_player = 00000100 (p3)
-        let random_player: u8 = 1u8<<(random_player_index);
-
-        // Ensure the random_player is eligible
-        if (( 
-            (random_player & already_selected_players) == 0u8 ) && // Random player is not selected previously
-            ((random_player & alive_players) != 0u8 )) // Random player is alive
-            {
-                eligible_player_index = random_player_index;
-            }
-        else { // search for a random player
-            for i:u8 in 0u8..2u8{
-                random_player = random_player<< 1u8;   // try with next player
-                random_player_index += 1u8;
-                if (random_player == 8u8) { 
-                    random_player = 1u8;
-                    random_player_index = 0u8;
-                }
-                if ((random_player & already_selected_players)== 0u8 ) && ((random_player & alive_players) != 0u8 ){
-                    eligible_player_index = random_player_index;
-                }
-            }
-        }
-        return eligible_player_index;
-    }
-
-    /// 57 constraints
-    inline get_alive_players(team:Team)-> u8{
-
-        /// Representation of players is in u8 as LSBs (Least Significant Bits)
-        /// For example: 7u8 => 00000111 => Represent all three players
-        /// For example: 4u8 => 00000100 => Represent all third player
-
-        let alive : u8 = 0u8;
-        if(team.p1.secondary_stats.health > 0u16){
-            alive = alive | 1u8;
-        }
-        if(team.p2.secondary_stats.health > 0u16){
-            alive = alive | 2u8;
-        }
-        if(team.p3.secondary_stats.health > 0u16){
-            alive = alive | 4u8;
-        }
-        return alive;
-    }
-
-    /// If a>b returns a-b, else returns 0
-    /// 52 constraints
-    inline sub_to_zero(a: u16, b:u16) -> u16 {
-        if (a > b) {
-            return a.sub_wrapped(b);
-        } else {
-            return 0u16;
-        }
-    }
-    
-    /// If ((a+b > a) && (a+b > b)) return a+b else returns u16::MAX
-    /// TODO: Since this addition is in case of probability, maybe name the function to add_probabilities?
-    /// 71 constraints
-    inline add_to_max(a: u16, b:u16) -> u16 {
-        let u16_max: u16 = 65535u16;
-        let sum: u16 = a.add_wrapped(b);
-        if ((a > sum) || (b > sum)) {
-            return u16_max;
-        } else {
-            return sum;
-        }
-    }
-
-    // Multiply a value with probability
-    // Split into precision to prevent overflow
-    /// 154 constraints
-    inline multiply_with_probability(value: u16, probability: u16) -> u16 {
-        let first_precision: u16 = 256u16;
-        let second_precision: u16 = 256u16;
-        let newValue: u16 = (value.mul(probability.div(first_precision))).div(second_precision);
-        return newValue;
-    }
-
-    /// Constraints: 4,157
-    function physical_attack_sequence(main: Character, target: Character, random_number: u16) -> IPhysicalAttackResponse {
-        let damage: u16 = 0u16;
-
-        let total_normal_hits: u16 = 0u16;
-        let total_critical_hits: u16 = 0u16;
-        let total_hits: u16 = 0u16;
-        let is_equipment_broken: bool = false;
-
-        let coin_flip_output: CoinFlip = CoinFlip {
-            result: false,
-            new_random_number: random_number
-        };
-
-        let target_final_dodge_chance: u16 = target.secondary_stats.dodge_chance;
-        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, target_final_dodge_chance);
-        let is_dodged: bool = coin_flip_output.result;
-
-        if (is_dodged) {
-            // Add other info for narration
-            let physical_attack: PhysicalAttack = PhysicalAttack {
-                is_dodged: true,
-                is_hit: false,
-                is_critical: false,
-                total_critical_hits,
-                total_normal_hits,
-                total_hits,
-                damage,
-            };
-
-            return IPhysicalAttackResponse{
-                updated_main_character: main,
-                updated_target_character: target,
-                physical_attack,
-                new_random_number: coin_flip_output.new_random_number
-            };
-        }
-
-        // Assume we always have a main.primary_equipment
-        let main_final_hit_chance: u16 = add_to_max(main.secondary_stats.hit_chance, main.primary_equipment.hit_chance);
-        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_final_hit_chance);
-        let is_hit: bool = coin_flip_output.result;
-
-        if (!is_hit) {
-            // Add other info for narration
-            let physical_attack: PhysicalAttack = PhysicalAttack {
-                is_dodged: false,
-                is_hit: false,
-                is_critical: false,
-                total_critical_hits,
-                total_normal_hits,
-                total_hits,
-                damage: 0u16,
-            };
-
-            return IPhysicalAttackResponse{
-                updated_main_character: main,
-                updated_target_character: target,
-                physical_attack,
-                new_random_number: coin_flip_output.new_random_number
-            };
-        }
-
-        let main_critical_chance: u16 = add_to_max(main.secondary_stats.critical_chance,  main.primary_equipment.critical_chance);
-        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_critical_chance);
-        let is_critical: bool = coin_flip_output.result;
-
-        // ignore options
-        if (main.primary_equipment.is_broken) {
-            // if primary equipment is broken use punch
-            damage = main.primary_stats.strength / 5u16;
-        } else {
-            // todo: check if primary equipment is special
-            // special weapon includes: 
-            // Normal: remington_870, grenade, pr_flame_bottles
-            // Default: molotov_cocktail, sawed_off_shotgun, shotgun
-
-            // for now assume special_weapon = true
-
-            // primay_equipment.w_type = 1 = Range
-            // primay_equipment.w_type = 2 = Support
-            damage = main.primary_equipment.damage;
-            // if primary_equipment.w_type = 0 = Melee ; add extra damage
-            if(main.primary_equipment.w_type == 0u16) {
-                let extra_damage: u16 = multiply_with_probability(main.primary_equipment.damage, main.secondary_stats.melee_damage); // percentange TODO: handle percentage multiplication
-                damage += extra_damage;
-            } 
-
-            total_hits = multiply_with_probability(multiply_with_probability(main.primary_equipment.number_of_hits, main_final_hit_chance), 65535u16 - target_final_dodge_chance);
-            if (is_critical) {
-                total_critical_hits = multiply_with_probability(total_hits, main_critical_chance);
-            }
-            total_normal_hits = total_hits - total_critical_hits;
-
-            // assume isCollateral = false
-            // TODO: double check; handle when negative; there's more logic
-            is_equipment_broken = sub_to_zero(main.primary_equipment.dura_ammo, main.primary_equipment.consumption_rate) == 0u16;
-
-            let normal_hit_damage: u16 = total_normal_hits * damage;
-            let critical_hit_damage: u16 = total_critical_hits * damage * 2u16;
-
-            damage = normal_hit_damage + critical_hit_damage;
-        }
-        // Damage Boost Ignored
-
-        let updated_secondary_stats: SecondaryStats = SecondaryStats{
-            health: sub_to_zero(target.secondary_stats.health, damage),
-            dodge_chance: target.secondary_stats.dodge_chance,
-            hit_chance: target.secondary_stats.hit_chance,
-            critical_chance: target.secondary_stats.critical_chance,
-            melee_damage: target.secondary_stats.melee_damage
-        };
-
-        let updated_weapon: Weapon = Weapon{
-            id: main.primary_equipment.id,
-            w_type: main.primary_equipment.w_type,
-            consumption_rate: main.primary_equipment.consumption_rate,
-            critical_chance: main.primary_equipment.critical_chance,
-            dura_ammo: sub_to_zero(main.primary_equipment.dura_ammo, total_hits),
-            damage: main.primary_equipment.damage,
-            hit_chance: main.primary_equipment.hit_chance,
-            number_of_hits: main.primary_equipment.number_of_hits,
-            is_broken: is_equipment_broken
-        };
-
-        let updated_main_character: Character = Character{
-            nft_id: main.nft_id,
-            player_addr: main.player_addr,
-            primary_stats: main.primary_stats,
-            secondary_stats: main.secondary_stats,
-            primary_equipment: updated_weapon
-        };
-
-        let updated_target_character: Character = Character{
-            nft_id: target.nft_id,
-            player_addr: target.player_addr,
-            primary_stats: target.primary_stats,
-            secondary_stats: updated_secondary_stats,
-            primary_equipment: target.primary_equipment
-        };
-
-        let physical_attack: PhysicalAttack = PhysicalAttack {
-            is_dodged,
-            is_hit,
-            is_critical,
-            total_critical_hits,
-            total_normal_hits,
-            total_hits,
-            damage,
-        };
-
-        return IPhysicalAttackResponse {
-            updated_main_character,
-            updated_target_character,
-            physical_attack,
-            new_random_number: coin_flip_output.new_random_number
-        };
-    }
    
     /// 61,332 constraints
     transition simulate1vs1(w: War, random_seed: u16) -> War {
@@ -831,6 +492,281 @@ program gangwar.aleo {
     }
 
     /// 816 constraints
+    transition finish_game(w: War, random_number: u16) -> (address, address, address) {
+        // TODO: provide some NFTs to the winners?
+        let (w1, w2, w3, h1, h2): (address, address, address, u16, u16) = get_winners(w.main_team, w.target_team, random_number);
+        return (w1, w2, w3) then finalize(w.simulation_id, w.round, h1, h2, random_number);
+    }
+
+    finalize finish_game(simulation_id: u32, round: u8, h1: u16, h2: u16, initial_random_seed: u16) {
+        let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
+
+        // Ensure that either max rounds have reached
+        // or all members of one team has died
+        assert(round >= settings.max_rounds || h1 == 0u16 || h2 == 0u16);
+
+        // Ensure same random number is used  
+        assert_eq(initial_random_seed, settings.random_number);
+
+        // Update the settings with new random number
+        let updated_settings: GangwarSettings = GangwarSettings {
+            deadline_to_register: settings.deadline_to_register,
+            max_number_of_players: settings.max_number_of_players,
+            max_rounds: settings.max_rounds,
+            registered_players: settings.registered_players,
+            random_number: settings.random_number,
+        };
+        Mapping::set(gangwar_settings, simulation_id, updated_settings);
+
+    }
+
+
+    ///////////////////////////////////
+    /////////// FUNCTIONS /////////////
+    ///////////////////////////////////
+
+    /// 10,318 constraints
+    function verify(m: Character, pk: group, signature: Signature) -> bool {
+        let h: HashStruct = HashStruct {
+            m,
+            r: signature.r,
+            validity_timestamp: signature.validity_timestamp
+        };
+        let e: scalar = BHP256::hash_to_scalar(h);
+
+        let right: group = signature.r + pk.mul(e);
+        let verified:bool = right.eq(signature.s);
+
+        return verified;
+    }
+
+    /// 1609 constraints
+    function divide_into_teams(p1: Character, p2: Character, p3: Character, p4: Character, p5: Character, p6: Character) -> (Team, Team) {
+
+        // Instead of sorting manually, use a sorted list
+        // Verify sorted list
+        assert(
+            p1.primary_stats.strength >= p2.primary_stats.strength &&
+            p2.primary_stats.strength >= p3.primary_stats.strength &&
+            p3.primary_stats.strength >= p4.primary_stats.strength &&
+            p4.primary_stats.strength >= p5.primary_stats.strength &&
+            p5.primary_stats.strength >= p6.primary_stats.strength
+       );
+
+        // TODO: Compare ABAB method and use the one that results in the least different of strength between two team
+        /*
+            METHOD II: ABBA METHOD 
+            1     4       Team A
+              2 3         Team B
+            Whichever is the weakest team assign 5th player to that team and remaining to another team
+        */
+        let team_a_strength: u16 = p1.primary_stats.strength + p4.primary_stats.strength;
+        let team_b_strength: u16 = p2.primary_stats.strength + p3.primary_stats.strength;
+
+        let team_a: Team = Team {
+            p1: p1,
+            p2: p4,
+            p3: p5
+        };
+
+        let team_b: Team = Team {
+            p1: p2,
+            p2: p3,
+            p3: p6
+        };
+
+        if (team_a_strength > team_b_strength) {
+            // then 5th player goes to team B
+            // 6th player comes to team A
+            team_a = Team {
+                p1: p1,
+                p2: p4,
+                p3: p6
+            };
+            team_b = Team {
+                p1: p2,
+                p2: p3,
+                p3: p5
+            };
+
+        } else {
+            // 5th player goes to team A
+            // 6th player comes to team B
+            team_a = Team {
+                p1: p1,
+                p2: p4,
+                p3: p5
+            };
+            team_b = Team {
+                p1: p2,
+                p2: p3,
+                p3: p6
+            };
+        }
+
+        return (team_a, team_b);
+    }
+
+    /// Constraints: 4,157
+    function physical_attack_sequence(main: Character, target: Character, random_number: u16) -> IPhysicalAttackResponse {
+        let damage: u16 = 0u16;
+
+        let total_normal_hits: u16 = 0u16;
+        let total_critical_hits: u16 = 0u16;
+        let total_hits: u16 = 0u16;
+        let is_equipment_broken: bool = false;
+
+        let coin_flip_output: CoinFlip = CoinFlip {
+            result: false,
+            new_random_number: random_number
+        };
+
+        let target_final_dodge_chance: u16 = target.secondary_stats.dodge_chance;
+        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, target_final_dodge_chance);
+        let is_dodged: bool = coin_flip_output.result;
+
+        if (is_dodged) {
+            // Add other info for narration
+            let physical_attack: PhysicalAttack = PhysicalAttack {
+                is_dodged: true,
+                is_hit: false,
+                is_critical: false,
+                total_critical_hits,
+                total_normal_hits,
+                total_hits,
+                damage,
+            };
+
+            return IPhysicalAttackResponse{
+                updated_main_character: main,
+                updated_target_character: target,
+                physical_attack,
+                new_random_number: coin_flip_output.new_random_number
+            };
+        }
+
+        // Assume we always have a main.primary_equipment
+        let main_final_hit_chance: u16 = add_to_max(main.secondary_stats.hit_chance, main.primary_equipment.hit_chance);
+        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_final_hit_chance);
+        let is_hit: bool = coin_flip_output.result;
+
+        if (!is_hit) {
+            // Add other info for narration
+            let physical_attack: PhysicalAttack = PhysicalAttack {
+                is_dodged: false,
+                is_hit: false,
+                is_critical: false,
+                total_critical_hits,
+                total_normal_hits,
+                total_hits,
+                damage: 0u16,
+            };
+
+            return IPhysicalAttackResponse{
+                updated_main_character: main,
+                updated_target_character: target,
+                physical_attack,
+                new_random_number: coin_flip_output.new_random_number
+            };
+        }
+
+        let main_critical_chance: u16 = add_to_max(main.secondary_stats.critical_chance,  main.primary_equipment.critical_chance);
+        coin_flip_output = flip_a_coin(coin_flip_output.new_random_number, main_critical_chance);
+        let is_critical: bool = coin_flip_output.result;
+
+        // ignore options
+        if (main.primary_equipment.is_broken) {
+            // if primary equipment is broken use punch
+            damage = main.primary_stats.strength / 5u16;
+        } else {
+            // todo: check if primary equipment is special
+            // special weapon includes: 
+            // Normal: remington_870, grenade, pr_flame_bottles
+            // Default: molotov_cocktail, sawed_off_shotgun, shotgun
+
+            // for now assume special_weapon = true
+
+            // primay_equipment.w_type = 1 = Range
+            // primay_equipment.w_type = 2 = Support
+            damage = main.primary_equipment.damage;
+            // if primary_equipment.w_type = 0 = Melee ; add extra damage
+            if(main.primary_equipment.w_type == 0u16) {
+                let extra_damage: u16 = multiply_with_probability(main.primary_equipment.damage, main.secondary_stats.melee_damage); // percentange TODO: handle percentage multiplication
+                damage += extra_damage;
+            } 
+
+            total_hits = multiply_with_probability(multiply_with_probability(main.primary_equipment.number_of_hits, main_final_hit_chance), 65535u16 - target_final_dodge_chance);
+            if (is_critical) {
+                total_critical_hits = multiply_with_probability(total_hits, main_critical_chance);
+            }
+            total_normal_hits = total_hits - total_critical_hits;
+
+            // assume isCollateral = false
+            // TODO: double check; handle when negative; there's more logic
+            is_equipment_broken = sub_to_zero(main.primary_equipment.dura_ammo, main.primary_equipment.consumption_rate) == 0u16;
+
+            let normal_hit_damage: u16 = total_normal_hits * damage;
+            let critical_hit_damage: u16 = total_critical_hits * damage * 2u16;
+
+            damage = normal_hit_damage + critical_hit_damage;
+        }
+        // Damage Boost Ignored
+
+        let updated_secondary_stats: SecondaryStats = SecondaryStats{
+            health: sub_to_zero(target.secondary_stats.health, damage),
+            dodge_chance: target.secondary_stats.dodge_chance,
+            hit_chance: target.secondary_stats.hit_chance,
+            critical_chance: target.secondary_stats.critical_chance,
+            melee_damage: target.secondary_stats.melee_damage
+        };
+
+        let updated_weapon: Weapon = Weapon{
+            id: main.primary_equipment.id,
+            w_type: main.primary_equipment.w_type,
+            consumption_rate: main.primary_equipment.consumption_rate,
+            critical_chance: main.primary_equipment.critical_chance,
+            dura_ammo: sub_to_zero(main.primary_equipment.dura_ammo, total_hits),
+            damage: main.primary_equipment.damage,
+            hit_chance: main.primary_equipment.hit_chance,
+            number_of_hits: main.primary_equipment.number_of_hits,
+            is_broken: is_equipment_broken
+        };
+
+        let updated_main_character: Character = Character{
+            nft_id: main.nft_id,
+            player_addr: main.player_addr,
+            primary_stats: main.primary_stats,
+            secondary_stats: main.secondary_stats,
+            primary_equipment: updated_weapon
+        };
+
+        let updated_target_character: Character = Character{
+            nft_id: target.nft_id,
+            player_addr: target.player_addr,
+            primary_stats: target.primary_stats,
+            secondary_stats: updated_secondary_stats,
+            primary_equipment: target.primary_equipment
+        };
+
+        let physical_attack: PhysicalAttack = PhysicalAttack {
+            is_dodged,
+            is_hit,
+            is_critical,
+            total_critical_hits,
+            total_normal_hits,
+            total_hits,
+            damage,
+        };
+
+        return IPhysicalAttackResponse {
+            updated_main_character,
+            updated_target_character,
+            physical_attack,
+            new_random_number: coin_flip_output.new_random_number
+        };
+    }
+
+    /// 816 constraints
     function get_winners(team_a: Team, team_b: Team, random_number: u16) -> (address, address, address, u16, u16) {
 
         // TODO: Ensure that the sum of the players is less than u16::MAX
@@ -877,34 +813,128 @@ program gangwar.aleo {
         }
     }
 
-    /// 816 constraints
-    transition finish_game(w: War, random_number: u16) -> (address, address, address) {
-        // TODO: provide some NFTs to the winners?
-        let (w1, w2, w3, h1, h2): (address, address, address, u16, u16) = get_winners(w.main_team, w.target_team, random_number);
-        return (w1, w2, w3) then finalize(w.simulation_id, w.round, h1, h2, random_number);
+
+    ///////////////////////////////////
+    ///// INLINE HELPER FUNCTIONS /////
+    ///////////////////////////////////
+
+    /// If a>b returns a-b, else returns 0
+    /// 52 constraints
+    inline sub_to_zero(a: u16, b:u16) -> u16 {
+        if (a > b) {
+            return a.sub_wrapped(b);
+        } else {
+            return 0u16;
+        }
+    }
+    
+    /// If ((a+b > a) && (a+b > b)) return a+b else returns u16::MAX
+    /// TODO: Since this addition is in case of probability, maybe name the function to add_probabilities?
+    /// 71 constraints
+    inline add_to_max(a: u16, b:u16) -> u16 {
+        let u16_max: u16 = 65535u16;
+        let sum: u16 = a.add_wrapped(b);
+        if ((a > sum) || (b > sum)) {
+            return u16_max;
+        } else {
+            return sum;
+        }
     }
 
-    finalize finish_game(simulation_id: u32, round: u8, h1: u16, h2: u16, initial_random_seed: u16) {
-        let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
-
-        // Ensure that either max rounds have reached
-        // or all members of one team has died
-        assert(round >= settings.max_rounds || h1 == 0u16 || h2 == 0u16);
-
-        // Ensure same random number is used  
-        assert_eq(initial_random_seed, settings.random_number);
-
-        // Update the settings with new random number
-        let updated_settings: GangwarSettings = GangwarSettings {
-            deadline_to_register: settings.deadline_to_register,
-            max_number_of_players: settings.max_number_of_players,
-            max_rounds: settings.max_rounds,
-            registered_players: settings.registered_players,
-            random_number: settings.random_number,
-        };
-        Mapping::set(gangwar_settings, simulation_id, updated_settings);
-
+    // Multiply a value with probability
+    // Split into precision to prevent overflow
+    /// 154 constraints
+    inline multiply_with_probability(value: u16, probability: u16) -> u16 {
+        let first_precision: u16 = 256u16;
+        let second_precision: u16 = 256u16;
+        let newValue: u16 = (value.mul(probability.div(first_precision))).div(second_precision);
+        return newValue;
     }
+
+    /// Returns weighted random
+    /// 575 constraints
+    inline flip_a_coin(random_number: u16, weight_for_true: u16) -> CoinFlip {
+        // random_number needs to be distributed between 0 to 2^16 - 1
+        // 0 < weight for true < MAX_U16
+        let new_random_number: u16 = BHP256::hash_to_u16(random_number);
+        if (random_number < weight_for_true) {
+            return CoinFlip {
+                result: true,
+                new_random_number
+            };
+        } else {
+            return CoinFlip{
+                result: false,
+                new_random_number
+            };
+        }
+    }
+
+    /// 57 constraints
+    inline get_alive_players(team:Team)-> u8{
+
+        /// Representation of players is in u8 as LSBs (Least Significant Bits)
+        /// For example: 7u8 => 00000111 => Represent all three players
+        /// For example: 4u8 => 00000100 => Represent all third player
+
+        let alive : u8 = 0u8;
+        if(team.p1.secondary_stats.health > 0u16){
+            alive = alive | 1u8;
+        }
+        if(team.p2.secondary_stats.health > 0u16){
+            alive = alive | 2u8;
+        }
+        if(team.p3.secondary_stats.health > 0u16){
+            alive = alive | 4u8;
+        }
+        return alive;
+    }
+
+
+    /// 1,233 constraints
+    inline get_eligible_player_index(alive_players: u8, already_selected_players: u8, random_seed: u16) -> u8 {
+        /// Representation of players is in u8 as LSBs (Least Significant Bits)
+        /// For example: 7u8 => 00000111 => Represent all three players
+        /// For example: 4u8 => 00000100 => Represent all third player
+
+        /// Selects an eligible player based on a random_number
+        /// A player is eligible if he is alive and has not been selected previously
+
+        let eligible_player_index: u8 = 8u8; // Starting with an out of range value
+
+        // Select a random index to denote the player
+        // Since we have 3 players, mod by 3u8
+        let random_player_index: u8 = BHP256::hash_to_u8(random_seed).mod(3u8);
+
+        // Get a random player
+        // If random_player_index = 0u8 => random_player = 00000001 (p1)
+        // If random_player_index = 1u8 => random_player = 00000010 (p2)
+        // If random_player_index = 2u8 => random_player = 00000100 (p3)
+        let random_player: u8 = 1u8<<(random_player_index);
+
+        // Ensure the random_player is eligible
+        if (( 
+            (random_player & already_selected_players) == 0u8 ) && // Random player is not selected previously
+            ((random_player & alive_players) != 0u8 )) // Random player is alive
+            {
+                eligible_player_index = random_player_index;
+            }
+        else { // search for a random player
+            for i:u8 in 0u8..2u8{
+                random_player = random_player<< 1u8;   // try with next player
+                random_player_index += 1u8;
+                if (random_player == 8u8) { 
+                    random_player = 1u8;
+                    random_player_index = 0u8;
+                }
+                if ((random_player & already_selected_players)== 0u8 ) && ((random_player & alive_players) != 0u8 ){
+                    eligible_player_index = random_player_index;
+                }
+            }
+        }
+        return eligible_player_index;
+    }
+
 
 
 
