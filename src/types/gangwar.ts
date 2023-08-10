@@ -120,6 +120,16 @@ export type Player = z.infer<typeof playerSchema>;
 
 export const characterBracketPattern = () => "{p1{pStats}{sStats}{weapon}}";
 export const playerRecordBracketPattern = () => `{${characterBracketPattern}}`;
+const teamBracketPattern = (numberOfPlayers: number) => {
+  let bracketPattern = "{main/target";
+  for (let i = 0; i < numberOfPlayers; i++) {
+    bracketPattern = bracketPattern.concat(characterBracketPattern());
+  }
+  bracketPattern = bracketPattern.concat("}");
+  return bracketPattern;
+};
+export const warBracketPattern = (teamAPlayerCount: number, teamBPlayerCount: number) =>
+  `{o${teamBracketPattern(teamAPlayerCount)}, ${teamBracketPattern(teamBPlayerCount)}nonce}`;
 
 export const teamLeoSchema = z.object({
   p1: characterLeoSchema,
@@ -178,3 +188,30 @@ export const warSchema = z.object({
   _nonce: z.string(),
 });
 export type War = z.infer<typeof warSchema>;
+
+// Maybe the following schema be used later
+// const itemLeoSchema = z.object({
+//   item_id: leoU16Schema,
+//   item_count: leoU16Schema,
+//   stat_boost: z.boolean(),
+//   rank: z.boolean(),
+// });
+// type ItemLeo = z.infer<typeof itemLeoSchema>;
+
+// const itemSchema = z.object({
+//   itemId: z.number(),
+//   itemCount: z.number(),
+//   statBoost: z.boolean(),
+//   rank: z.boolean(),
+// });
+// type Item = z.infer<typeof itemSchema>;
+
+// const multipliersLeoSchema = z.object({
+//   dodge_chance: leoU16Schema,
+// });
+// type MultipliersLeo = z.infer<typeof multipliersLeoSchema>;
+
+// const multipliersSchema = z.object({
+//   dodgeChance: z.number(),
+// });
+// type Multiplers = z.infer<typeof multipliersSchema>;
