@@ -12,10 +12,10 @@ export const gangwarSettingsLeoSchema = z.object({
 export type GangwarSettingsLeo = z.infer<typeof gangwarSettingsLeoSchema>;
 
 export const gangwarSettingsSchema = z.object({
-  deadlineToRegister: z.number(), // TODO: Additional checks on limit
-  maxNumberOfPlayers: z.number(), // TODO: Additional checks on limit
-  maxRounds: z.number(), // TODO: Additional checks on limit
-  registeredPlayers: z.number(), // TODO: Additional checks on limit
+  deadlineToRegister: z.number().min(0),
+  maxNumberOfPlayers: z.number().min(0),
+  maxRounds: z.number().min(0),
+  registeredPlayers: z.number().min(0),
   randomNumber: z.number(),
 });
 export type GangwarSettings = z.infer<typeof gangwarSettingsSchema>;
@@ -41,10 +41,10 @@ export type SecondaryStatsLeo = z.infer<typeof secondaryStatsLeoSchema>;
 
 export const secondaryStatsSchema = z.object({
   health: z.number(),
-  dodgeChance: z.number(),
-  hitChance: z.number(),
-  criticalChance: z.number(),
-  meleeDamage: z.number(),
+  dodgeChance: z.number().min(0).max(1),
+  hitChance: z.number().min(0).max(1),
+  criticalChance: z.number().min(0).max(1),
+  meleeDamage: z.number().min(0).max(1),
 });
 export type SecondaryStats = z.infer<typeof secondaryStatsSchema>;
 
@@ -65,10 +65,10 @@ export const weaponSchema = z.object({
   id: z.number(),
   type: z.number(), // Range[0] | Melee[1] | Support
   consumptionRate: z.number(),
-  criticalChance: z.number(),
+  criticalChance: z.number().min(0).max(1),
   duraAmmo: z.number(),
   damage: z.number(),
-  hitChance: z.number(),
+  hitChance: z.number().min(0).max(1),
   numberOfHits: z.number(),
   isBroken: z.boolean(),
 });
