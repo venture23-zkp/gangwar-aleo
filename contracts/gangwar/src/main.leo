@@ -472,7 +472,7 @@ program gangwar.aleo {
         return newValue;
     }
 
-    /// Constraints: 4,141
+    /// Constraints: 4,157
     function physical_attack_sequence(main: Character, target: Character, random_number: u16) -> IPhysicalAttackResponse {
         let damage: u16 = 0u16;
 
@@ -561,7 +561,9 @@ program gangwar.aleo {
             } 
 
             total_hits = multiply_with_probability(multiply_with_probability(main.primary_equipment.number_of_hits, main_final_hit_chance), 65535u16 - target_final_dodge_chance);
-            total_critical_hits = multiply_with_probability(total_hits, main_critical_chance);
+            if (is_critical) {
+                total_critical_hits = multiply_with_probability(total_hits, main_critical_chance);
+            }
             total_normal_hits = total_hits - total_critical_hits;
 
             // assume isCollateral = false
@@ -629,7 +631,7 @@ program gangwar.aleo {
         };
     }
    
-    /// 61,188 constraints
+    /// 61,332 constraints
     transition simulate1vs1(w: War, random_seed: u16) -> War {
 
         let alive_players_in_main_team: u8 = get_alive_players(w.main_team);
