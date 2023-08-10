@@ -1,4 +1,10 @@
-import { CDefaultWeaponsName, CNormalWeaponsName, EDefaultEquipmentID, ENormalEquipmentID, equipmentTypes } from "../types/gangwarEngine";
+import {
+  CDefaultWeaponsName,
+  CNormalWeaponsName,
+  EDefaultEquipmentID,
+  ENormalEquipmentID,
+  equipmentTypes,
+} from "../types/simulationEngine";
 
 import { Character, PrimaryStats, SecondaryStats, Team, Weapon } from "../types/gangwar";
 import { leoU128Schema } from "../types";

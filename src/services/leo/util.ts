@@ -21,9 +21,9 @@ import {
   WeaponLeo,
   Weapon,
   weaponSchema,
-  ItemLeo,
-  Item,
-  itemSchema,
+  // ItemLeo,
+  // Item,
+  // itemSchema,
   Character,
   characterSchema,
   CharacterLeo,
@@ -196,15 +196,15 @@ const weapon = (weapon: WeaponLeo): Weapon => {
   return weaponSchema.parse(res);
 };
 
-const item = (item: ItemLeo): Item => {
-  const res: Item = {
-    itemId: u128(item.item_id),
-    itemCount: u128(item.item_count),
-    statBoost: item.stat_boost,
-    rank: item.rank,
-  };
-  return itemSchema.parse(res);
-};
+// const item = (item: ItemLeo): Item => {
+//   const res: Item = {
+//     itemId: u128(item.item_id),
+//     itemCount: u128(item.item_count),
+//     statBoost: item.stat_boost,
+//     rank: item.rank,
+//   };
+//   return itemSchema.parse(res);
+// };
 
 const character = (character: CharacterLeo): Character => {
   const res: Character = {
@@ -524,7 +524,6 @@ export const deployPrograms = async () => {
 
   const fees = {
     gangwar: 15,
-    // gangwar_engine: 15,
   };
 
   const successfulPrograms: string[] = [];
