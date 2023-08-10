@@ -29,8 +29,7 @@ const createGame = async (
   registrationDuration: number,
   maxNumberOfPlayers: number,
   maxRounds: number
-  // TODO: verify return type
-): Promise<any> => {
+): Promise<GangwarSettings> => {
   const transition = "create_game";
 
   const leoSimulationId = leoParse.u32(simulationId);
@@ -122,7 +121,6 @@ const joinGame = async (
   simulationId: number,
   character: Character,
   signature: SchnorrSignature
-  // TODO: verify return type
 ): Promise<Player> => {
   const transition = "join_game";
 
@@ -157,13 +155,7 @@ const joinGame = async (
 // TODO
 const fetchPlayerRecords = async (simulationId: number): Promise<any> => {};
 
-const startGame = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  simulationId: number,
-  players: Player[]
-  // TODO: verify return type
-): Promise<any> => {
+const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number, players: Player[]): Promise<War> => {
   const transition = "start_game";
 
   const leoSimulationId = leoParse.u32(simulationId);
@@ -197,12 +189,7 @@ const startGame = async (
   return warRecord;
 };
 
-const simulate1vs1 = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  war: War
-  // TODO: verify return type
-): Promise<any> => {
+const simulate1vs1 = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war: War): Promise<War> => {
   const transition = "simulate1vs1";
 
   const gangwarSettings = fetchGangwarSettings(war.simulationId);
