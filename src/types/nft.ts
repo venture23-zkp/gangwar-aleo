@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { leoAddressSchema, leoScalarSchema, leoU128Schema, leoU8Schema } from "./leo";
+import { leoAddressSchema, leoFieldSchema, leoGroupSchema, leoScalarSchema, leoU128Schema, leoU8Schema } from "./leo";
 
 export const MAX_CHARS_PER_U128 = 128 / 8; // Represented as u128 / 8 bits per character
 export const U128_IN_BASE_URI = 4;
@@ -63,13 +63,15 @@ export type NftMintRecord = z.infer<typeof nftMintRecordSchema>;
 // NFT_cliam Record
 export const nftClaimRecordLeoSchema = z.object({
   owner: leoAddressSchema,
-  amount: leoU8Schema,
+  claim: leoFieldSchema,
+  _nonce: leoGroupSchema,
 });
 export type NftClaimRecordLeo = z.infer<typeof nftClaimRecordLeoSchema>;
 
 export const nftClaimRecordSchema = z.object({
   owner: leoAddressSchema,
-  amount: z.number().max(256),
+  claim: z.string(),
+  _nonce: z.string(),
 });
 export type NftClaimRecord = z.infer<typeof nftClaimRecordSchema>;
 

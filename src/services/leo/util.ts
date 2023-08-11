@@ -45,6 +45,9 @@ import {
   NftMintRecord,
   nftClaimRecordLeoSchema,
   nftMintRecordSchema,
+  NftClaimRecord,
+  nftMintRecordLeoSchema,
+  nftClaimRecordSchema,
 } from "../../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema, schnorrSignatureSchema } from "../../types/dsa";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
@@ -300,18 +303,26 @@ const war = (record: Record<string, unknown>): War => {
 };
 
 const nftMintRecord = (record: Record<string, unknown>): NftMintRecord => {
-  const parsed = nftClaimRecordLeoSchema.parse(record);
-  // console.log(parsed);
+  const parsed = nftMintRecordLeoSchema.parse(record);
   const nftMint: NftMintRecord = {
     owner: replaceValue(parsed.owner),
     amount: u8(parsed.amount),
     // _nonce: group(parsed._nonce).toString(),
   };
-
   return nftMintRecordSchema.parse(nftMint);
 };
 
-export const parseOutput = { address, field, u8, u32, u64, war, signature, settings, playerRecord, nftMintRecord };
+const nftClaimRecord = (record: Record<string, unknown>): NftClaimRecord => {
+  const parsed = nftClaimRecordLeoSchema.parse(record);
+  const nftClaim: NftClaimRecord = {
+    owner: replaceValue(parsed.owner),
+    claim: field(parsed.claim).toString(),
+    _nonce: group(parsed._nonce).toString(),
+  };
+  return nftClaimRecordSchema.parse(nftClaim);
+};
+
+export const parseOutput = { address, field, u8, u32, u64, war, signature, settings, playerRecord, nftMintRecord, nftClaimRecord };
 
 const immediatelyRepeatingNumberClosingBracket = (value: string) => {
   let count = 0;

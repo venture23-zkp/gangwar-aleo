@@ -67,4 +67,9 @@ describe("NFT Service", () => {
     const newBaseUri = "http://this_is_an_updated_test_uri/";
     await nft.updateBaseURI(privateKey, viewKey, newBaseUri);
   });
+
+  it("Open Mint", async () => {
+    const { owner, privateKey, viewKey } = keys;
+    await nft.openMint(privateKey, viewKey);
+  });
 });

@@ -181,4 +181,38 @@ const updateBaseURI = async (
   });
 };
 
-export const nft = { initializeCollection, addNft, addMinter, updateToggleSettings, setMintBlock, updateSymbol, updateBaseURI };
+const openMint = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "open_mint";
+
+  const EDWARDS_BLS12_SCALAR_FIELD = "2111115437357092606062206234695386632838870926408408195193685246394721360383";
+  let hidingNonce = EDWARDS_BLS12_SCALAR_FIELD;
+
+  while (Number(hidingNonce) >= Number(EDWARDS_BLS12_SCALAR_FIELD)) {
+    var buf = new Uint32Array(8);
+    const hidingNonceArray = crypto.getRandomValues(buf);
+    hidingNonce = hidingNonceArray.join("");
+  }
+
+  let leoHidingNonce = leoParse.scalar(BigInt(hidingNonce));
+
+  const params = [leoHidingNonce];
+
+  const res = await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.LEO_NFT,
+    contractPath: nftPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+
+  const nftClaimRecord = parseOutput.nftClaimRecord(res);
+  return nftClaimRecord;
+};
+
+export const nft = { initializeCollection, addNft, addMinter, updateToggleSettings, setMintBlock, updateSymbol, updateBaseURI, openMint };
