@@ -46,6 +46,10 @@ import {
   PhysicalAttackLeo,
   physicalAttackLeoSchema,
   warLeoSchema,
+  symbolLeoSchema,
+  SymbolLeo,
+  BaseURILeo,
+  baseURILeoSchema,
 } from "../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema } from "../types/dsa";
 // import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
@@ -131,7 +135,7 @@ const u64 = (value: number | string): LeoU64 => {
   return leoU64Schema.parse(parsed);
 };
 
-const u128 = (value: number | string): LeoU128 => {
+const u128 = (value: string | number): LeoU128 => {
   const numVal = Number(value);
   if (isNaN(numVal)) throw apiError("u128 parsing failed");
   const parsed = numVal + "u128";
@@ -410,6 +414,136 @@ const warRecord = (war: War): WarLeo => {
   return warLeoSchema.parse(res);
 };
 
+//////////////////////////////
+/////// Leo NFT //////////////
+//////////////////////////////
+
+function getSettingsFromNumber(settingNum: number): { frozen: boolean; active: boolean; whiteList: boolean; initialized: boolean } {
+  const bitStringArray = settingNum.toString(2).padStart(32, "0").split("").reverse();
+  return {
+    initialized: bitStringArray[0] === "1",
+    active: bitStringArray[1] === "1",
+    whiteList: bitStringArray[2] === "1",
+    frozen: bitStringArray[3] === "1",
+  };
+}
+
+function getBit(setting: boolean): string {
+  return setting ? "1" : "0";
+}
+
+function convertSettingsToNumber(settings: { frozen: boolean; active: boolean; whiteList: boolean; initialized: boolean }): number {
+  const { frozen, active, whiteList, initialized } = settings;
+  const bitString = `${getBit(frozen)}${getBit(whiteList)}${getBit(active)}${getBit(initialized)}`;
+
+  return parseInt(bitString, 2);
+}
+
+function safeParseInt(value: string): number {
+  const parsedValue = parseInt(value, 10);
+  return isNaN(parsedValue) ? 0 : parsedValue;
+}
+
+function stringToBigInt(input: string): bigint {
+  const encoder = new TextEncoder();
+  const encodedBytes = encoder.encode(input);
+
+  let bigIntValue = BigInt(0);
+  for (let i = 0; i < encodedBytes.length; i++) {
+    const byteValue = BigInt(encodedBytes[i]);
+    const shiftedValue = byteValue << BigInt(8 * i);
+    bigIntValue = bigIntValue | shiftedValue;
+  }
+
+  return bigIntValue;
+}
+
+function bigIntToString(bigIntValue: bigint): string {
+  const bytes: number[] = [];
+  let tempBigInt = bigIntValue;
+
+  while (tempBigInt > BigInt(0)) {
+    const byteValue = Number(tempBigInt & BigInt(255));
+    bytes.push(byteValue);
+    tempBigInt = tempBigInt >> BigInt(8);
+  }
+
+  const decoder = new TextDecoder();
+  const asciiString = decoder.decode(Uint8Array.from(bytes));
+  return asciiString;
+}
+
+function splitStringToBigInts(input: string): bigint[] {
+  const chunkSize = 16; // Chunk size to split the string
+  const numChunks = Math.ceil(input.length / chunkSize);
+  const bigInts: bigint[] = [];
+
+  for (let i = 0; i < numChunks; i++) {
+    const chunk = input.substr(i * chunkSize, chunkSize);
+    const bigIntValue = stringToBigInt(chunk);
+    bigInts.push(bigIntValue);
+  }
+
+  return bigInts;
+}
+
+function joinBigIntsToString(bigInts: bigint[]): string {
+  let result = "";
+
+  for (let i = 0; i < bigInts.length; i++) {
+    const chunkString = bigIntToString(bigInts[i]);
+    result += chunkString;
+  }
+
+  return result;
+}
+
+function padArray(array: bigint[], length: number): bigint[] {
+  const paddingLength = length - array.length;
+  if (paddingLength <= 0) {
+    return array; // No padding needed
+  }
+
+  const padding = Array(paddingLength).fill(BigInt(0));
+  const paddedArray = array.concat(padding);
+  return paddedArray;
+}
+
+function parseStringToBigIntArray(input: string): bigint[] {
+  const bigIntRegex = /([0-9]+)u128/g;
+  const matches = input.match(bigIntRegex);
+
+  if (!matches) {
+    return [];
+  }
+
+  const bigInts = matches.map((match) => BigInt(match.slice(0, -4)));
+  return bigInts;
+}
+
+function getRandomElement<T>(list: T[]): T {
+  const randomIndex = Math.floor(Math.random() * list.length);
+  return list[randomIndex];
+}
+
+const symbol = (symbol: string): SymbolLeo => {
+  let res = {
+    data: u128(stringToBigInt(symbol).toString()),
+  };
+  return symbolLeoSchema.parse(res);
+};
+
+const baseURI = (uri: string): BaseURILeo => {
+  let ints = splitStringToBigInts(uri);
+  let res = {
+    data0: ints[0],
+    data1: ints[1],
+    data2: ints[2],
+    data3: ints[3],
+  };
+  return baseURILeoSchema.parse(res);
+};
+
 export const leoParse = {
   field,
   scalar,
@@ -426,6 +560,6 @@ export const leoParse = {
   // team,
   // war,
   warRecord,
-  // symbol,
-  // baseURI,
+  symbol,
+  baseURI,
 };

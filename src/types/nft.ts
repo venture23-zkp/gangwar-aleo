@@ -1,30 +1,85 @@
 import { z } from "zod";
-import { leoU128Schema } from "./leo";
+import { leoAddressSchema, leoScalarSchema, leoU128Schema, leoU8Schema } from "./leo";
 
 export const MAX_CHARS_PER_U128 = 128 / 8; // Represented as u128 / 8 bits per character
 export const U128_IN_BASE_URI = 4;
 
+// TokenId
 export const tokenIdLeoSchema = z.object({
   data1: leoU128Schema,
   data2: leoU128Schema,
 });
-export type TokenIdLeo = z.infer<typeof tokenIdLeoSchema>;
+export type NftTokenIdLeo = z.infer<typeof tokenIdLeoSchema>;
 
-export const nftTokenIdSchema = z.object({
-  data: z.string().max(MAX_CHARS_PER_U128),
-});
-export type NFTTokenId = z.infer<typeof nftTokenIdSchema>;
-
-export const nftBaseURILeoSchma = z.object({
+// BaseURI
+export const baseURILeoSchema = z.object({
   data0: leoU128Schema,
   data1: leoU128Schema,
   data2: leoU128Schema,
   data3: leoU128Schema,
 });
-export type NFTBaseURILeo = z.infer<typeof nftBaseURILeoSchma>;
+export type BaseURILeo = z.infer<typeof baseURILeoSchema>;
 
-export const baseURISchema = z.string().max(MAX_CHARS_PER_U128 * U128_IN_BASE_URI);
-export type BaseURI = z.infer<typeof baseURISchema>;
+// Symbol
+export const symbolLeoSchema = z.object({
+  data: leoU128Schema,
+});
+export type SymbolLeo = z.infer<typeof symbolLeoSchema>;
 
-// export const nftSymbolSchema = z.string().max(MAX_CHARS_PER_U128);
-// export const NFTSymbol = z.infer<typeof nftSymbolSchema>;
+// NFT Record
+export const nftRecordLeoSchema = z.object({
+  owner: leoAddressSchema,
+  data: tokenIdLeoSchema,
+  edition: leoScalarSchema,
+});
+export type NftRecordLeo = z.infer<typeof nftRecordLeoSchema>;
+
+export const nftRecordSchema = z.object({
+  owner: leoAddressSchema,
+  data: z.string(),
+  edition: z.string(), // TODO: write the proper size of the string
+});
+export type NftRecord = z.infer<typeof nftRecordSchema>;
+
+// NFT_mint Record
+export const nftMintRecordLeoSchema = z.object({
+  owner: leoAddressSchema,
+  amount: leoU8Schema,
+});
+export type NftMintRecordLeo = z.infer<typeof nftMintRecordLeoSchema>;
+
+export const nftMintRecordSchema = z.object({
+  owner: leoAddressSchema,
+  amount: z.number().max(256),
+});
+export type NftMintRecord = z.infer<typeof nftMintRecordSchema>;
+
+// NFT_cliam Record
+export const nftClaimRecordLeoSchema = z.object({
+  owner: leoAddressSchema,
+  amount: leoU8Schema,
+});
+export type NftClaimRecordLeo = z.infer<typeof nftClaimRecordLeoSchema>;
+
+export const nftClaimRecordSchema = z.object({
+  owner: leoAddressSchema,
+  amount: z.number().max(256),
+});
+export type NftClaimRecord = z.infer<typeof nftClaimRecordSchema>;
+
+// NFT_ownership Record
+export const nftOwnershipRecordLeoSchema = z.object({
+  owner: leoAddressSchema,
+  nft_owner: leoAddressSchema,
+  data: tokenIdLeoSchema,
+  edition: leoScalarSchema,
+});
+export type NftOwnershipRecordLeo = z.infer<typeof nftClaimRecordLeoSchema>;
+
+export const nftOwnershipRecordSchema = z.object({
+  owner: leoAddressSchema,
+  nftOwner: leoAddressSchema,
+  data: z.string(),
+  edition: z.string(), // TODO: write the proper size of the string
+});
+export type NftOwnershipRecord = z.infer<typeof nftOwnershipRecordSchema>;

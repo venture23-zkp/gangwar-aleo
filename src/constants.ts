@@ -33,6 +33,7 @@ export const DELETE_PAYLOAD = { message: "deleted" };
 
 export const programNames = {
   GANGWAR: "gangwar" + env.GANGWAR_VERSION,
+  LEO_NFT: "leo_nft",
   // WEAPON_NFT: "gangwar_weapon_nft" + env.GANGWAR_WEAPON_NFT_VERSION,
 };
 
