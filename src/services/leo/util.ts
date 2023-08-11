@@ -132,9 +132,9 @@ const u64 = (value: string): number => {
   return parsed;
 };
 
-const u128 = (value: string): number => {
-  const parsed = Number(replaceValue(value, "u128"));
-  if (isNaN(parsed)) throw apiError("u128 parsing failed");
+const u128 = (value: string): bigint => {
+  const parsed = BigInt(replaceValue(value, "u128"));
+  // if (isNaN(parsed)) throw apiError("u128 parsing failed");
   return parsed;
 };
 
@@ -335,7 +335,7 @@ function joinBigIntsToString(bigInts: bigint[]): string {
 
 const tokenId = (tokenId: NftTokenIdLeo): string => {
   const parsed = tokenIdLeoSchema.parse(tokenId);
-  const bigInts = [BigInt(u128(parsed.data1)), BigInt(u128(parsed.data2))];
+  const bigInts = [u128(parsed.data1), u128(parsed.data2)];
   const tokenIdInString = joinBigIntsToString(bigInts);
   return tokenIdInString;
 };
