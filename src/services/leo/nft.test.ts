@@ -18,7 +18,7 @@ describe("NFT Service", () => {
     const totalSupply = 100;
     const baseUri = "http://this_is_a_test_uri/";
     const symbol = "TEST";
-    nft.initializeCollection(privateKey, viewKey, totalSupply, symbol, baseUri);
+    await nft.initializeCollection(privateKey, viewKey, totalSupply, symbol, baseUri);
   });
 
   it("Add NFT", async () => {
@@ -26,6 +26,14 @@ describe("NFT Service", () => {
 
     const edition = "1";
     const tokenId = "test_token_id";
-    nft.addNft(privateKey, viewKey, tokenId, edition);
+    await nft.addNft(privateKey, viewKey, tokenId, edition);
+  });
+
+  it("Add minter", async () => {
+    const { owner, privateKey, viewKey } = keys;
+
+    const minterAddress = owner;
+    const amount = 5;
+    await nft.addMinter(privateKey, viewKey, minterAddress, amount);
   });
 });
