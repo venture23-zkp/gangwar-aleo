@@ -49,4 +49,12 @@ describe("NFT Service", () => {
 
     await nft.updateToggleSettings(privateKey, viewKey, settings);
   });
+
+  it("Set Mint Block", async () => {
+    const { owner, privateKey, viewKey } = keys;
+
+    const mintBlock = 100;
+
+    await nft.setMintBlock(privateKey, viewKey, mintBlock);
+  });
 });

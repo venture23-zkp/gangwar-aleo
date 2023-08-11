@@ -113,4 +113,26 @@ const updateToggleSettings = async (
   });
 };
 
-export const nft = { initializeCollection, addNft, addMinter, updateToggleSettings };
+const setMintBlock = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  mintBlock: number
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "set_mint_block";
+
+  const leoMintBlock = leoParse.u32(mintBlock);
+  const params = [leoMintBlock];
+
+  await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.LEO_NFT,
+    contractPath: nftPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+};
+
+export const nft = { initializeCollection, addNft, addMinter, updateToggleSettings, setMintBlock };
