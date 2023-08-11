@@ -49,6 +49,8 @@ import {
   SymbolLeo,
   BaseURILeo,
   baseURILeoSchema,
+  NftTokenIdLeo,
+  tokenIdLeoSchema,
 } from "../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema } from "../types/dsa";
 // import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
@@ -541,6 +543,20 @@ const baseURI = (uri: string): BaseURILeo => {
   return baseURILeoSchema.parse(res);
 };
 
+const edition = (edition: string): LeoScalar => {
+  let res = scalar(BigInt(edition));
+  return leoScalarSchema.parse(res);
+};
+
+const tokenId = (tokenId: string): NftTokenIdLeo => {
+  let tokenIdInputs = padArray(splitStringToBigInts(tokenId), 2);
+  let res = {
+    data1: u128(tokenIdInputs[0].toString()),
+    data2: u128(tokenIdInputs[1].toString()),
+  };
+  return tokenIdLeoSchema.parse(res);
+};
+
 export const leoParse = {
   field,
   scalar,
@@ -559,4 +575,6 @@ export const leoParse = {
   warRecord,
   symbol,
   baseURI,
+  edition,
+  tokenId,
 };

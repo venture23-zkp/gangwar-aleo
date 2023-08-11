@@ -20,4 +20,12 @@ describe("NFT Service", () => {
     const symbol = "TEST";
     nft.initializeCollection(privateKey, viewKey, totalSupply, symbol, baseUri);
   });
+
+  it("Add NFT", async () => {
+    const { owner, privateKey, viewKey } = keys;
+
+    const edition = "1";
+    const tokenId = "test_token_id";
+    nft.addNft(privateKey, viewKey, tokenId, edition);
+  });
 });

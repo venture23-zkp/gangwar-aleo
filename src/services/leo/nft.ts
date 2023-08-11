@@ -36,4 +36,31 @@ const initializeCollection = async (
   });
 };
 
-export const nft = { initializeCollection };
+const addNft = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  tokenId: string,
+  edition: string
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "add_nft";
+
+  let leoTokenId = leoParse.tokenId(tokenId);
+  let leoEdition = leoParse.edition(edition);
+
+  let leoTokenIdParam = leoParse.stringifyLeoCmdParam(leoTokenId);
+
+  const params = [leoTokenIdParam, leoEdition];
+
+  await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.LEO_NFT,
+    contractPath: nftPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+};
+
+export const nft = { initializeCollection, addNft };
