@@ -46,7 +46,6 @@ import {
   PhysicalAttackLeo,
   physicalAttackLeoSchema,
   warLeoSchema,
-  symbolLeoSchema,
   SymbolLeo,
   BaseURILeo,
   baseURILeoSchema,
@@ -138,7 +137,7 @@ const u64 = (value: number | string): LeoU64 => {
 const u128 = (value: string | number): LeoU128 => {
   const numVal = Number(value);
   if (isNaN(numVal)) throw apiError("u128 parsing failed");
-  const parsed = numVal + "u128";
+  const parsed = value + "u128";
   return leoU128Schema.parse(parsed);
 };
 
@@ -527,19 +526,17 @@ function getRandomElement<T>(list: T[]): T {
 }
 
 const symbol = (symbol: string): SymbolLeo => {
-  let res = {
-    data: u128(stringToBigInt(symbol).toString()),
-  };
-  return symbolLeoSchema.parse(res);
+  let res = u128(stringToBigInt(symbol).toString());
+  return leoU128Schema.parse(res);
 };
 
 const baseURI = (uri: string): BaseURILeo => {
-  let ints = splitStringToBigInts(uri);
+  let uriInputs = padArray(splitStringToBigInts(uri), 4);
   let res = {
-    data0: ints[0],
-    data1: ints[1],
-    data2: ints[2],
-    data3: ints[3],
+    data0: u128(uriInputs[0].toString()),
+    data1: u128(uriInputs[1].toString()),
+    data2: u128(uriInputs[2].toString()),
+    data3: u128(uriInputs[3].toString()),
   };
   return baseURILeoSchema.parse(res);
 };

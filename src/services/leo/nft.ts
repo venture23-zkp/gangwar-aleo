@@ -7,7 +7,7 @@ import { contractsPath, parseOutput, snarkOsFetchMappingValue, zkRun } from "./u
 
 const nftPath = join(contractsPath, "leo_nft");
 
-const initialize_collection = async (
+const initializeCollection = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey,
   total: number,
@@ -23,19 +23,17 @@ const initialize_collection = async (
 
   let leoBaseURIParam = leoParse.stringifyLeoCmdParam(leoBaseURI);
 
-  console.log(leoBaseURI);
   const params = [leoTotal, leoSymbol, leoBaseURIParam];
-  console.log(params);
 
-  //   await zkRun({
-  //     privateKey,
-  //     viewKey,
-  //     appName: programNames.LEO_NFT,
-  //     contractPath: nftPath,
-  //     transition,
-  //     params,
-  //     fee: FEE,
-  //   });
+  await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.LEO_NFT,
+    contractPath: nftPath,
+    transition,
+    params,
+    fee: FEE,
+  });
 };
 
-export const nft = { initialize_collection };
+export const nft = { initializeCollection };

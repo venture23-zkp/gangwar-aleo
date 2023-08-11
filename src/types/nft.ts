@@ -21,10 +21,7 @@ export const baseURILeoSchema = z.object({
 export type BaseURILeo = z.infer<typeof baseURILeoSchema>;
 
 // Symbol
-export const symbolLeoSchema = z.object({
-  data: leoU128Schema,
-});
-export type SymbolLeo = z.infer<typeof symbolLeoSchema>;
+export type SymbolLeo = z.infer<typeof leoU128Schema>;
 
 // NFT Record
 export const nftRecordLeoSchema = z.object({
