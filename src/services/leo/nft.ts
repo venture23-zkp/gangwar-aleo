@@ -1,7 +1,7 @@
 import { join } from "path";
 
 import { env, FEE, programNames } from "../../constants";
-import { LeoAddress, LeoPrivateKey, LeoViewKey, ToggleSettings } from "../../types";
+import { LeoAddress, LeoPrivateKey, LeoViewKey, NftMintRecord, ToggleSettings } from "../../types";
 import { leoParse } from "../../utils";
 import { contractsPath, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";
 
@@ -88,6 +88,7 @@ const addMinter = async (
 
   // TODO: do not parse the record as it may not belongs to the minter and not to us
   const nftMintRecord = parseOutput.nftMintRecord(res);
+  console.log(nftMintRecord);
   return nftMintRecord;
 };
 
@@ -181,13 +182,7 @@ const updateBaseURI = async (
   });
 };
 
-const openMint = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey
-  // TODO: verify return type
-): Promise<any> => {
-  const transition = "open_mint";
-
+const getRandomLeoHidingNonce = () => {
   const EDWARDS_BLS12_SCALAR_FIELD = "2111115437357092606062206234695386632838870926408408195193685246394721360383";
   let hidingNonce = EDWARDS_BLS12_SCALAR_FIELD;
 
@@ -198,7 +193,17 @@ const openMint = async (
   }
 
   let leoHidingNonce = leoParse.scalar(BigInt(hidingNonce));
+  return leoHidingNonce;
+};
 
+const openMint = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "open_mint";
+
+  const leoHidingNonce = getRandomLeoHidingNonce();
   const params = [leoHidingNonce];
 
   const res = await zkRun({
@@ -215,4 +220,44 @@ const openMint = async (
   return nftClaimRecord;
 };
 
-export const nft = { initializeCollection, addNft, addMinter, updateToggleSettings, setMintBlock, updateSymbol, updateBaseURI, openMint };
+const mint = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  mintRecord: NftMintRecord
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "mint";
+
+  const leoMintRecord = leoParse.nftMintRecord(mintRecord);
+  const leoMintRecordParam = leoParse.stringifyLeoCmdParam(leoMintRecord);
+
+  const leoHidingNonce = getRandomLeoHidingNonce();
+  const params = [leoMintRecordParam, leoHidingNonce];
+
+  // Note: this results in two different records but only first one is caught
+  // TODO: fix this in zkRun code itself; might need to return array of Records (a bit tricky?)
+  const res = await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.LEO_NFT,
+    contractPath: nftPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+
+  const nftMintRecord = parseOutput.nftMintRecord(res);
+  return nftMintRecord;
+};
+
+export const nft = {
+  initializeCollection,
+  addNft,
+  addMinter,
+  updateToggleSettings,
+  setMintBlock,
+  updateSymbol,
+  updateBaseURI,
+  openMint,
+  mint,
+};

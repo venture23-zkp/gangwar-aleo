@@ -52,6 +52,9 @@ import {
   NftTokenIdLeo,
   tokenIdLeoSchema,
   ToggleSettings,
+  NftMintRecord,
+  NftMintRecordLeo,
+  nftMintRecordLeoSchema,
 } from "../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema } from "../types/dsa";
 // import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
@@ -535,7 +538,7 @@ const symbol = (symbol: string): SymbolLeo => {
 
 const baseURI = (uri: string): BaseURILeo => {
   let uriInputs = padArray(splitStringToBigInts(uri), 4);
-  let res = {
+  let res: BaseURILeo = {
     data0: u128(uriInputs[0].toString()),
     data1: u128(uriInputs[1].toString()),
     data2: u128(uriInputs[2].toString()),
@@ -551,7 +554,7 @@ const edition = (edition: string): LeoScalar => {
 
 const tokenId = (tokenId: string): NftTokenIdLeo => {
   let tokenIdInputs = padArray(splitStringToBigInts(tokenId), 2);
-  let res = {
+  let res: NftTokenIdLeo = {
     data1: u128(tokenIdInputs[0].toString()),
     data2: u128(tokenIdInputs[1].toString()),
   };
@@ -561,6 +564,15 @@ const tokenId = (tokenId: string): NftTokenIdLeo => {
 const toggleSettings = (settings: ToggleSettings): LeoU32 => {
   let res = u32(convertSettingsToNumber(settings));
   return leoU32Schema.parse(res);
+};
+
+const nftMintRecord = (mintRecord: NftMintRecord): NftMintRecordLeo => {
+  let res: NftMintRecordLeo = {
+    owner: privateField(mintRecord.owner),
+    amount: privateField(u8(mintRecord.amount)),
+    _nonce: publicField(group(BigInt(mintRecord._nonce))),
+  };
+  return nftMintRecordLeoSchema.parse(res);
 };
 
 export const leoParse = {
@@ -584,4 +596,5 @@ export const leoParse = {
   edition,
   tokenId,
   toggleSettings,
+  nftMintRecord,
 };

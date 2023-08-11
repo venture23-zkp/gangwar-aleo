@@ -307,7 +307,7 @@ const nftMintRecord = (record: Record<string, unknown>): NftMintRecord => {
   const nftMint: NftMintRecord = {
     owner: replaceValue(parsed.owner),
     amount: u8(parsed.amount),
-    // _nonce: group(parsed._nonce).toString(),
+    _nonce: group(parsed._nonce).toString(),
   };
   return nftMintRecordSchema.parse(nftMint);
 };

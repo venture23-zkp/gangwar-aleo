@@ -7,9 +7,9 @@ jest.setTimeout(600000);
 
 describe("NFT Service", () => {
   const keys = {
-    owner: "aleo1z9rkh2xecmpnx9jxkvnyq08mfeddrsrccny0j2hgw4yfhnxpxyqqp42329",
-    privateKey: "APrivateKey1zkp3WTnfDxUchbLeHqwGrgdkTNieykUP72UPNmv4uQngjwf",
-    viewKey: "AViewKey1fvqnzQ9nYfFMAkhjdcz5UEtDD1JjpbtG8kMXBLJKAHbd",
+    owner: "aleo17m5xn97matnqe688dcfcaffyzeutnh6a74nsfhzjch4a6rf8xgrqkx59qx",
+    privateKey: "APrivateKey1zkp38uWL76fvuDhHpk2jbHAs4EYcds88eekvx4Ys1kNz75p",
+    viewKey: "AViewKey1gCZXMvC6EnBbo9sS2VpX35gyUp2BBzwpRpPcDqdSj7M1",
   };
 
   it("Initialize collection", async () => {
@@ -71,5 +71,16 @@ describe("NFT Service", () => {
   it("Open Mint", async () => {
     const { owner, privateKey, viewKey } = keys;
     await nft.openMint(privateKey, viewKey);
+  });
+
+  it("Mint", async () => {
+    const { owner, privateKey, viewKey } = keys;
+    const nftMintRecord = {
+      owner: "aleo17m5xn97matnqe688dcfcaffyzeutnh6a74nsfhzjch4a6rf8xgrqkx59qx",
+      amount: 5,
+      _nonce: "5524320542432222112841491635660055122702370579403838540366134620464737677652",
+    };
+
+    await nft.mint(privateKey, viewKey, nftMintRecord);
   });
 });
