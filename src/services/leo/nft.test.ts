@@ -52,9 +52,19 @@ describe("NFT Service", () => {
 
   it("Set Mint Block", async () => {
     const { owner, privateKey, viewKey } = keys;
-
     const mintBlock = 100;
-
     await nft.setMintBlock(privateKey, viewKey, mintBlock);
+  });
+
+  it("Update Symbol", async () => {
+    const { owner, privateKey, viewKey } = keys;
+    const newSymbol = "TEST1";
+    await nft.updateSymbol(privateKey, viewKey, newSymbol);
+  });
+
+  it("Update Base URI", async () => {
+    const { owner, privateKey, viewKey } = keys;
+    const newBaseUri = "http://this_is_an_updated_test_uri/";
+    await nft.updateBaseURI(privateKey, viewKey, newBaseUri);
   });
 });

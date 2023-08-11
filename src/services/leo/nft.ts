@@ -135,4 +135,50 @@ const setMintBlock = async (
   });
 };
 
-export const nft = { initializeCollection, addNft, addMinter, updateToggleSettings, setMintBlock };
+const updateSymbol = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  symbol: string
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "update_symbol";
+
+  let leoSymbol = leoParse.symbol(symbol);
+  const params = [leoSymbol];
+
+  await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.LEO_NFT,
+    contractPath: nftPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+};
+
+const updateBaseURI = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  baseURI: string
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "update_base_uri";
+
+  let leoBaseURI = leoParse.baseURI(baseURI);
+  let leoBaseURIParam = leoParse.stringifyLeoCmdParam(leoBaseURI);
+
+  const params = [leoBaseURIParam];
+
+  await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.LEO_NFT,
+    contractPath: nftPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+};
+
+export const nft = { initializeCollection, addNft, addMinter, updateToggleSettings, setMintBlock, updateSymbol, updateBaseURI };
