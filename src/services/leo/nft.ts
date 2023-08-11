@@ -1,7 +1,7 @@
 import { join } from "path";
 
 import { env, FEE, programNames } from "../../constants";
-import { LeoAddress, LeoPrivateKey, LeoViewKey } from "../../types";
+import { LeoAddress, LeoPrivateKey, LeoViewKey, ToggleSettings } from "../../types";
 import { leoParse } from "../../utils";
 import { contractsPath, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";
 
@@ -91,4 +91,26 @@ const addMinter = async (
   return nftMintRecord;
 };
 
-export const nft = { initializeCollection, addNft, addMinter };
+const updateToggleSettings = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  settings: ToggleSettings
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "update_toggle_settings";
+
+  const leoUpdatedToggleSettings = leoParse.toggleSettings(settings);
+  const params = [leoUpdatedToggleSettings];
+
+  await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.LEO_NFT,
+    contractPath: nftPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+};
+
+export const nft = { initializeCollection, addNft, addMinter, updateToggleSettings };

@@ -51,6 +51,7 @@ import {
   baseURILeoSchema,
   NftTokenIdLeo,
   tokenIdLeoSchema,
+  ToggleSettings,
 } from "../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema } from "../types/dsa";
 // import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
@@ -557,6 +558,11 @@ const tokenId = (tokenId: string): NftTokenIdLeo => {
   return tokenIdLeoSchema.parse(res);
 };
 
+const toggleSettings = (settings: ToggleSettings): LeoU32 => {
+  let res = u32(convertSettingsToNumber(settings));
+  return leoU32Schema.parse(res);
+};
+
 export const leoParse = {
   field,
   scalar,
@@ -577,4 +583,5 @@ export const leoParse = {
   baseURI,
   edition,
   tokenId,
+  toggleSettings,
 };

@@ -1,4 +1,4 @@
-import { characterSchema, GangwarSettings, Player, War } from "../../types";
+import { characterSchema, GangwarSettings, Player, ToggleSettings, War } from "../../types";
 import { nft } from "./nft";
 import { createCharacters } from "../../core/gangwar";
 import { leoParse } from "../../utils";
@@ -35,5 +35,18 @@ describe("NFT Service", () => {
     const minterAddress = owner;
     const amount = 5;
     await nft.addMinter(privateKey, viewKey, minterAddress, amount);
+  });
+
+  it("Update toggle settings", async () => {
+    const { owner, privateKey, viewKey } = keys;
+
+    const settings: ToggleSettings = {
+      frozen: false,
+      active: false,
+      whiteList: false,
+      initialized: true,
+    };
+
+    await nft.updateToggleSettings(privateKey, viewKey, settings);
   });
 });

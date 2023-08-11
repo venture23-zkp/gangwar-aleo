@@ -23,6 +23,15 @@ export type BaseURILeo = z.infer<typeof baseURILeoSchema>;
 // Symbol
 export type SymbolLeo = z.infer<typeof leoU128Schema>;
 
+// Toggle Settings
+export const toggleSettingsSchema = z.object({
+  frozen: z.boolean(),
+  active: z.boolean(),
+  whiteList: z.boolean(),
+  initialized: z.boolean(),
+});
+export type ToggleSettings = z.infer<typeof toggleSettingsSchema>;
+
 // NFT Record
 export const nftRecordLeoSchema = z.object({
   owner: leoAddressSchema,
