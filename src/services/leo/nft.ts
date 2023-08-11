@@ -1,7 +1,7 @@
 import { join } from "path";
 
 import { env, FEE, programNames } from "../../constants";
-import { LeoAddress, LeoPrivateKey, LeoViewKey, NftMintRecord, ToggleSettings } from "../../types";
+import { LeoAddress, LeoPrivateKey, LeoViewKey, NftClaimRecord, NftMintRecord, ToggleSettings } from "../../types";
 import { leoParse } from "../../utils";
 import { contractsPath, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";
 
@@ -17,11 +17,11 @@ const initializeCollection = async (
 ): Promise<any> => {
   const transition = "initialize_collection";
 
-  let leoTotal = leoParse.u128(total);
-  let leoSymbol = leoParse.symbol(symbol);
-  let leoBaseURI = leoParse.baseURI(baseURI);
+  const leoTotal = leoParse.u128(total);
+  const leoSymbol = leoParse.symbol(symbol);
+  const leoBaseURI = leoParse.baseURI(baseURI);
 
-  let leoBaseURIParam = leoParse.stringifyLeoCmdParam(leoBaseURI);
+  const leoBaseURIParam = leoParse.stringifyLeoCmdParam(leoBaseURI);
 
   const params = [leoTotal, leoSymbol, leoBaseURIParam];
 
@@ -45,10 +45,10 @@ const addNft = async (
 ): Promise<any> => {
   const transition = "add_nft";
 
-  let leoTokenId = leoParse.tokenId(tokenId);
-  let leoEdition = leoParse.edition(edition);
+  const leoTokenId = leoParse.tokenId(tokenId);
+  const leoEdition = leoParse.edition(edition);
 
-  let leoTokenIdParam = leoParse.stringifyLeoCmdParam(leoTokenId);
+  const leoTokenIdParam = leoParse.stringifyLeoCmdParam(leoTokenId);
 
   const params = [leoTokenIdParam, leoEdition];
 
@@ -72,7 +72,7 @@ const addMinter = async (
 ): Promise<any> => {
   const transition = "add_minter";
 
-  let leoAmount = leoParse.u8(amount);
+  const leoAmount = leoParse.u8(amount);
 
   const params = [minter, leoAmount];
 
@@ -144,7 +144,7 @@ const updateSymbol = async (
 ): Promise<any> => {
   const transition = "update_symbol";
 
-  let leoSymbol = leoParse.symbol(symbol);
+  const leoSymbol = leoParse.symbol(symbol);
   const params = [leoSymbol];
 
   await zkRun({
@@ -166,8 +166,8 @@ const updateBaseURI = async (
 ): Promise<any> => {
   const transition = "update_base_uri";
 
-  let leoBaseURI = leoParse.baseURI(baseURI);
-  let leoBaseURIParam = leoParse.stringifyLeoCmdParam(leoBaseURI);
+  const leoBaseURI = leoParse.baseURI(baseURI);
+  const leoBaseURIParam = leoParse.stringifyLeoCmdParam(leoBaseURI);
 
   const params = [leoBaseURIParam];
 
@@ -192,7 +192,7 @@ const getRandomLeoHidingNonce = () => {
     hidingNonce = hidingNonceArray.join("");
   }
 
-  let leoHidingNonce = leoParse.scalar(BigInt(hidingNonce));
+  const leoHidingNonce = leoParse.scalar(BigInt(hidingNonce));
   return leoHidingNonce;
 };
 
@@ -250,6 +250,44 @@ const mint = async (
   return nftMintRecord;
 };
 
+const claimNFT = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  claimRecord: NftClaimRecord,
+  tokenId: string,
+  edition: string
+  // TODO: verify return type
+): Promise<any> => {
+  const transition = "claim_nft";
+
+  const leoClaimRecord = leoParse.nftClaimRecord(claimRecord);
+  const leoClaimRecordParam = leoParse.stringifyLeoCmdParam(leoClaimRecord);
+
+  const leoTokenId = leoParse.tokenId(tokenId);
+  const leoTokenIdParam = leoParse.stringifyLeoCmdParam(leoTokenId);
+
+  const leoEdition = leoParse.edition(edition);
+
+  const params = [leoClaimRecordParam, leoTokenIdParam, leoEdition];
+
+  // Note: this results in two different records but only first one is caught
+  // TODO: fix this in zkRun code itself; might need to return array of Records (a bit tricky?)
+  const res = await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.LEO_NFT,
+    contractPath: nftPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+
+  console.log(res);
+
+  const nftMintRecord = parseOutput.nftRecord(res);
+  return nftMintRecord;
+};
+
 export const nft = {
   initializeCollection,
   addNft,
@@ -260,4 +298,5 @@ export const nft = {
   updateBaseURI,
   openMint,
   mint,
+  claimNFT,
 };

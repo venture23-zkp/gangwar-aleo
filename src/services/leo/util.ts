@@ -48,6 +48,11 @@ import {
   NftClaimRecord,
   nftMintRecordLeoSchema,
   nftClaimRecordSchema,
+  NftRecord,
+  nftRecordSchema,
+  NftTokenIdLeo,
+  tokenIdLeoSchema,
+  nftRecordLeoSchema,
 } from "../../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema, schnorrSignatureSchema } from "../../types/dsa";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
@@ -302,6 +307,39 @@ const war = (record: Record<string, unknown>): War => {
   return warSchema.parse(war);
 };
 
+function bigIntToString(bigIntValue: bigint): string {
+  const bytes: number[] = [];
+  let tempBigInt = bigIntValue;
+
+  while (tempBigInt > BigInt(0)) {
+    const byteValue = Number(tempBigInt & BigInt(255));
+    bytes.push(byteValue);
+    tempBigInt = tempBigInt >> BigInt(8);
+  }
+
+  const decoder = new TextDecoder();
+  const asciiString = decoder.decode(Uint8Array.from(bytes));
+  return asciiString;
+}
+
+function joinBigIntsToString(bigInts: bigint[]): string {
+  let result = "";
+
+  for (let i = 0; i < bigInts.length; i++) {
+    const chunkString = bigIntToString(bigInts[i]);
+    result += chunkString;
+  }
+
+  return result;
+}
+
+const tokenId = (tokenId: NftTokenIdLeo): string => {
+  const parsed = tokenIdLeoSchema.parse(tokenId);
+  const bigInts = [BigInt(u128(parsed.data1)), BigInt(u128(parsed.data2))];
+  const tokenIdInString = joinBigIntsToString(bigInts);
+  return tokenIdInString;
+};
+
 const nftMintRecord = (record: Record<string, unknown>): NftMintRecord => {
   const parsed = nftMintRecordLeoSchema.parse(record);
   const nftMint: NftMintRecord = {
@@ -322,7 +360,31 @@ const nftClaimRecord = (record: Record<string, unknown>): NftClaimRecord => {
   return nftClaimRecordSchema.parse(nftClaim);
 };
 
-export const parseOutput = { address, field, u8, u32, u64, war, signature, settings, playerRecord, nftMintRecord, nftClaimRecord };
+const nftRecord = (record: Record<string, unknown>): NftRecord => {
+  const parsed = nftRecordLeoSchema.parse(record);
+  const nft: NftRecord = {
+    owner: replaceValue(parsed.owner),
+    data: tokenId(parsed.data),
+    edition: scalar(parsed.edition).toString(),
+    _nonce: group(parsed._nonce).toString(),
+  };
+  return nftRecordSchema.parse(nft);
+};
+
+export const parseOutput = {
+  address,
+  field,
+  u8,
+  u32,
+  u64,
+  war,
+  signature,
+  settings,
+  playerRecord,
+  nftMintRecord,
+  nftClaimRecord,
+  nftRecord,
+};
 
 const immediatelyRepeatingNumberClosingBracket = (value: string) => {
   let count = 0;

@@ -83,4 +83,18 @@ describe("NFT Service", () => {
 
     await nft.mint(privateKey, viewKey, nftMintRecord);
   });
+
+  it("Claim NFT", async () => {
+    const { owner, privateKey, viewKey } = keys;
+    const nftClaimRecord = {
+      owner: "aleo17m5xn97matnqe688dcfcaffyzeutnh6a74nsfhzjch4a6rf8xgrqkx59qx",
+      claim: "5",
+      _nonce: "5524320542432222112841491635660055122702370579403838540366134620464737677652",
+    };
+    const edition = "1";
+    const tokenId = "test_token_id";
+
+    const claimedNFT = await nft.claimNFT(privateKey, viewKey, nftClaimRecord, tokenId, edition);
+    console.log(claimedNFT);
+  });
 });

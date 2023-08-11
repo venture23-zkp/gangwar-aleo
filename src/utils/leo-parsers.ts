@@ -55,6 +55,11 @@ import {
   NftMintRecord,
   NftMintRecordLeo,
   nftMintRecordLeoSchema,
+  NftClaimRecord,
+  NftClaimRecordLeo,
+  nftClaimRecordLeoSchema,
+  NftRecord,
+  NftRecordLeo,
 } from "../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema } from "../types/dsa";
 // import { BaseURILeo, baseURILeoSchma, MAX_CHARS_PER_U128, U128_IN_BASE_URI } from "../types/nft";
@@ -463,21 +468,6 @@ function stringToBigInt(input: string): bigint {
   return bigIntValue;
 }
 
-function bigIntToString(bigIntValue: bigint): string {
-  const bytes: number[] = [];
-  let tempBigInt = bigIntValue;
-
-  while (tempBigInt > BigInt(0)) {
-    const byteValue = Number(tempBigInt & BigInt(255));
-    bytes.push(byteValue);
-    tempBigInt = tempBigInt >> BigInt(8);
-  }
-
-  const decoder = new TextDecoder();
-  const asciiString = decoder.decode(Uint8Array.from(bytes));
-  return asciiString;
-}
-
 function splitStringToBigInts(input: string): bigint[] {
   const chunkSize = 16; // Chunk size to split the string
   const numChunks = Math.ceil(input.length / chunkSize);
@@ -490,17 +480,6 @@ function splitStringToBigInts(input: string): bigint[] {
   }
 
   return bigInts;
-}
-
-function joinBigIntsToString(bigInts: bigint[]): string {
-  let result = "";
-
-  for (let i = 0; i < bigInts.length; i++) {
-    const chunkString = bigIntToString(bigInts[i]);
-    result += chunkString;
-  }
-
-  return result;
 }
 
 function padArray(array: bigint[], length: number): bigint[] {
@@ -575,6 +554,15 @@ const nftMintRecord = (mintRecord: NftMintRecord): NftMintRecordLeo => {
   return nftMintRecordLeoSchema.parse(res);
 };
 
+const nftClaimRecord = (claimRecord: NftClaimRecord): NftClaimRecordLeo => {
+  let res: NftClaimRecordLeo = {
+    owner: privateField(claimRecord.owner),
+    claim: privateField(field(BigInt(claimRecord.claim))),
+    _nonce: publicField(group(BigInt(claimRecord._nonce))),
+  };
+  return nftClaimRecordLeoSchema.parse(res);
+};
+
 export const leoParse = {
   field,
   scalar,
@@ -597,4 +585,5 @@ export const leoParse = {
   tokenId,
   toggleSettings,
   nftMintRecord,
+  nftClaimRecord,
 };

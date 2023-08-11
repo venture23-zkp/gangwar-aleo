@@ -37,6 +37,7 @@ export const nftRecordLeoSchema = z.object({
   owner: leoAddressSchema,
   data: tokenIdLeoSchema,
   edition: leoScalarSchema,
+  _nonce: leoGroupSchema,
 });
 export type NftRecordLeo = z.infer<typeof nftRecordLeoSchema>;
 
@@ -44,6 +45,7 @@ export const nftRecordSchema = z.object({
   owner: leoAddressSchema,
   data: z.string(),
   edition: z.string(), // TODO: write the proper size of the string
+  _nonce: z.string(),
 });
 export type NftRecord = z.infer<typeof nftRecordSchema>;
 
