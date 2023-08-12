@@ -71,7 +71,7 @@ program leo_nft.aleo {
         public symbol: u128,
         public base_uri: BaseURI,
     ) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         return then finalize(total, symbol, base_uri);
     }
 
@@ -105,7 +105,7 @@ program leo_nft.aleo {
     // Load the data into the mapping
     // Enables someone to mint an NFT with provided image data
     transition add_nft(public tokenId: TokenId, public edition: scalar) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         let tokenHash: field = BHP256::hash_to_field(tokenId);
         let tokenEditionHash: field = BHP256::commit_to_field(tokenHash, edition);
         return then finalize(tokenEditionHash);
@@ -130,7 +130,7 @@ program leo_nft.aleo {
     }
 
     transition add_minter(private minter: address, public amount: u8) -> NFT_mint {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         return NFT_mint {
             owner: minter,
             amount,
@@ -149,7 +149,7 @@ program leo_nft.aleo {
 
     // call this function to toggle minting, the whitelist requirement, or to permanently freeze the contract
     transition update_toggle_settings(public toggle_settings_bitstring: u32) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         return then finalize(toggle_settings_bitstring);
     }
 
@@ -169,7 +169,7 @@ program leo_nft.aleo {
     }
 
     transition set_mint_block(public mint_block: u32) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         return then finalize(mint_block);
     }
 
@@ -185,7 +185,7 @@ program leo_nft.aleo {
     }
 
     transition update_symbol(public symbol: u128) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         return then finalize(symbol);
     }
 
@@ -201,7 +201,7 @@ program leo_nft.aleo {
     }
 
     transition update_base_uri(public base_uri: BaseURI) {
-        assert_eq(self.caller, aleo1gy3d0s00s2k7rmgqznnx2q8htmjm2p5rk8q40u5yklqhe44utvys0dmzdy);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         return then finalize(base_uri);
     }
 
