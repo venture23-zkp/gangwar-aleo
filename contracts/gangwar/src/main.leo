@@ -1,5 +1,7 @@
 // The 'gangwar' program.
 
+import leo_nft.leo;
+
 program gangwar.aleo {
 
     ///////////////////////////////////
@@ -491,19 +493,30 @@ program gangwar.aleo {
         Mapping::set(gangwar_settings, simulation_id, updated_settings);
     }
 
-    /// 816 constraints
-    transition finish_game(w: War, random_number: u16) -> (address, address, address) {
-        // TODO: provide some NFTs to the winners?
-        let (w1, w2, w3, h1, h2): (address, address, address, u16, u16) = get_winners(w.main_team, w.target_team, random_number);
-        return (w1, w2, w3) then finalize(w.simulation_id, w.round, h1, h2, random_number);
+    /// 31,422 constraints
+    /// 2,028 constraints (add_minter)
+    transition finish_game(w: War, random_number: u16) -> (leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint ) {
+        let (winning_team, losing_team, losing_team_health): (Team, Team, u16) = get_winners(w.main_team, w.target_team, random_number);
+
+        // Provide 2 NFTs to each player of the winning team
+        let nft_mint_winner_p1: NFT_mint = leo_nft.leo/add_minter(winning_team.p1.player_addr, 2u8);
+        let nft_mint_winner_p2: NFT_mint = leo_nft.leo/add_minter(winning_team.p2.player_addr, 2u8);
+        let nft_mint_winner_p3: NFT_mint = leo_nft.leo/add_minter(winning_team.p3.player_addr, 2u8);
+
+        // Provide 1 NFT to each player of the losing team
+        let nft_mint_loser_p1: NFT_mint = leo_nft.leo/add_minter(losing_team.p1.player_addr, 1u8);
+        let nft_mint_loser_p2: NFT_mint = leo_nft.leo/add_minter(losing_team.p2.player_addr, 1u8);
+        let nft_mint_loser_p3: NFT_mint = leo_nft.leo/add_minter(losing_team.p3.player_addr, 1u8);
+
+        return (nft_mint_winner_p1,nft_mint_winner_p2, nft_mint_winner_p3, nft_mint_loser_p1, nft_mint_loser_p2, nft_mint_loser_p3) then finalize(w.simulation_id, w.round, losing_team_health, random_number);
     }
 
-    finalize finish_game(simulation_id: u32, round: u8, h1: u16, h2: u16, initial_random_seed: u16) {
+    finalize finish_game(simulation_id: u32, round: u8, min_health: u16, initial_random_seed: u16) {
         let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
 
         // Ensure that either max rounds have reached
         // or all members of one team has died
-        assert(round >= settings.max_rounds || h1 == 0u16 || h2 == 0u16);
+        assert(round >= settings.max_rounds || min_health == 0u16);
 
         // Ensure same random number is used  
         assert_eq(initial_random_seed, settings.random_number);
@@ -766,8 +779,8 @@ program gangwar.aleo {
         };
     }
 
-    /// 816 constraints
-    function get_winners(team_a: Team, team_b: Team, random_number: u16) -> (address, address, address, u16, u16) {
+    /// 5,418 constraints
+    function get_winners(team_a: Team, team_b: Team, random_number: u16) -> (Team, Team, u16) {
 
         // TODO: Ensure that the sum of the players is less than u16::MAX
         let team_a_health: u16 = team_a.p1.secondary_stats.health + team_a.p2.secondary_stats.health + team_a.p3.secondary_stats.health;
@@ -775,19 +788,15 @@ program gangwar.aleo {
 
         if (team_a_health > team_b_health) {
             return (
-                team_a.p1.player_addr,
-                team_a.p2.player_addr,
-                team_a.p3.player_addr,
-                team_a_health,
+                team_a,
+                team_b,
                 team_b_health
             );
         } else if (team_b_health > team_a_health) {
             return (
-                team_b.p1.player_addr,
-                team_b.p2.player_addr,
-                team_b.p3.player_addr,
+                team_b,
+                team_a,
                 team_a_health,
-                team_b_health
             );
         } else {
             let coin_flip_output: CoinFlip = flip_a_coin(random_number, 32768u16);
@@ -795,19 +804,15 @@ program gangwar.aleo {
 
             if (team_a_wins) {
                 return (
-                    team_a.p1.player_addr,
-                    team_a.p2.player_addr,
-                    team_a.p3.player_addr,
-                    team_a_health,
+                    team_a,
+                    team_b,
                     team_b_health
                 );
             } else {
                 return (
-                    team_b.p1.player_addr,
-                    team_b.p2.player_addr,
-                    team_b.p3.player_addr,
-                    team_a_health,
-                    team_b_health
+                    team_b,
+                    team_a,
+                    team_a_health
                 );
             }
         }

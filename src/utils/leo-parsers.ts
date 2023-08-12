@@ -576,7 +576,7 @@ export const leoParse = {
   character,
   signature,
   playerRecord,
-  // team,
+  team,
   // war,
   warRecord,
   symbol,
