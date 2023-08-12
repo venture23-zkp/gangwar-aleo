@@ -1,11 +1,108 @@
-import { join } from "path";
+import { join, parse } from "path";
 
 import { env, FEE, programNames } from "../../constants";
-import { LeoAddress, LeoPrivateKey, LeoViewKey, NftClaimRecord, NftMintRecord, ToggleSettings } from "../../types";
+import {
+  BaseURILeo,
+  CollectionInfo,
+  LeoAddress,
+  LeoPrivateKey,
+  LeoViewKey,
+  NftClaimRecord,
+  NftMintRecord,
+  ToggleSettings,
+} from "../../types";
 import { leoParse } from "../../utils";
 import { contractsPath, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";
 
 const nftPath = join(contractsPath, "leo_nft");
+
+const getNftCollectionInfo = async (): Promise<CollectionInfo> => {
+  if (env.ZK_MODE !== "leo") {
+    const totalNftsLeo = await snarkOsFetchMappingValue({
+      appName: programNames.LEO_NFT,
+      mappingName: "general_settings",
+      mappingKey: "0u8",
+    });
+    const totalNfts = Number(parseOutput.u128(totalNftsLeo).toString());
+
+    const totalSupplyLeo = await snarkOsFetchMappingValue({
+      appName: programNames.LEO_NFT,
+      mappingName: "general_settings",
+      mappingKey: "1u8",
+    });
+    const totalSupply = Number(parseOutput.u128(totalSupplyLeo).toString());
+
+    const symbolLeo = await snarkOsFetchMappingValue({
+      appName: programNames.LEO_NFT,
+      mappingName: "general_settings",
+      mappingKey: "2u8",
+    });
+    const symbol = parseOutput.symbol(symbolLeo);
+
+    const baseUriPart0Leo = await snarkOsFetchMappingValue({
+      appName: programNames.LEO_NFT,
+      mappingName: "general_settings",
+      mappingKey: "3u8",
+    });
+    const baseUriPart1Leo = await snarkOsFetchMappingValue({
+      appName: programNames.LEO_NFT,
+      mappingName: "general_settings",
+      mappingKey: "4u8",
+    });
+    const baseUriPart2Leo = await snarkOsFetchMappingValue({
+      appName: programNames.LEO_NFT,
+      mappingName: "general_settings",
+      mappingKey: "5u8",
+    });
+    const baseUriPart3Leo = await snarkOsFetchMappingValue({
+      appName: programNames.LEO_NFT,
+      mappingName: "general_settings",
+      mappingKey: "5u8",
+    });
+    const baseUriLeo: BaseURILeo = {
+      data0: baseUriPart0Leo,
+      data1: baseUriPart1Leo,
+      data2: baseUriPart2Leo,
+      data3: baseUriPart3Leo,
+    };
+    const baseURI = parseOutput.baseURI(baseUriLeo);
+
+    const toggleSettingsLeo = await snarkOsFetchMappingValue({
+      appName: programNames.LEO_NFT,
+      mappingName: "toggle_settings",
+      mappingKey: "0u8",
+    });
+    const toggleSettings = parseOutput.toggleSettings(toggleSettingsLeo);
+
+    const mintAllowedBlockLeo = await snarkOsFetchMappingValue({
+      appName: programNames.LEO_NFT,
+      mappingName: "toggle_settings",
+      mappingKey: "1u8",
+    });
+    const mintAllowedFromBlock = parseOutput.u32(mintAllowedBlockLeo);
+
+    return {
+      symbol,
+      baseURI,
+      totalSupply,
+      totalNfts,
+      ...toggleSettings,
+      mintAllowedFromBlock,
+    };
+  } else {
+    return {
+      symbol: "TEST",
+      baseURI: "http://this_is_test_uri",
+      totalSupply: 100,
+      totalNfts: 0,
+      frozen: false,
+      active: true,
+      whiteList: true,
+      initialized: true,
+      mintAllowedFromBlock: 0,
+    };
+  }
+};
 
 const initializeCollection = async (
   privateKey: LeoPrivateKey,
@@ -14,7 +111,7 @@ const initializeCollection = async (
   symbol: string,
   baseURI: string
   // TODO: verify return type
-): Promise<any> => {
+): Promise<CollectionInfo> => {
   const transition = "initialize_collection";
 
   const leoTotal = leoParse.u128(total);
@@ -34,6 +131,7 @@ const initializeCollection = async (
     params,
     fee: FEE,
   });
+  return getNftCollectionInfo();
 };
 
 const addNft = async (
@@ -289,6 +387,7 @@ const claimNFT = async (
 };
 
 export const nft = {
+  getNftCollectionInfo,
   initializeCollection,
   addNft,
   addMinter,

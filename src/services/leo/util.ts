@@ -53,6 +53,13 @@ import {
   NftTokenIdLeo,
   tokenIdLeoSchema,
   nftRecordLeoSchema,
+  BaseURILeo,
+  baseURILeoSchema,
+  SymbolLeo,
+  leoU128Schema,
+  LeoU32,
+  leoU32Schema,
+  ToggleSettings,
 } from "../../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema, schnorrSignatureSchema } from "../../types/dsa";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
@@ -333,11 +340,40 @@ function joinBigIntsToString(bigInts: bigint[]): string {
   return result;
 }
 
+function getSettingsFromNumber(settingNum: number): ToggleSettings {
+  const bitStringArray = settingNum.toString(2).padStart(32, "0").split("").reverse();
+  return {
+    initialized: bitStringArray[0] === "1",
+    active: bitStringArray[1] === "1",
+    whiteList: bitStringArray[2] === "1",
+    frozen: bitStringArray[3] === "1",
+  };
+}
+
+const symbol = (symbol: SymbolLeo): string => {
+  const parsed = leoU128Schema.parse(symbol);
+  const symbolInString = bigIntToString(BigInt(parsed));
+  return symbolInString;
+};
+
 const tokenId = (tokenId: NftTokenIdLeo): string => {
   const parsed = tokenIdLeoSchema.parse(tokenId);
   const bigInts = [u128(parsed.data1), u128(parsed.data2)];
   const tokenIdInString = joinBigIntsToString(bigInts);
   return tokenIdInString;
+};
+
+const baseURI = (uri: BaseURILeo): string => {
+  const parsed = baseURILeoSchema.parse(uri);
+  const bigInts = [u128(parsed.data0), u128(parsed.data1), u128(parsed.data2), u128(parsed.data3)];
+  const tokenIdInString = joinBigIntsToString(bigInts);
+  return tokenIdInString;
+};
+
+const toggleSettings = (settingsNumber: LeoU32): ToggleSettings => {
+  const parsed = leoU32Schema.parse(settingsNumber);
+  const settings: ToggleSettings = getSettingsFromNumber(u32(parsed));
+  return settings;
 };
 
 const nftMintRecord = (record: Record<string, unknown>): NftMintRecord => {
@@ -377,9 +413,13 @@ export const parseOutput = {
   u8,
   u32,
   u64,
+  u128,
   war,
   signature,
   settings,
+  symbol,
+  baseURI,
+  toggleSettings,
   playerRecord,
   nftMintRecord,
   nftClaimRecord,

@@ -4,6 +4,7 @@ import { leo } from "../../services";
 import { logger } from "../../utils";
 
 interface NftController {
+  collectionInfo: RequestHandler;
   initializeCollection: RequestHandler;
   // addNft: RequestHandler;
   // addMinter: RequestHandler;
@@ -17,10 +18,13 @@ interface NftController {
 }
 
 export const nftController: NftController = {
+  collectionInfo: async (req, res) => {
+    const collectionInfo = await leo.nft.getNftCollectionInfo();
+    res.send({ collectionInfo });
+  },
   initializeCollection: async (req, res) => {
     const { owner, privateKey, viewKey, maxSupply, symbol, baseURI } = req.body;
-    const gameSettings = await leo.nft.initializeCollection(privateKey, viewKey, maxSupply, symbol, baseURI);
-    logger.info(gameSettings);
-    res.send({ gameSettings });
+    const collectionInfo = await leo.nft.initializeCollection(privateKey, viewKey, maxSupply, symbol, baseURI);
+    res.send({ collectionInfo });
   },
 };

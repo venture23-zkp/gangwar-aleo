@@ -32,6 +32,20 @@ export const toggleSettingsSchema = z.object({
 });
 export type ToggleSettings = z.infer<typeof toggleSettingsSchema>;
 
+// Toggle Settings
+export const collectionInfoSchema = z.object({
+  symbol: z.string(),
+  baseURI: z.string(),
+  totalSupply: z.number(),
+  totalNfts: z.number(),
+  frozen: z.boolean(),
+  active: z.boolean(),
+  whiteList: z.boolean(),
+  initialized: z.boolean(),
+  mintAllowedFromBlock: z.number(),
+});
+export type CollectionInfo = z.infer<typeof collectionInfoSchema>;
+
 // NFT Record
 export const nftRecordLeoSchema = z.object({
   owner: leoAddressSchema,

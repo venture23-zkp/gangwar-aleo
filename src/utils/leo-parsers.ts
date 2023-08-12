@@ -428,16 +428,6 @@ const warRecord = (war: War): WarLeo => {
 /////// Leo NFT //////////////
 //////////////////////////////
 
-function getSettingsFromNumber(settingNum: number): { frozen: boolean; active: boolean; whiteList: boolean; initialized: boolean } {
-  const bitStringArray = settingNum.toString(2).padStart(32, "0").split("").reverse();
-  return {
-    initialized: bitStringArray[0] === "1",
-    active: bitStringArray[1] === "1",
-    whiteList: bitStringArray[2] === "1",
-    frozen: bitStringArray[3] === "1",
-  };
-}
-
 function getBit(setting: boolean): string {
   return setting ? "1" : "0";
 }

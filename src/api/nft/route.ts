@@ -7,6 +7,7 @@ import { schemas } from "./schemas";
 
 export const router = Router();
 
+router.get("/collection-info", asyncHandler(nftController.initializeCollection));
 router.post(
   "/initialize-collection",
   validate({ body: schemas.body.initializeCollection }),
