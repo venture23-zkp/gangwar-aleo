@@ -612,6 +612,7 @@ export const deployPrograms = async () => {
 
   const fees = {
     gangwar: 15,
+    leo_nft: 15,
   };
 
   const successfulPrograms: string[] = [];
