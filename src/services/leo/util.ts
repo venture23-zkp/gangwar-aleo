@@ -352,7 +352,7 @@ function getSettingsFromNumber(settingNum: number): ToggleSettings {
 
 const symbol = (symbol: SymbolLeo): string => {
   const parsed = leoU128Schema.parse(symbol);
-  const symbolInString = bigIntToString(BigInt(parsed));
+  const symbolInString = bigIntToString(u128(parsed));
   return symbolInString;
 };
 
