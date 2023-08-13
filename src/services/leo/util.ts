@@ -534,9 +534,9 @@ export const decryptRecord = async (
   viewKey: LeoViewKey,
   correctBracketPattern?: string
 ): Promise<Record<string, unknown>> => {
-  console.log("trying to decrypt", encryptedRecord);
+  // console.log("trying to decrypt", encryptedRecord);
   let decrypted = ViewKey.from_string(viewKey).decrypt(encryptedRecord).replaceAll("\n", "").replaceAll(" ", "");
-  console.log("decrypted", decrypted);
+  // console.log("decrypted", decrypted);
   return parseRecordString(decrypted, correctBracketPattern);
 };
 
@@ -599,6 +599,8 @@ const snarkOsExecute = async (
   const url = `${baseRoute}/testnet3/transaction/${txId}`;
   const res = await attemptFetch(url);
 
+  console.log("Tx URL", url);
+
   const tx: Record<string, unknown> = res.data;
   const parsedTx = leoTxSchema.parse(tx);
   const result = getTxResult(parsedTx);
@@ -607,7 +609,7 @@ const snarkOsExecute = async (
   let parsed = {};
   if (result) {
     parsed = await decryptRecord(result, viewKey, correctBracketPattern);
-    console.log("decrypted", parsed);
+    // console.log("decrypted", parsed);
   }
 
   return parsed;
