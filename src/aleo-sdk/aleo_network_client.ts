@@ -237,7 +237,8 @@ export class AleoNetworkClient {
     endHeight: number | undefined,
     privateKey: string | undefined,
     amounts: number[] | undefined,
-    maxMicrocredits: number | undefined
+    maxMicrocredits: number | undefined,
+    program: string | undefined
   ): Promise<Array<Output>> {
     // Ensure start height is not negative
     if (startHeight < 0) {
@@ -253,6 +254,7 @@ export class AleoNetworkClient {
     let failures = 0;
     let totalRecordValue = BigInt(0);
     let latestHeight: number;
+    let programName = program;
 
     // Ensure a private key is present to find owned records
     if (typeof privateKey === "undefined") {
@@ -269,6 +271,10 @@ export class AleoNetworkClient {
       }
     }
     const viewKey = resolvedPrivateKey.to_view_key();
+
+    if (typeof programName === "undefined") {
+      programName = "credits";
+    }
 
     // Get the latest height to ensure the range being searched is valid
     try {
@@ -318,7 +324,7 @@ export class AleoNetworkClient {
                     for (let k = 0; k < transaction.execution.transitions.length; k++) {
                       const transition = transaction.execution.transitions[k];
                       // Only search for unspent records in credits.aleo (for now)
-                      if (transition.program !== "credits.aleo") {
+                      if (transition.program !== `${programName}.aleo`) {
                         continue;
                       }
                       if (!(typeof transition.outputs == "undefined")) {
@@ -332,7 +338,11 @@ export class AleoNetworkClient {
                               if (record.isOwner(viewKey)) {
                                 // Decrypt the record and get the serial number
                                 const recordPlaintext = record.decrypt(viewKey);
-                                const serialNumber = recordPlaintext.serialNumberString(resolvedPrivateKey, "credits.aleo", "credits");
+                                const serialNumber = recordPlaintext.serialNumberString(
+                                  resolvedPrivateKey,
+                                  `${programName}.aleo`,
+                                  "credits"
+                                );
                                 // Attempt to see if the serial number is spent
                                 try {
                                   await this.getTransitionId(serialNumber);
