@@ -12,7 +12,7 @@ import {
   ToggleSettings,
 } from "../../types";
 import { leoParse } from "../../utils";
-import { contractsPath, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";
+import { contractsPath, fetchUnspentRecords, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";
 
 const nftPath = join(contractsPath, "leo_nft");
 
@@ -192,6 +192,22 @@ const addMinter = async (
   return getNftCollectionInfo();
 };
 
+const fetchUnspentNftMintReocrds = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey
+  // TODO: verify return type
+): Promise<any> => {
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT);
+  const unspentNftMintRecords = [];
+  for (let record of unspentRecords) {
+    try {
+      const nftMintRecord = parseOutput.nftMintRecord(record);
+      unspentNftMintRecords.push(nftMintRecord);
+    } catch {}
+  }
+  return unspentNftMintRecords;
+};
+
 const updateToggleSettings = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey,
@@ -324,6 +340,22 @@ const openMint = async (
   return nftClaimRecord;
 };
 
+const fetchUnspentNftClaimReocrds = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey
+  // TODO: verify return type
+): Promise<any> => {
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT);
+  const unspentNftClaimRecords = [];
+  for (let record of unspentRecords) {
+    try {
+      const nftClaimRecord = parseOutput.nftClaimRecord(record);
+      unspentNftClaimRecords.push(nftClaimRecord);
+    } catch {}
+  }
+  return unspentNftClaimRecords;
+};
+
 const mint = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey,
@@ -404,4 +436,5 @@ export const nft = {
   openMint,
   mint,
   claimNFT,
+  fetchUnspentNftMintReocrds,
 };
