@@ -159,6 +159,7 @@ const addNft = async (
     params,
     fee: FEE,
   });
+  return getNftCollectionInfo();
 };
 
 const addMinter = async (
@@ -187,7 +188,8 @@ const addMinter = async (
   // TODO: do not parse the record as it may not belongs to the minter and not to us
   const nftMintRecord = parseOutput.nftMintRecord(res);
   console.log(nftMintRecord);
-  return nftMintRecord;
+  // return nftMintRecord;
+  return getNftCollectionInfo();
 };
 
 const updateToggleSettings = async (
@@ -210,6 +212,7 @@ const updateToggleSettings = async (
     params,
     fee: FEE,
   });
+  return getNftCollectionInfo();
 };
 
 const setMintBlock = async (
@@ -232,6 +235,7 @@ const setMintBlock = async (
     params,
     fee: FEE,
   });
+  return getNftCollectionInfo();
 };
 
 const updateSymbol = async (
@@ -254,6 +258,7 @@ const updateSymbol = async (
     params,
     fee: FEE,
   });
+  return getNftCollectionInfo();
 };
 
 const updateBaseURI = async (
@@ -278,6 +283,7 @@ const updateBaseURI = async (
     params,
     fee: FEE,
   });
+  return getNftCollectionInfo();
 };
 
 const getRandomLeoHidingNonce = () => {

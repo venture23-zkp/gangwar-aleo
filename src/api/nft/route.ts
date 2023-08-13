@@ -13,3 +13,16 @@ router.post(
   validate({ body: schemas.body.initializeCollection }),
   asyncHandler(nftController.initializeCollection)
 );
+router.post("/add-nft", validate({ body: schemas.body.addNft }), asyncHandler(nftController.addNft));
+router.post("/add-minter", validate({ body: schemas.body.addMinter }), asyncHandler(nftController.addMinter));
+router.post(
+  "/update-toggle-settings",
+  validate({ body: schemas.body.updateToggleSettings }),
+  asyncHandler(nftController.updateToggleSettings)
+);
+router.post("/set-mint-block", validate({ body: schemas.body.setMintBlock }), asyncHandler(nftController.setMintBlock));
+router.post("/update-symbol", validate({ body: schemas.body.updateSymbol }), asyncHandler(nftController.updateSymbol));
+router.post("/update-baseURI", validate({ body: schemas.body.updateBaseURI }), asyncHandler(nftController.updateBaseURI));
+router.post("/open-mint", validate({ body: schemas.body.openMint }), asyncHandler(nftController.openMint));
+router.post("/mint", validate({ body: schemas.body.mint }), asyncHandler(nftController.mint));
+router.post("/claim-nft", validate({ body: schemas.body.claimNft }), asyncHandler(nftController.claimNft));
