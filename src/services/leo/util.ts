@@ -3,7 +3,7 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import { promisify } from "util";
 
-import { Address, DevelopmentClient, PrivateKey, ViewKey } from "../../aleo-sdk";
+import { Address, AleoNetworkClient, DevelopmentClient, PrivateKey, ViewKey } from "../../aleo-sdk";
 import { env, FEE, LOCAL_NETWORK_PRIVATE_KEY, programNames } from "../../constants";
 import {
   LeoTx,
@@ -65,6 +65,7 @@ import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema, schno
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
 
 const developmentClient = new DevelopmentClient(env.DEVELOPMENT_SERVER_URL);
+const networkClient = new AleoNetworkClient(env.SNARKOS_URL);
 
 export const execute = promisify(exec);
 
@@ -711,4 +712,16 @@ const transferCredits = async (amount: number, recipient: string, privateKey = L
       }
     }
   }
+};
+
+export const fetchUnspentRecords = async (privateKey: string, viewKey: string) => {
+  console.log("Trying to fetch");
+  const startHeight = 360;
+  const unspentRecords = await networkClient.findUnspentRecords(startHeight, undefined, privateKey, undefined, undefined);
+  const decryptedUnspentRecords = [];
+  for (let record of unspentRecords) {
+    const decrypted = await decryptRecord(record.value, viewKey);
+    decryptedUnspentRecords.push(decrypted);
+  }
+  return decryptedUnspentRecords;
 };

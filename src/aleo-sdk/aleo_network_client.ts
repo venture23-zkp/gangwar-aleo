@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Account, Block, Transaction, Transition } from ".";
+import { Account, Block, Transaction, Transition, Output } from ".";
 import { RecordCiphertext, RecordPlaintext, PrivateKey } from "@aleohq/wasm";
 
 /**
@@ -40,19 +40,17 @@ export class AleoNetworkClient {
    * @example
    * let account = connection.getAccount();
    */
-   getAccount(): Account | undefined {
+  getAccount(): Account | undefined {
     return this.account;
   }
 
-  async fetchData<Type>(
-    url = "/",
-  ): Promise<Type> {
-     try {
-       const response = await axios.get<Type>(this.host + url);
-       return response.data;
-     } catch (error) {
-       throw new Error("Error fetching data.");
-     }
+  async fetchData<Type>(url = "/"): Promise<Type> {
+    try {
+      const response = await axios.get<Type>(this.host + url);
+      return response.data;
+    } catch (error) {
+      throw new Error("Error fetching data.");
+    }
   }
 
   /**
@@ -83,7 +81,7 @@ export class AleoNetworkClient {
     try {
       return await this.fetchData<Array<Block>>("/blocks?start=" + start + "&end=" + end);
     } catch (error) {
-      const errorMessage = "Error fetching blocks between " + start + " and " + end + "."
+      const errorMessage = "Error fetching blocks between " + start + " and " + end + ".";
       throw new Error(errorMessage);
     }
   }
@@ -97,7 +95,7 @@ export class AleoNetworkClient {
    */
   async getProgram(programId: string): Promise<string | Error> {
     try {
-      return await this.fetchData<string>("/program/" + programId)
+      return await this.fetchData<string>("/program/" + programId);
     } catch (error) {
       throw new Error("Error fetching program");
     }
@@ -111,7 +109,7 @@ export class AleoNetworkClient {
    */
   async getLatestBlock(): Promise<Block | Error> {
     try {
-      return await this.fetchData<Block>("/latest/block") as Block;
+      return (await this.fetchData<Block>("/latest/block")) as Block;
     } catch (error) {
       throw new Error("Error fetching latest block.");
     }
@@ -239,15 +237,16 @@ export class AleoNetworkClient {
     endHeight: number | undefined,
     privateKey: string | undefined,
     amounts: number[] | undefined,
-    maxMicrocredits: number | undefined,
-  ): Promise<Array<RecordPlaintext> | Error> {
+    maxMicrocredits: number | undefined
+  ): Promise<Array<Output>> {
     // Ensure start height is not negative
     if (startHeight < 0) {
-        throw new Error("Start height must be greater than or equal to 0");
+      throw new Error("Start height must be greater than or equal to 0");
     }
 
     // Initialize search parameters
-    const records = new Array<RecordPlaintext>();
+    // const records = new Array<RecordPlaintext>();
+    const records = new Array<any>();
     let start;
     let end;
     let resolvedPrivateKey: PrivateKey;
@@ -285,14 +284,14 @@ export class AleoNetworkClient {
 
     // If no end height is specified or is greater than the latest height, set the end height to the latest height
     if (typeof endHeight === "number" && endHeight <= latestHeight) {
-      end = endHeight
+      end = endHeight;
     } else {
       end = latestHeight;
     }
 
     // If the starting is greater than the ending height, return an error
-    if (startHeight > end ) {
-        throw new Error("Start height must be less than or equal to end height.");
+    if (startHeight > end) {
+      throw new Error("Start height must be less than or equal to end height.");
     }
 
     // Iterate through blocks in reverse order in chunks of 50
@@ -312,7 +311,7 @@ export class AleoNetworkClient {
             const transactions = block.transactions;
             if (!(typeof transactions === "undefined")) {
               for (let j = 0; j < transactions.length; j++) {
-                const transaction = transactions[j];
+                const transaction = transactions[j].transaction;
                 // Search for unspent records in execute transactions of credits.aleo
                 if (transaction.type == "execute") {
                   if (!(typeof transaction.execution.transitions == "undefined")) {
@@ -339,7 +338,7 @@ export class AleoNetworkClient {
                                   await this.getTransitionId(serialNumber);
                                 } catch (error) {
                                   // If it's not found, add it to the list of unspent records
-                                  records.push(recordPlaintext);
+                                  records.push(output);
                                   // If the user specified a maximum number of microcredits, check if the search has found enough
                                   if (typeof maxMicrocredits === "number") {
                                     totalRecordValue = recordPlaintext.microcredits();
@@ -365,8 +364,7 @@ export class AleoNetworkClient {
                                   }
                                 }
                               }
-                            } catch (error) {
-                            }
+                            } catch (error) {}
                           }
                         }
                       }

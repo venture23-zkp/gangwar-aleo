@@ -17,6 +17,7 @@ const envSchema = z.object({
 
   ZK_MODE: z.enum(["leo", "testnet_public", "testnet_local"]).optional().default("testnet_local"),
   DEVELOPMENT_SERVER_URL: z.string().default("http://0.0.0.0:4040"),
+  SNARKOS_URL: z.string().default("http://0.0.0.0:3030"),
 
   DEPLOY_PROGRAMS: z.string().default("false").transform(transformBool),
   DEPLOY_PRIVATE_KEY: leoPrivateKeySchema.optional(),
