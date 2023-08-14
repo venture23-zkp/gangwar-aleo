@@ -90,5 +90,11 @@ export const schemas = {
       tokenId: z.string(),
       edition: z.string(),
     }),
+
+    fetch: z.object({
+      privateKey: leoPrivateKeySchema,
+      viewKey: leoViewKeySchema,
+      owner: leoAddressSchema,
+    }),
   },
 };
