@@ -192,7 +192,7 @@ const addMinter = async (
   return getNftCollectionInfo();
 };
 
-const fetchUnspentNftMintReocrds = async (
+const fetchUnspentNftMintRecords = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey
   // TODO: verify return type
@@ -340,7 +340,7 @@ const openMint = async (
   return nftClaimRecord;
 };
 
-const fetchUnspentNftClaimReocrds = async (
+const fetchUnspentNftClaimRecords = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey
   // TODO: verify return type
@@ -424,6 +424,22 @@ const claimNFT = async (
   return nftMintRecord;
 };
 
+const fetchUnspentNftRecords = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey
+  // TODO: verify return type
+): Promise<any> => {
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT);
+  const unspentNftRecords = [];
+  for (let record of unspentRecords) {
+    try {
+      const nftRecord = parseOutput.nftRecord(record);
+      unspentNftRecords.push(nftRecord);
+    } catch {}
+  }
+  return unspentNftRecords;
+};
+
 export const nft = {
   getNftCollectionInfo,
   initializeCollection,
@@ -436,5 +452,7 @@ export const nft = {
   openMint,
   mint,
   claimNFT,
-  fetchUnspentNftMintReocrds,
+  fetchUnspentNftMintRecords,
+  fetchUnspentNftClaimRecords,
+  fetchUnspentNftRecords,
 };

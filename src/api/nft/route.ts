@@ -27,3 +27,5 @@ router.post("/open-mint", validate({ body: schemas.body.openMint }), asyncHandle
 router.post("/mint", validate({ body: schemas.body.mint }), asyncHandler(nftController.mint));
 router.post("/claim-nft", validate({ body: schemas.body.claimNft }), asyncHandler(nftController.claimNft));
 router.post("/fetch/nft-mint-records", validate({ body: schemas.body.fetch }), asyncHandler(nftController.fetchNftMintRecords));
+router.post("/fetch/nft-claim-records", validate({ body: schemas.body.fetch }), asyncHandler(nftController.fetchNftClaimRecords));
+router.post("/fetch/nft-records", validate({ body: schemas.body.fetch }), asyncHandler(nftController.fetchNftRecords));

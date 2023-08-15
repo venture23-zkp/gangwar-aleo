@@ -16,6 +16,8 @@ interface NftController {
   mint: RequestHandler;
   claimNft: RequestHandler;
   fetchNftMintRecords: RequestHandler;
+  fetchNftClaimRecords: RequestHandler;
+  fetchNftRecords: RequestHandler;
 }
 
 export const nftController: NftController = {
@@ -75,7 +77,17 @@ export const nftController: NftController = {
   },
   fetchNftMintRecords: async (req, res) => {
     const { owner, privateKey, viewKey, claimRecord, tokenId, edition } = req.body;
-    const collectionInfo = await leo.nft.fetchUnspentNftMintReocrds(privateKey, viewKey);
-    res.send({ collectionInfo });
+    const nftMintRecords = await leo.nft.fetchUnspentNftMintRecords(privateKey, viewKey);
+    res.send({ nftMintRecords });
+  },
+  fetchNftClaimRecords: async (req, res) => {
+    const { owner, privateKey, viewKey, claimRecord, tokenId, edition } = req.body;
+    const claimRecords = await leo.nft.fetchUnspentNftClaimRecords(privateKey, viewKey);
+    res.send({ claimRecords });
+  },
+  fetchNftRecords: async (req, res) => {
+    const { owner, privateKey, viewKey, claimRecord, tokenId, edition } = req.body;
+    const nftRecords = await leo.nft.fetchUnspentNftRecords(privateKey, viewKey);
+    res.send({ nftRecords });
   },
 };
