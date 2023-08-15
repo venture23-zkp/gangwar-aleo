@@ -714,13 +714,21 @@ const transferCredits = async (amount: number, recipient: string, privateKey = L
   }
 };
 
-export const fetchUnspentRecords = async (privateKey: string, viewKey: string, program: string) => {
+export const fetchUnspentRecords = async (privateKey: string, viewKey: string, program: string, bracketPattern?: string) => {
   console.log("Trying to fetch");
   const startHeight = 0;
-  const unspentRecords = await networkClient.findUnspentRecords(startHeight, undefined, privateKey, undefined, undefined, program);
+  const unspentRecords = await networkClient.findUnspentRecords(
+    startHeight,
+    undefined,
+    privateKey,
+    undefined,
+    undefined,
+    program,
+    bracketPattern
+  );
   const decryptedUnspentRecords = [];
   for (let record of unspentRecords) {
-    const decrypted = await decryptRecord(record.value, viewKey);
+    const decrypted = await decryptRecord(record.value, viewKey, bracketPattern);
     decryptedUnspentRecords.push(decrypted);
   }
   return decryptedUnspentRecords;

@@ -18,7 +18,7 @@ import {
 } from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
 import { leoParse } from "../../utils";
-import { contractsPath, leoRun, parseOutput, parseRecordString, snarkOsFetchMappingValue, zkRun } from "./util";
+import { contractsPath, fetchUnspentRecords, leoRun, parseOutput, parseRecordString, snarkOsFetchMappingValue, zkRun } from "./util";
 
 const gangwarPath = join(contractsPath, "gangwar");
 
@@ -153,7 +153,20 @@ const joinGame = async (
 };
 
 // TODO
-const fetchPlayerRecords = async (simulationId: number): Promise<any> => {};
+const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number): Promise<any> => {
+  const bracketPattern = playerRecordBracketPattern();
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, bracketPattern);
+  const playerRecords = [];
+  for (let record of unspentRecords) {
+    try {
+      const playerRecord = parseOutput.playerRecord(record);
+      if (playerRecord.simulationId == simulationId) {
+        playerRecords.push(playerRecord);
+      }
+    } catch {}
+  }
+  return playerRecords;
+};
 
 const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number, players: Player[]): Promise<War> => {
   const transition = "start_game";
@@ -248,4 +261,4 @@ const finishGame = async (
   });
 };
 
-export const gangwar = { createGame, sign, joinGame, startGame, simulate1vs1, finishGame, fetchGangwarSettings };
+export const gangwar = { createGame, sign, joinGame, startGame, simulate1vs1, finishGame, fetchGangwarSettings, fetchPlayerRecords };

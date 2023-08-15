@@ -238,7 +238,8 @@ export class AleoNetworkClient {
     privateKey: string | undefined,
     amounts: number[] | undefined,
     maxMicrocredits: number | undefined,
-    program: string | undefined
+    program: string | undefined,
+    bracketPattern?: string
   ): Promise<Array<Output>> {
     // Ensure start height is not negative
     if (startHeight < 0) {

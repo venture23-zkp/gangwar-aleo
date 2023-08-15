@@ -51,5 +51,11 @@ export const schemas = {
       simulationId: z.number(),
       players: z.array(playerSchema),
     }),
+    fetchPlayerRecords: z.object({
+      privateKey: leoPrivateKeySchema,
+      viewKey: leoViewKeySchema,
+      owner: leoAddressSchema,
+      simulationId: z.number(),
+    }),
   },
 };
