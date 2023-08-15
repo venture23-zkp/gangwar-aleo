@@ -32,8 +32,8 @@ export const gangwarController: GangwarController = {
     res.send({ gameSettings });
   },
   sign: async (req, res) => {
-    const { owner, privateKey, viewKey, character, sk, k, validityTimestamp } = req.body;
-    const signature = await leo.gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);
+    const { character, sk, k } = req.body;
+    const signature = await leo.gangwar.sign(character, sk, k);
     res.send({ signature });
   },
   joinGame: async (req, res) => {

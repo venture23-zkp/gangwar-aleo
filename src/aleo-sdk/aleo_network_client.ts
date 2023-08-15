@@ -309,6 +309,7 @@ export class AleoNetworkClient {
       }
       try {
         // Get 50 blocks (or the difference between the start and end if less than 50)
+        console.log("Fetching blocks in the range", start, end);
         const blocks = await this.getBlockRange(start, end);
         end = start;
         if (!(blocks instanceof Error)) {

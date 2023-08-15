@@ -28,13 +28,9 @@ export const schemas = {
       simulationId: z.number(),
     }),
     sign: z.object({
-      privateKey: leoPrivateKeySchema,
-      viewKey: leoViewKeySchema,
-      owner: leoAddressSchema,
       character: characterSchema,
       sk: z.string(), // Secret key
       k: z.string(), // Nonce for signing
-      validityTimestamp: z.number(),
     }),
     joinGame: z.object({
       privateKey: leoPrivateKeySchema,

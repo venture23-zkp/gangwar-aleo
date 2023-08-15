@@ -1,4 +1,3 @@
-import { Signature } from "@aleohq/wasm";
 import { join } from "path";
 
 import { env, FEE, programNames } from "../../constants";
@@ -18,7 +17,16 @@ import {
 } from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
 import { leoParse } from "../../utils";
-import { contractsPath, fetchUnspentRecords, leoRun, parseOutput, parseRecordString, snarkOsFetchMappingValue, zkRun } from "./util";
+import {
+  contractsPath,
+  fetchUnspentRecords,
+  leoRun,
+  networkClient,
+  parseOutput,
+  parseRecordString,
+  snarkOsFetchMappingValue,
+  zkRun,
+} from "./util";
 
 const gangwarPath = join(contractsPath, "gangwar");
 
@@ -38,7 +46,7 @@ const createGame = async (
   const leoGameLoopCount = leoParse.u8(maxRounds);
   const params = [leoSimulationId, leoRegistrationDuration, leoMaxNumberOfPlayers, leoGameLoopCount];
 
-  // console.log("gangwar.ts Trying to create game with ", simulationId);
+  console.log("gangwar.ts Trying to create game with ", simulationId, programNames.GANGWAR);
   await zkRun({
     privateKey,
     viewKey,
@@ -78,20 +86,31 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
 
 // TODO: to check in deployment
 const sign = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
   character: Character,
   sk: string, // Secret key
-  k: string, // Nonce for signing
-  validityTimestamp: number
+  k: string // Nonce for signing
 ): Promise<SchnorrSignature> => {
   const transition = "sign";
-
   // const leoSk: LeoScalar = leoScalarSchema.parse(sk);
   const leoSk = leoParse.scalar(BigInt(sk));
   const leoK = leoParse.scalar(BigInt(k));
 
-  const leoValidityTimestamp = leoParse.u32(validityTimestamp);
+  // TODO: Verify block duration to provide validityTimestamp
+  // May need to convert timestamp to proper block (may not be deterministic)
+  // For now Assume block duration = 1 sec
+  const SECONDS_IN_ONE_DAY = 86400;
+  const VALIDITY_DURATION = 1 * SECONDS_IN_ONE_DAY; // 1 day
+
+  // TODO: update variables
+  let validTimestamp = 0;
+  if (env.ZK_MODE !== "leo") {
+    const blockHeight = Number(await networkClient.getLatestHeight());
+    validTimestamp = blockHeight + VALIDITY_DURATION;
+  } else {
+    validTimestamp = VALIDITY_DURATION;
+  }
+
+  const leoValidityTimestamp = leoParse.u32(validTimestamp);
   const leoCharacter = leoParse.character(character);
   console.log(leoCharacter);
   let leoCharacterParam = leoParse.stringifyLeoCmdParam(leoCharacter);

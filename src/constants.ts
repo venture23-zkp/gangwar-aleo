@@ -15,9 +15,8 @@ const envSchema = z.object({
     .default("http://localhost:3000,http://localhost:3001,http://frontend.localhost,http://api.localhost,http://backend.localhost")
     .transform((val) => val.split(",")),
 
-  ZK_MODE: z.enum(["leo", "testnet_public", "testnet_local"]).optional().default("testnet_local"),
+  ZK_MODE: z.enum(["leo", "testnet_public", "testnet_local"]).optional().default("testnet_public"),
   DEVELOPMENT_SERVER_URL: z.string().default("http://0.0.0.0:4040"),
-  SNARKOS_URL: z.string().default("http://0.0.0.0:3030"),
 
   DEPLOY_PROGRAMS: z.string().default("false").transform(transformBool),
   DEPLOY_PRIVATE_KEY: leoPrivateKeySchema.optional(),
@@ -34,7 +33,7 @@ export const DELETE_PAYLOAD = { message: "deleted" };
 
 export const programNames = {
   LEO_NFT: "leo_nft",
-  GANGWAR: "gangwar" + env.GANGWAR_VERSION,
+  GANGWAR: "gangwar_v0" + env.GANGWAR_VERSION,
   // WEAPON_NFT: "gangwar_weapon_nft" + env.GANGWAR_WEAPON_NFT_VERSION,
 };
 
