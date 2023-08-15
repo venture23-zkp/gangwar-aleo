@@ -152,10 +152,12 @@ const joinGame = async (
   return playerRecord;
 };
 
-// TODO
 const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number): Promise<any> => {
+  // TODO: add start block to the settings
+  const settings = await fetchGangwarSettings(simulationId);
+  const startBlock = settings.deadlineToRegister - 1000;
   const bracketPattern = playerRecordBracketPattern();
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, bracketPattern);
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, startBlock, bracketPattern);
   const playerRecords = [];
   for (let record of unspentRecords) {
     try {

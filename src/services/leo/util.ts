@@ -64,8 +64,9 @@ import {
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema, schnorrSignatureSchema } from "../../types/dsa";
 import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
 
-const developmentClient = new DevelopmentClient(env.DEVELOPMENT_SERVER_URL);
-const networkClient = new AleoNetworkClient(env.SNARKOS_URL);
+export const developmentClient = new DevelopmentClient(env.DEVELOPMENT_SERVER_URL);
+const baseRoute = env.ZK_MODE === "testnet_public" ? "https://vm.aleo.org/api" : "http://127.0.0.1:3030";
+export const networkClient = new AleoNetworkClient(baseRoute);
 
 export const execute = promisify(exec);
 
@@ -586,6 +587,7 @@ const snarkOsExecute = async (
 
   while (!executed && attemptsLeft > 0) {
     try {
+      console.log(`Executing via Aleo development server for ${viewKey}`);
       txId = (await developmentClient.executeProgram(`${appName}.aleo`, transition, fee, params, privateKey)).replaceAll('"', "");
       executed = true;
     } catch (error) {
@@ -628,6 +630,7 @@ export const snarkOsFetchMappingValue = async ({ appName, mappingName, mappingKe
   const url = `${baseRoute}/testnet3/program/${appName}.aleo/mapping/${mappingName}/${mappingKey}`;
   // console.log("Trying to fetch from", url);
   const res = await attemptFetch(url);
+  // console.log(res.data);
   const value = res.data;
   return value;
 };
@@ -714,9 +717,13 @@ const transferCredits = async (amount: number, recipient: string, privateKey = L
   }
 };
 
-export const fetchUnspentRecords = async (privateKey: string, viewKey: string, program: string, bracketPattern?: string) => {
-  console.log("Trying to fetch");
-  const startHeight = 0;
+export const fetchUnspentRecords = async (
+  privateKey: string,
+  viewKey: string,
+  program: string,
+  startHeight: number,
+  bracketPattern?: string
+) => {
   const unspentRecords = await networkClient.findUnspentRecords(
     startHeight,
     undefined,

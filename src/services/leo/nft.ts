@@ -197,7 +197,8 @@ const fetchUnspentNftMintRecords = async (
   viewKey: LeoViewKey
   // TODO: verify return type
 ): Promise<any> => {
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT);
+  const startBlock = 0;
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT, startBlock);
   const unspentNftMintRecords = [];
   for (let record of unspentRecords) {
     try {
@@ -345,7 +346,8 @@ const fetchUnspentNftClaimRecords = async (
   viewKey: LeoViewKey
   // TODO: verify return type
 ): Promise<any> => {
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT);
+  const startBlock = 0;
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT, startBlock);
   const unspentNftClaimRecords = [];
   for (let record of unspentRecords) {
     try {
@@ -429,7 +431,8 @@ const fetchUnspentNftRecords = async (
   viewKey: LeoViewKey
   // TODO: verify return type
 ): Promise<any> => {
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT);
+  const startBlock = 0;
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT, startBlock);
   const unspentNftRecords = [];
   for (let record of unspentRecords) {
     try {
