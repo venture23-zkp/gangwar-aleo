@@ -721,9 +721,11 @@ export const fetchUnspentRecords = async (
   privateKey: string,
   viewKey: string,
   program: string,
+  recordName: string,
   startHeight: number,
   bracketPattern?: string
 ) => {
+  console.log("Fetching unspent records");
   const unspentRecords = await networkClient.findUnspentRecords(
     startHeight,
     undefined,
@@ -731,7 +733,7 @@ export const fetchUnspentRecords = async (
     undefined,
     undefined,
     program,
-    bracketPattern
+    recordName
   );
   const decryptedUnspentRecords = [];
   for (let record of unspentRecords) {

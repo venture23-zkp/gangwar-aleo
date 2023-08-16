@@ -239,7 +239,7 @@ export class AleoNetworkClient {
     amounts: number[] | undefined,
     maxMicrocredits: number | undefined,
     program: string | undefined,
-    bracketPattern?: string
+    record: string | undefined
   ): Promise<Array<Output>> {
     // Ensure start height is not negative
     if (startHeight < 0) {
@@ -255,7 +255,8 @@ export class AleoNetworkClient {
     let failures = 0;
     let totalRecordValue = BigInt(0);
     let latestHeight: number;
-    let programName = program;
+    let programName = String(program);
+    let recordName = String(record);
 
     // Ensure a private key is present to find owned records
     if (typeof privateKey === "undefined") {
@@ -275,6 +276,9 @@ export class AleoNetworkClient {
 
     if (typeof programName === "undefined") {
       programName = "credits";
+    }
+    if (typeof programName === "undefined") {
+      recordName = "credits";
     }
 
     // Get the latest height to ensure the range being searched is valid
@@ -343,8 +347,9 @@ export class AleoNetworkClient {
                                 const serialNumber = recordPlaintext.serialNumberString(
                                   resolvedPrivateKey,
                                   `${programName}.aleo`,
-                                  "credits"
+                                  recordName
                                 );
+                                console.log(serialNumber);
                                 // Attempt to see if the serial number is spent
                                 try {
                                   await this.getTransitionId(serialNumber);

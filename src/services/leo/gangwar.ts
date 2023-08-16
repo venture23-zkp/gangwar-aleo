@@ -176,7 +176,7 @@ const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey
   const settings = await fetchGangwarSettings(simulationId);
   const startBlock = settings.deadlineToRegister - 1000;
   const bracketPattern = playerRecordBracketPattern();
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, startBlock, bracketPattern);
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "Player", startBlock, bracketPattern);
   const playerRecords = [];
   for (let record of unspentRecords) {
     try {
