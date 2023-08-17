@@ -14,6 +14,7 @@ import {
   Player,
   playerRecordBracketPattern,
   War,
+  warBracketPattern,
 } from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
 import { leoParse } from "../../utils";
@@ -174,7 +175,10 @@ const joinGame = async (
 const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number): Promise<any> => {
   // TODO: add start block to the settings
   const settings = await fetchGangwarSettings(simulationId);
-  const startBlock = settings.deadlineToRegister - 1000;
+
+  // TODO: maybe store startBlock on chain
+  // const startBlock = settings.deadlineToRegister - 1000;
+  const startBlock = 250;
   const bracketPattern = playerRecordBracketPattern();
   const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "Player", startBlock, bracketPattern);
   const playerRecords = [];
@@ -187,6 +191,28 @@ const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey
     } catch {}
   }
   return playerRecords;
+};
+
+const fetchWarRecord = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number): Promise<any> => {
+  // TODO: add start block to the settings
+  const settings = await fetchGangwarSettings(simulationId);
+
+  // TODO: maybe store startBlock on chain
+  // const startBlock = settings.deadlineToRegister - 1000;
+  const startBlock = 250;
+  const bracketPattern = warBracketPattern(3, 3);
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "War", startBlock, bracketPattern);
+  const warRecords = [];
+  for (let record of unspentRecords) {
+    try {
+      const warRecord = parseOutput.war(record);
+      console.log(warRecord);
+      if (warRecord.simulationId == simulationId) {
+        warRecords.push(warRecord);
+      }
+    } catch {}
+  }
+  return warRecords;
 };
 
 const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number, players: Player[]): Promise<War> => {
@@ -282,4 +308,14 @@ const finishGame = async (
   });
 };
 
-export const gangwar = { createGame, sign, joinGame, startGame, simulate1vs1, finishGame, fetchGangwarSettings, fetchPlayerRecords };
+export const gangwar = {
+  createGame,
+  sign,
+  joinGame,
+  startGame,
+  simulate1vs1,
+  finishGame,
+  fetchGangwarSettings,
+  fetchPlayerRecords,
+  fetchWarRecord,
+};

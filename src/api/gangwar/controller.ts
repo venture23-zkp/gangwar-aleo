@@ -10,6 +10,7 @@ interface GangwarController {
   fetchSettings: RequestHandler;
   startGame: RequestHandler;
   fetchPlayerRecords: RequestHandler;
+  fetchWarRecord: RequestHandler;
 }
 
 export const gangwarController: GangwarController = {
@@ -50,5 +51,10 @@ export const gangwarController: GangwarController = {
     const { owner, privateKey, viewKey, simulationId } = req.body;
     const playerRecords = await leo.gangwar.fetchPlayerRecords(privateKey, viewKey, simulationId);
     res.send({ playerRecords });
+  },
+  fetchWarRecord: async (req, res) => {
+    const { owner, privateKey, viewKey, simulationId } = req.body;
+    const warRecord = await leo.gangwar.fetchWarRecord(privateKey, viewKey, simulationId);
+    res.send({ warRecord });
   },
 };

@@ -121,7 +121,7 @@ export type Player = z.infer<typeof playerSchema>;
 export const characterBracketPattern = () => "{p1{pStats}{sStats}{weapon}}";
 export const playerRecordBracketPattern = () => `{${characterBracketPattern}}`;
 const teamBracketPattern = (numberOfPlayers: number) => {
-  let bracketPattern = "{main/target";
+  let bracketPattern = "{t";
   for (let i = 0; i < numberOfPlayers; i++) {
     bracketPattern = bracketPattern.concat(characterBracketPattern());
   }
@@ -129,7 +129,7 @@ const teamBracketPattern = (numberOfPlayers: number) => {
   return bracketPattern;
 };
 export const warBracketPattern = (teamAPlayerCount: number, teamBPlayerCount: number) =>
-  `{o${teamBracketPattern(teamAPlayerCount)}, ${teamBracketPattern(teamBPlayerCount)}nonce}`;
+  `{o${teamBracketPattern(teamAPlayerCount)}, ${teamBracketPattern(teamBPlayerCount)}{pa}nonce}`;
 
 export const teamLeoSchema = z.object({
   p1: characterLeoSchema,

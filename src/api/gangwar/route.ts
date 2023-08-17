@@ -12,8 +12,5 @@ router.post("/create-game", validate({ body: schemas.body.createGame }), asyncHa
 router.post("/sign", validate({ body: schemas.body.sign }), asyncHandler(gangwarController.sign));
 router.post("/join-game", validate({ body: schemas.body.joinGame }), asyncHandler(gangwarController.joinGame));
 router.post("/start-game", validate({ body: schemas.body.startGame }), asyncHandler(gangwarController.startGame));
-router.post(
-  "/fetch/player-records",
-  validate({ body: schemas.body.fetchPlayerRecords }),
-  asyncHandler(gangwarController.fetchPlayerRecords)
-);
+router.post("/fetch/players", validate({ body: schemas.body.fetchPlayerRecords }), asyncHandler(gangwarController.fetchPlayerRecords));
+router.post("/fetch/war", validate({ body: schemas.body.fetchWarRecord }), asyncHandler(gangwarController.fetchWarRecord));
