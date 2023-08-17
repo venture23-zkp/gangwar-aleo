@@ -59,5 +59,11 @@ export const schemas = {
       owner: leoAddressSchema,
       simulationId: z.number(),
     }),
+    simulate: z.object({
+      privateKey: leoPrivateKeySchema,
+      viewKey: leoViewKeySchema,
+      owner: leoAddressSchema,
+      war: warSchema,
+    }),
   },
 };
