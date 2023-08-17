@@ -77,23 +77,41 @@ const privateField = (value: string) => value + ".private";
 
 const publicField = (value: string) => value + ".public";
 
+function getProbSignificantDigits(prob: number, precision: number): number {
+  /// If prob = 0.11111111 and precision=2
+  if (prob > 1) {
+    throw Error("probability must be less than 1");
+  }
+  // Adding +2 to precision because first two characters are `0.`
+  const significantProbability = prob.toString().substring(0, precision + 2);
+  return Number(significantProbability);
+}
+
 function prob(repr: string, maxValue: BigInt, prob: number) {
-  // Use the decimal digits of MAX_SAFE_INTEGER as precision
-  const precision = Number.MAX_SAFE_INTEGER.toString().length - 1;
+  if (Number(maxValue) > Number.MAX_SAFE_INTEGER) {
+    // Use the decimal digits of MAX_SAFE_INTEGER as precision
+    const precision = Number.MAX_SAFE_INTEGER.toString().length - 1;
 
-  // Split the field value into two parts: first & second
-  const first_part = maxValue.toString().substring(0, precision);
+    // Split the field value into two parts: first & second
+    const first_part = maxValue.toString().substring(0, precision);
 
-  // Note: Although second part won't ever be considered in practice
-  // it can be randomized to give a sense of randomness to users
-  // In gangwar, the probabilites are set before-hand so randomness is not needed
-  const second_part = maxValue.toString().substring(precision, maxValue.toString().length);
+    // Note: Although second part won't ever be considered in practice
+    // it can be randomized to give a sense of randomness to users
+    // In gangwar, the probabilites are set before-hand so randomness is not needed
+    const second_part = maxValue.toString().substring(precision, maxValue.toString().length);
 
-  let updated_first_part_after_probability = Math.round(Number(first_part) * prob);
+    let updated_first_part_after_probability = Math.round(Number(first_part) * prob);
 
-  const final = updated_first_part_after_probability + second_part + repr;
+    const final = updated_first_part_after_probability + second_part + repr;
 
-  return final;
+    return final;
+  } else {
+    // Using maxValue length as precision since it is smaller
+    // Subtracting 1 is not necessary if all the digits in maxValue is 9
+    const probInUint = Math.round(prob * Number(maxValue));
+    const final = probInUint + repr;
+    return final;
+  }
 }
 
 const field = (value: BigInt): LeoField => {
@@ -176,8 +194,8 @@ const u128Prob = (value: number): LeoU128 => {
   return leoU128Schema.parse(parsed);
 };
 
-const u16Prob = (value: number): LeoU128 => {
-  const MAX_UINT16 = BigInt("65535"); // 2^128 - 1
+const u16Prob = (value: number): LeoU16 => {
+  const MAX_UINT16 = BigInt(Math.pow(2, 16) - 1);
   const parsed = prob("u16", MAX_UINT16, value);
   return leoU16Schema.parse(parsed);
 };
@@ -559,6 +577,7 @@ export const leoParse = {
   id,
   u8,
   u16,
+  u16Prob,
   u32,
   u64,
   u128,

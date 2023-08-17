@@ -79,22 +79,39 @@ const replaceValue = (value: string, searchValue = "") => value.replace(searchVa
 
 const address = (value: string): string => replaceValue(value);
 
-function prob(repr: string, maxValue: BigInt, prob: string) {
-  const probInBigInt = BigInt(prob.replace(repr, ""));
-  // Use the decimal bits of MAX_SAFE_INTEGER as precision
-  const precision = Number.MAX_SAFE_INTEGER.toString().length - 1;
+function getProbSignificantDigits(prob: number, precision: number): number {
+  /// If prob = 0.11111111 and precision=2
+  if (prob > 1) {
+    throw Error("probability must be less than 1");
+  }
+  // Adding +2 to precision because first two characters are `0.`
+  const significantProbability = prob.toString().substring(0, precision + 2);
+  return Number(significantProbability);
+}
 
-  const maxValueLength = maxValue.toString().length;
+function prob(repr: string, maxValue: BigInt, prob: string): number {
+  if (Number(maxValue) > Number.MAX_SAFE_INTEGER) {
+    const probInBigInt = BigInt(prob.replace(repr, ""));
+    // Use the decimal bits of MAX_SAFE_INTEGER as precision
+    const precision = Number.MAX_SAFE_INTEGER.toString().length - 1;
 
-  const portionToExtract = probInBigInt.toString().length - (maxValueLength - precision);
+    const maxValueLength = maxValue.toString().length;
 
-  // Extract the most significant digits of probability to generate probability in safe range
-  const probInNum = Number(probInBigInt.toString().substring(0, portionToExtract));
-  const maxValueInNum = Number(maxValue.toString().substring(0, precision));
+    const portionToExtract = probInBigInt.toString().length - (maxValueLength - precision);
 
-  const probInNumber = probInNum / maxValueInNum;
+    // Extract the most significant digits of probability to generate probability in safe range
+    const probInNum = Number(probInBigInt.toString().substring(0, portionToExtract));
+    const maxValueInNum = Number(maxValue.toString().substring(0, precision));
 
-  return probInNumber;
+    const probInNumber = probInNum / maxValueInNum;
+
+    return probInNumber;
+  } else {
+    // Using maxValue length as precision since it is smaller
+    // Subtracting 1 is not necessary if all the digits in maxValue is 9
+    const probInNumber = Number(prob) / Number(maxValue);
+    return probInNumber;
+  }
 }
 
 const field = (value: string): bigint => {
@@ -175,9 +192,9 @@ const u128Prob = (value: string): number => {
 };
 
 const u16Prob = (value: string): number => {
-  const MAX_UINT16 = Math.pow(2, 16);
+  const MAX_UINT16 = BigInt(Math.pow(2, 16) - 1);
   const parsed = replaceValue(value, "u16");
-  const valueInProb = Number(parsed) / MAX_UINT16;
+  const valueInProb = prob("u16", MAX_UINT16, parsed);
   if (isNaN(valueInProb)) throw apiError("u16 probability parsing failed");
   return valueInProb;
 };
@@ -413,6 +430,8 @@ export const parseOutput = {
   address,
   field,
   u8,
+  u16,
+  u16Prob,
   u32,
   u64,
   u128,
@@ -737,6 +756,7 @@ export const fetchUnspentRecords = async (
   );
   const decryptedUnspentRecords = [];
   for (let record of unspentRecords) {
+    console.log(`${baseRoute}/testnet3/transaction/${record.txId}`);
     const decrypted = await decryptRecord(record.value, viewKey, bracketPattern);
     decryptedUnspentRecords.push(decrypted);
   }

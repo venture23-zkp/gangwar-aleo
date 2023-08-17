@@ -349,13 +349,14 @@ export class AleoNetworkClient {
                                   `${programName}.aleo`,
                                   recordName
                                 );
-                                console.log(serialNumber);
+                                // console.log(serialNumber);
                                 // Attempt to see if the serial number is spent
                                 try {
                                   await this.getTransitionId(serialNumber);
                                 } catch (error) {
                                   // If it's not found, add it to the list of unspent records
-                                  records.push(output);
+                                  const outputWithTxId = { ...output, txId: transaction.id };
+                                  records.push(outputWithTxId);
                                   // If the user specified a maximum number of microcredits, check if the search has found enough
                                   if (typeof maxMicrocredits === "number") {
                                     totalRecordValue = recordPlaintext.microcredits();
