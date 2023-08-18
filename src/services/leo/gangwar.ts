@@ -309,6 +309,7 @@ const simulate1vs1 = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war:
   console.log(leoRandomSeed);
 
   const leoWarRecord = js2leo.gangwar.warRecord(war);
+  console.log(leoWarRecord);
 
   const leoWarRecordParam = js2leo.stringifyLeoCmdParam(leoWarRecord);
 

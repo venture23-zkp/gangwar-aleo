@@ -148,17 +148,19 @@ export const teamSchema = z.object({
 export type Team = z.infer<typeof teamSchema>;
 
 export const physicalAttackLeoSchema = z.object({
+  main: leoU8Schema,
+  target: leoU8Schema,
   is_dodged: leoBooleanSchema,
-  is_hit: leoBooleanSchema,
   is_critical: leoBooleanSchema,
-  total_critical_hits: leoU16Schema,
   total_normal_hits: leoU16Schema,
-  total_hits: leoU16Schema,
+  total_critical_hits: leoU16Schema,
   damage: leoU16Schema,
 });
 export type PhysicalAttackLeo = z.infer<typeof physicalAttackLeoSchema>;
 
 export const phyiscalAttackSchema = z.object({
+  main: z.number(), // NFT Id of main character
+  target: z.number(), // NFT Id of target character
   isDodged: z.boolean(),
   isHit: z.boolean(),
   isCritical: z.boolean(),

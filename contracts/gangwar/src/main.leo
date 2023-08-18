@@ -56,14 +56,23 @@ program gangwar.aleo {
     }
 
     struct PhysicalAttack {
+        main: u8,
+        target: u8,
         is_dodged: bool,
-        is_hit: bool,
+        is_critical: bool,
+        total_normal_hits: u16,
+        total_critical_hits: u16,
+        damage: u16
+    }
+
+    struct Damage {
+        is_dodged: bool,
         is_critical: bool,
         total_critical_hits: u16,
         total_normal_hits: u16,
-        total_hits: u16,
         damage: u16
     }
+
 
     struct Signature {
         r: group,
@@ -86,7 +95,7 @@ program gangwar.aleo {
     struct IPhysicalAttackResponse {
         updated_main_character: Character,
         updated_target_character: Character,
-        physical_attack: PhysicalAttack,
+        physical_attack: Damage,
         new_random_number: u16
     }
 
@@ -252,12 +261,12 @@ program gangwar.aleo {
         );
 
         let no_attack: PhysicalAttack = PhysicalAttack {
+            main: 0u8,
+            target: 0u8,
             is_dodged: true,
-            is_hit: false,
             is_critical: false,
             total_critical_hits: 0u16,
             total_normal_hits: 0u16,
-            total_hits: 0u16,
             damage: 0u16,
         };
 
@@ -343,13 +352,11 @@ program gangwar.aleo {
         let eligible_player_in_target_team: u8 = get_eligible_player_index(alive_players_in_target_team, 0u8, new_random_seed);
         new_random_seed = BHP256::hash_to_u16(new_random_seed);
 
-        let dummy_attack: PhysicalAttack = PhysicalAttack {
+        let dummy_attack: Damage = Damage {
             is_dodged: true,
-            is_hit: false,
             is_critical: false,
             total_critical_hits: 0u16,
             total_normal_hits: 0u16,
-            total_hits: 0u16,
             damage: 0u16
         };
 
@@ -492,13 +499,23 @@ program gangwar.aleo {
             };
         }
 
+        let physical_attack: PhysicalAttack = PhysicalAttack {
+            main: eligible_player_in_main_team,
+            target: eligible_player_in_target_team,
+            is_dodged: par.physical_attack.is_dodged,
+            is_critical: par.physical_attack.is_critical,
+            total_critical_hits: par.physical_attack.total_critical_hits,
+            total_normal_hits: par.physical_attack.total_normal_hits,
+            damage: par.physical_attack.damage
+        };
+        
         return War {
             owner: self.caller, // TODO: Server address
             simulation_id: w.simulation_id,
             round: w.round.add(1u8),
             main_team: updated_target_team,
             target_team: updated_main_team,
-            physical_attack: par.physical_attack
+            physical_attack
         } then finalize(w.simulation_id, w.round, random_seed, par.new_random_number);
 
     }
@@ -676,13 +693,11 @@ program gangwar.aleo {
 
         if (is_dodged) {
             // Add other info for narration
-            let physical_attack: PhysicalAttack = PhysicalAttack {
+            let physical_attack: Damage = Damage {
                 is_dodged: true,
-                is_hit: false,
                 is_critical: false,
                 total_critical_hits,
                 total_normal_hits,
-                total_hits,
                 damage,
             };
 
@@ -701,13 +716,11 @@ program gangwar.aleo {
 
         if (!is_hit) {
             // Add other info for narration
-            let physical_attack: PhysicalAttack = PhysicalAttack {
+            let physical_attack: Damage = Damage {
                 is_dodged: false,
-                is_hit: false,
                 is_critical: false,
                 total_critical_hits,
                 total_normal_hits,
-                total_hits,
                 damage: 0u16,
             };
 
@@ -797,13 +810,11 @@ program gangwar.aleo {
             primary_equipment: target.primary_equipment
         };
 
-        let physical_attack: PhysicalAttack = PhysicalAttack {
+        let physical_attack: Damage = Damage {
             is_dodged,
-            is_hit,
             is_critical,
             total_critical_hits,
             total_normal_hits,
-            total_hits,
             damage,
         };
 

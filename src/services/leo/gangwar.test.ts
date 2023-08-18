@@ -239,6 +239,8 @@ describe("Gangwar Service", () => {
         },
       },
       physicalAttack: {
+        main: 0,
+        target: 0,
         isDodged: true,
         isHit: false,
         isCritical: false,
@@ -406,6 +408,8 @@ describe("Gangwar Service", () => {
         },
       },
       physicalAttack: {
+        main: 0,
+        target: 0,
         isDodged: true,
         isHit: false,
         isCritical: false,

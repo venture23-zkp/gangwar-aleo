@@ -142,14 +142,21 @@ const team = (team: TeamLeo): Team => {
 };
 
 const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
+  const mainIndex = u8(damage.main);
+  const targetIndex = u8(damage.main);
+  const damageValue = u16(damage.damage);
+  const totalCriticalHits = u16(damage.total_critical_hits);
+  const totalNormalHits = u16(damage.total_normal_hits);
   const res: PhysicalAttack = {
+    main: u8(damage.main), //TODO: convert to nftId
+    target: u8(damage.target), // TODO: convert to nftId
     isDodged: bool(damage.is_dodged),
-    isHit: bool(damage.is_hit),
+    isHit: damageValue > 0,
     isCritical: bool(damage.is_critical),
-    totalCriticalHits: u16(damage.total_critical_hits),
-    totalNormalHits: u16(damage.total_normal_hits),
-    totalHits: u16(damage.total_hits),
-    damage: u16(damage.damage),
+    totalNormalHits,
+    totalCriticalHits,
+    totalHits: totalCriticalHits + totalCriticalHits,
+    damage: damageValue,
   };
   return phyiscalAttackSchema.parse(res);
 };

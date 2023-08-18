@@ -105,12 +105,12 @@ const weaponRecord = (weapon: Weapon): WeaponLeo => {
 
 const physicalAttack = (damage: PhysicalAttack): PhysicalAttackLeo => {
   const res: PhysicalAttackLeo = {
+    main: u8(damage.main),
+    target: u8(damage.target),
     is_dodged: bool(damage.isDodged),
-    is_hit: bool(damage.isHit),
     is_critical: bool(damage.isCritical),
-    total_critical_hits: u16(damage.totalCriticalHits),
     total_normal_hits: u16(damage.totalNormalHits),
-    total_hits: u16(damage.totalHits),
+    total_critical_hits: u16(damage.totalCriticalHits),
     damage: u16(damage.damage),
   };
   return physicalAttackLeoSchema.parse(res);
@@ -118,14 +118,15 @@ const physicalAttack = (damage: PhysicalAttack): PhysicalAttackLeo => {
 
 const physicalAttackRecord = (damage: PhysicalAttack): PhysicalAttackLeo => {
   const res: PhysicalAttackLeo = {
+    main: privateField(u8(damage.main)),
+    target: privateField(u8(damage.target)),
     is_dodged: privateField(bool(damage.isDodged)),
-    is_hit: privateField(bool(damage.isHit)),
     is_critical: privateField(bool(damage.isCritical)),
-    total_critical_hits: privateField(u16(damage.totalCriticalHits)),
     total_normal_hits: privateField(u16(damage.totalNormalHits)),
-    total_hits: privateField(u16(damage.totalHits)),
+    total_critical_hits: privateField(u16(damage.totalCriticalHits)),
     damage: privateField(u16(damage.damage)),
   };
+  console.log(res);
   return physicalAttackLeoSchema.parse(res);
 };
 
