@@ -84,7 +84,7 @@ const sign = async (
   character: Character,
   sk: string, // Secret key
   k: string // Nonce for signing
-): Promise<SchnorrSignature> => {
+): Promise<any> => {
   const transition = "sign";
   // const leoSk: LeoScalar = leoScalarSchema.parse(sk);
   const leoSk = js2leo.scalar(BigInt(sk));
@@ -126,7 +126,7 @@ const sign = async (
 
   const signature = leo2js.gangwar.signature(res);
 
-  return signature;
+  return { signature, leoCharacterParam };
 };
 
 // const updateMaxRounds = async (
