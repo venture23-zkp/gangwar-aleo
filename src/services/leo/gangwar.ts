@@ -69,6 +69,7 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
     return gangwarSettings;
   } else {
     return {
+      createdAt: 0,
       deadlineToRegister: 1000,
       maxNumberOfPlayers: 10,
       maxRounds: 10,

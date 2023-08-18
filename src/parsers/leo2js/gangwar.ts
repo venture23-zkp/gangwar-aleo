@@ -105,6 +105,7 @@ const settings = (record: Record<string, unknown>): GangwarSettings => {
   const parsed = gangwarSettingsLeoSchema.parse(record);
   // console.log(parsed);
   const gangwarSettings: GangwarSettings = {
+    createdAt: u32(parsed.created_at),
     deadlineToRegister: u32(parsed.deadline_to_register),
     maxNumberOfPlayers: u8(parsed.max_number_of_players),
     maxRounds: u8(parsed.max_rounds),

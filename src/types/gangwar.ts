@@ -3,6 +3,7 @@ import { number, z } from "zod";
 import { leoAddressSchema, leoBooleanSchema, leoGroupSchema, leoU16Schema, leoU32Schema, leoU8Schema } from "./leo";
 
 export const gangwarSettingsLeoSchema = z.object({
+  created_at: leoU32Schema,
   deadline_to_register: leoU32Schema,
   max_number_of_players: leoU8Schema,
   max_rounds: leoU8Schema,
@@ -12,10 +13,11 @@ export const gangwarSettingsLeoSchema = z.object({
 export type GangwarSettingsLeo = z.infer<typeof gangwarSettingsLeoSchema>;
 
 export const gangwarSettingsSchema = z.object({
-  deadlineToRegister: z.number().min(0),
-  maxNumberOfPlayers: z.number().min(0),
-  maxRounds: z.number().min(0),
-  registeredPlayers: z.number().min(0),
+  createdAt: z.number().int().min(0),
+  deadlineToRegister: z.number().int(),
+  maxNumberOfPlayers: z.number().int(),
+  maxRounds: z.number().int(),
+  registeredPlayers: z.number().int(),
   randomNumber: z.number(),
 });
 export type GangwarSettings = z.infer<typeof gangwarSettingsSchema>;
@@ -26,7 +28,7 @@ export const primaryStatsLeoSchema = z.object({
 export type PrimaryStatsLeo = z.infer<typeof primaryStatsLeoSchema>;
 
 export const primaryStatsSchema = z.object({
-  strength: z.number(),
+  strength: z.number().int(),
 });
 export type PrimaryStats = z.infer<typeof primaryStatsSchema>;
 
@@ -40,7 +42,7 @@ export const secondaryStatsLeoSchema = z.object({
 export type SecondaryStatsLeo = z.infer<typeof secondaryStatsLeoSchema>;
 
 export const secondaryStatsSchema = z.object({
-  health: z.number(),
+  health: z.number().int(),
   dodgeChance: z.number().min(0).max(1),
   hitChance: z.number().min(0).max(1),
   criticalChance: z.number().min(0).max(1),

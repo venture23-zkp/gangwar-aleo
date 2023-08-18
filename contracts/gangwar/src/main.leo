@@ -47,6 +47,7 @@ program gangwar.aleo {
     }
 
     struct GangwarSettings {
+        created_at: u32,
         deadline_to_register: u32,
         max_number_of_players: u8,
         max_rounds: u8,
@@ -129,11 +130,14 @@ program gangwar.aleo {
     }
 
     finalize create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8) {
-        // TODO: add asserts
-        // 1. Check if the simulation id already exist
+        // Ensure game with same simulation_id has not been created previously
+        let game_exists: bool = Mapping::contains(gangwar_settings, simulation_id);
+        assert(!game_exists);
+
         let deadline_to_register: u32 = block.height + registration_time;
         let random_number: u16 = ChaCha::rand_u16();
         let settings: GangwarSettings = GangwarSettings {
+            created_at: block.height,
             deadline_to_register,
             max_number_of_players,
             max_rounds,
@@ -141,6 +145,60 @@ program gangwar.aleo {
             random_number
         };
         Mapping::set(gangwar_settings, simulation_id, settings);
+    }
+
+    transition update_max_rounds(simulation_id: u32, max_rounds: u8) {
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
+        return then finalize(simulation_id, max_rounds);
+    }
+
+    finalize update_max_rounds(simulation_id: u32, max_rounds: u8) {
+        // Ensure that the game exists
+        let game_exists: bool = Mapping::contains(gangwar_settings, simulation_id);
+        assert(game_exists);
+
+        let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
+
+        // Ensure settings cannot be updated after game can be started
+        assert(settings.deadline_to_register > block.height);
+
+        let updated_settings: GangwarSettings = GangwarSettings {
+            created_at: settings.created_at,
+            deadline_to_register: settings.deadline_to_register,
+            max_number_of_players: settings.max_number_of_players,
+            max_rounds,
+            registered_players: settings.registered_players + 1u8,
+            random_number: settings.random_number,
+        };
+        Mapping::set(gangwar_settings, simulation_id, updated_settings);
+    }
+
+    transition update_registration_time(simulation_id: u32, registration_time: u32) {
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
+        return then finalize(simulation_id, registration_time);
+    }
+
+    finalize update_registration_time(simulation_id: u32, registration_time: u32) {
+        // Ensure that the game exists
+        let game_exists: bool = Mapping::contains(gangwar_settings, simulation_id);
+        assert(game_exists);
+
+        let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
+
+        // Ensure settings cannot be updated after game can be started
+        assert(settings.deadline_to_register > block.height);
+
+        let deadline_to_register: u32 = block.height + registration_time;
+
+        let updated_settings: GangwarSettings = GangwarSettings {
+            created_at: settings.created_at,
+            deadline_to_register,
+            max_number_of_players: settings.max_number_of_players,
+            max_rounds: settings.max_rounds,
+            registered_players: settings.registered_players + 1u8,
+            random_number: settings.random_number,
+        };
+        Mapping::set(gangwar_settings, simulation_id, updated_settings);
     }
 
 
@@ -196,6 +254,7 @@ program gangwar.aleo {
         let random_number: u16 = new_random_number.xor(settings.random_number);
 
         let updated_settings: GangwarSettings = GangwarSettings {
+            created_at: settings.created_at,
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             max_rounds: settings.max_rounds,
@@ -284,6 +343,7 @@ program gangwar.aleo {
         let random_number: u16 = new_random_number.xor(new_random_seed);
 
         let updated_settings: GangwarSettings = GangwarSettings {
+            created_at: settings.created_at,
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             max_rounds: settings.max_rounds,
@@ -484,6 +544,7 @@ program gangwar.aleo {
 
         // Update the settings with new random number
         let updated_settings: GangwarSettings = GangwarSettings {
+            created_at: settings.created_at,
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             max_rounds: settings.max_rounds,
@@ -523,6 +584,7 @@ program gangwar.aleo {
 
         // Update the settings with new random number
         let updated_settings: GangwarSettings = GangwarSettings {
+            created_at: settings.created_at,
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             max_rounds: settings.max_rounds,
