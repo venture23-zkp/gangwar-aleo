@@ -1,6 +1,6 @@
 import { characterBracketPattern, warBracketPattern } from "../../types";
 import { leoParse } from "../../utils";
-import { decryptRecord, parseRecordString } from "./util";
+import { decryptRecord, parseOutput, parseRecordString } from "./util";
 
 jest.setTimeout(600000);
 
@@ -13,22 +13,23 @@ describe("Utilies Test", () => {
     "record1qyqsqu7tgw7uhevf7zr9ejn4ntvspgg9wpcky05zlu3nj5zcqr43mhqfq5xhx6tdw4kxzarfdah976tyyvqqyqgqkhz732fyxj3j8qhkuddzazjjzx03tugudtelv4xhnrw97z0whyps2un0w4hxggcqqgqsqpqt80n0ppk4n374fxh6tdd4w48ghmazm89tzt0xgmmcwjj9zxqdp9kkz6twta6x2ctdgvpqyysqx2kee2eegywl3zjxccg6s2g2sfmgah9pwkycl6ndl9sv35td6srejvfr3nqs4ptus6g7qyqehkhq6rfyhhavljg5cfyrgyrmnknvupcfccltddp4yxd90zwj6wtskdupkjfa4yz3jnr2k4zn08f7kh6xzx6z9nffrpzd650at9v8shxg6csqsmn3dd9wsaqlku9yrleea2xqh42k5s3svtwurv37ge3fx6nrzdpa25hm5wmh5zmam0trm6qef9sx5pdz2knweu7k8ssh49y9mun5dyy7k3tpapza8gq82gmc6gtktqf2fyfczc0cq47amjavug2wwzlls26ygardpxp0a8xamvk85msrkq8fzcdkf0hcpj9pqe3l5ju82v3ghj59l9uj060a2tqn0vnxl3thq4hmnkz0w2vlrt0e0th3vm7hx7wcxdxkmjv4w6sx2vmdjwte59asn22vhzw26s5306h9ux7cdesvqg2kfe9ft04mq5q6cz0su9kua9svvsqgjnt0dzvgwnghlcffs7899aru75k7zy88cvj3nmdlufqe85qxnsuhf638fh53sw08elcq6fs8tc395f87mu9a3jceawfgvwymqzqdyrq33rsyllcav7cd2jj0tcnygfpm9knyq0lytx8qzk39v8slpsw4ealp7g2395hzj23gtwjc8vzzx32tl2cswjx2yyep6684g6ksjmt52m38zr8ms7spxus0f9hc7kuaj2ndpyy0hvg68hh92u92djc857d53zs2y4nujzpv9tkvev4t0004rtkgsxsa8gwyjfyuxrhcpqqaf34edemy6jqh4r55dgvcxyhya9mvg5lwxwsadgw7uqc9kwe02rdvje0hgh23f6uhcdpha4hx2ekq8qpwq07s2z8ca9wunyukxun2qs9hgctjvajhghm5v4sk6sczqgfqqmzduc3sl2f80gmmy48680eg9z3x9a0jk8cvn2lu4panl0utkkqtdz2txu6e4fs3rwav568z5mp0ypfnl6de4p2ucpss26rdy267h5glgsxr37cw0ylrscvc82f804auf9pdt3mxs9kmzgtyfnkryv566zgpqw8qgcu6gqj5uhqmxlznvch0nw88zndrrzflm5vdazhl8gatpu32rjnp47gum60sclhaw3n4z8w4fdrk7s6agcj9a3m83ptycrwq8lczrelzha9xqf0ctr3m7dsqv7qsxhj4wfhn5dzv3jxss8gz5jg002vjkrehdxagnmu65ccdnxdwru0pnhj08d8y69tcrng603zupvx24te2nat74tthhcxf89tatukchpu7flx5jt907jq45x2h2zrdszn6cnnqpe0rwls6wcf2g6cc3vx378g3m9j3jet9e992vevxd0dfpkpvrjz6jvdzx4q9tsgrxvhu4k2xgf7j5pyc273649u2sp795xvsczkultqzcwpx8k06t2qwfnjr974nts27u9nwtp7p9749qdj7nzgzh7s4f2sd9uhtqhnfgx3sz7n0t0a9knxy4q4f29dll9t0p5z5ru9t6ermxhmtlnx9jqsn2sm966ql37v2nat962jd0dmc752n3gy2krd4z4gvm3ly374y7epttpt3sf22xp28lkr85qpgxmy84mtp8m76p3me3l477hasqh7ujhtsaz67jnttsn8ndjcnpwu4sm6j3g98w0ss6re4250t7smr4dykx3hm8238748ntl39cdm24zwa8s8n73gvqvcgfzqdur2782ptn72d05krzgjth75xmurf5t4pxfqmkglcjaenty95pdquc7ale9mjg7qcrt6zxletrgmqj950wj4puwt2ekznn3hjjzs0wp58jumfvdskchmpw36xzcmtcvqqypsq7rs4wh4wrxml58ph0pt35zzpdqnxr7t3rsqcf6r9ukevgt54auyrs20pd6jacc2uux0y5ruyuqfvjt0z866ry620qqdaqhsry2eckpgqxcj5x06jl6z335yfyqlm0l59ynw3hq5ycgrxn8dxw5xvr0jpqf3pnj2e0cezz6caxc6cm58f28e08tf6p82krdt83ucc320zxpksxtt9mk27wsn86mu660djh9el8n50ah2nr9xyfjmexczzpa4yufcx689426ta4s8f3nkrq6m7fr6dphmxkeenkmpd82w0glzw4m4cnyyy090xqg3m338c4lyajv94a6npmjpdn4exs6pcq7hr269t3x7gkyg5ygpzn";
   const viewKey = "AViewKey1mSnpFFC8Mj4fXbK5YiWgZ3mjiV8CxA79bYNa8ymUpTrw";
 
-  it("Test record string", async () => {
-    parseRecordString(recordStringRaw, warBracketPattern(1, 1));
-  });
+  // it("Test record string", async () => {
+  //   parseRecordString(recordStringRaw, warBracketPattern(1, 1));
+  // });
 
-  it("Decrypt and test", async () => {
-    const decryptedRecord = await decryptRecord(encryptedRecordRaw, viewKey, warBracketPattern(1, 1));
-    console.log(decryptedRecord);
-  });
+  // it("Decrypt and test", async () => {
+  //   const decryptedRecord = await decryptRecord(encryptedRecordRaw, viewKey, warBracketPattern(1, 1));
+  //   console.log(decryptedRecord);
+  // });
 
-  it("String <-> U128", () => {
-    let symbolInNum = leoParse.symbol("BEN"); // 666978
-    console.log(symbolInNum);
+  it("Probability u16", async () => {
+    // const prob = Math.random();
+    const prob = 0.391;
+    let probInUint16 = leoParse.u16Prob(prob);
+    let probInNumber = parseOutput.u16Prob(probInUint16);
+    console.log(probInUint16, probInNumber);
 
-    // let uri = "https://ipfs.io/ipfs/QmYCQudEvXLbkgsnWjGKqBf6JVNREcV4Soni4CuQWxYQLt";
-    let uri = "https://ipfs.io/ipfs/Qm";
-    let uriInNum = leoParse.baseURI(uri);
-    console.log(uriInNum);
+    probInUint16 = leoParse.u16Prob(probInNumber);
+    console.log(probInNumber, probInUint16);
   });
 });
