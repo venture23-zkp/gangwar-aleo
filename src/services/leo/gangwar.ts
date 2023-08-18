@@ -206,13 +206,15 @@ const fetchWarRecord = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, si
   for (let record of unspentRecords) {
     try {
       const warRecord = parseOutput.war(record);
-      console.log(warRecord);
       if (warRecord.simulationId == simulationId) {
         warRecords.push(warRecord);
       }
     } catch {}
   }
-  return warRecords;
+  if (warRecords.length > 1) {
+    throw Error("Only 1 War object can exist at a time");
+  }
+  return warRecords[0];
 };
 
 const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number, players: Player[]): Promise<War> => {

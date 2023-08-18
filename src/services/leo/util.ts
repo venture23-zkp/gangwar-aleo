@@ -509,9 +509,12 @@ const correctRecordBracketIssue = (recordString: string, bracketPattern: string)
 export const parseRecordString = (recordString: string, correctBracketPattern?: string): Record<string, unknown> => {
   const json = recordString.replace(/(['"])?([a-z0-9A-Z_.]+)(['"])?/g, '"$2" ');
   let correctJson = json;
+  // console.log(json);
+  // console.log(correctBracketPattern);
   if (correctBracketPattern) {
     correctJson = correctRecordBracketIssue(json, correctBracketPattern);
   }
+  // console.log(correctJson);
   return JSON.parse(correctJson);
 };
 
@@ -558,7 +561,11 @@ export const decryptRecord = async (
   // console.log("trying to decrypt", encryptedRecord);
   let decrypted = ViewKey.from_string(viewKey).decrypt(encryptedRecord).replaceAll("\n", "").replaceAll(" ", "");
   // console.log("decrypted", decrypted);
-  return parseRecordString(decrypted, correctBracketPattern);
+  try {
+    return parseRecordString(decrypted, correctBracketPattern);
+  } catch {
+    return parseRecordString(`{ "correct": false }`);
+  }
 };
 
 interface LeoRunParams {
