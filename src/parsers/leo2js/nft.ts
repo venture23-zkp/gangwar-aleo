@@ -113,3 +113,13 @@ const nftRecord = (record: Record<string, unknown>): NftRecord => {
   };
   return nftRecordSchema.parse(nft);
 };
+
+export const nft = {
+  symbol,
+  tokenId,
+  baseURI,
+  toggleSettings,
+  nftMintRecord,
+  nftClaimRecord,
+  nftRecord,
+};

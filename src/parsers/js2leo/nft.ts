@@ -146,3 +146,13 @@ const nftClaimRecord = (claimRecord: NftClaimRecord): NftClaimRecordLeo => {
   };
   return nftClaimRecordLeoSchema.parse(res);
 };
+
+export const nft = {
+  symbol,
+  baseURI,
+  edition,
+  tokenId,
+  toggleSettings,
+  nftMintRecord,
+  nftClaimRecord,
+};

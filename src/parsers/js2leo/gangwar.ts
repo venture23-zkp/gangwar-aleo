@@ -215,3 +215,22 @@ const warRecord = (war: War): WarLeo => {
   };
   return warLeoSchema.parse(res);
 };
+
+export const gangwar = {
+  primaryStats,
+  primaryStatsRecord,
+  secondaryStats,
+  secondaryStatsRecord,
+  weapon,
+  weaponRecord,
+  physicalAttack,
+  physicalAttackRecord,
+  character,
+  characterRecord,
+  signature,
+  playerRecord,
+  team,
+  teamRecord,
+  war,
+  warRecord,
+};

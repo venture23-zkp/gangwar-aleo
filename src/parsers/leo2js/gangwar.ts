@@ -169,3 +169,15 @@ const war = (record: Record<string, unknown>): War => {
 
   return warSchema.parse(war);
 };
+
+export const gangwar = {
+  primaryStats,
+  secondaryStats,
+  weapon,
+  character,
+  signature,
+  settings,
+  playerRecord,
+  physicalAttack,
+  war,
+};
