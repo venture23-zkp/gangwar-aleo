@@ -68,7 +68,7 @@ describe("Gangwar Service", () => {
     const character = createCharacters(1, ["Apple"])[0];
 
     const validityTimestamp = 200; // 100 blocks
-    const signature = await gangwar.sign(character, sk, k);
+    const { signature } = await gangwar.sign(character, sk, k);
 
     const simulationId = 1;
     playerRecord = await gangwar.joinGame(privateKey, viewKey, simulationId, character, signature);
