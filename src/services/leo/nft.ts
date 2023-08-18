@@ -11,8 +11,10 @@ import {
   NftMintRecord,
   ToggleSettings,
 } from "../../types";
-import { leoParse } from "../../utils";
-import { contractsPath, fetchUnspentRecords, parseOutput, snarkOsFetchMappingValue, zkRun } from "./util";
+import { contractsPath, fetchUnspentRecords, snarkOsFetchMappingValue, zkRun } from "./util";
+
+import { js2leo } from "../../parsers/js2leo";
+import { leo2js } from "../../parsers/leo2js";
 
 const nftPath = join(contractsPath, "leo_nft");
 
@@ -23,21 +25,21 @@ const getNftCollectionInfo = async (): Promise<CollectionInfo> => {
       mappingName: "general_settings",
       mappingKey: "0u8",
     });
-    const totalNfts = Number(parseOutput.u128(totalNftsLeo).toString());
+    const totalNfts = Number(leo2js.u128(totalNftsLeo).toString());
 
     const totalSupplyLeo = await snarkOsFetchMappingValue({
       appName: programNames.LEO_NFT,
       mappingName: "general_settings",
       mappingKey: "1u8",
     });
-    const totalSupply = Number(parseOutput.u128(totalSupplyLeo).toString());
+    const totalSupply = Number(leo2js.u128(totalSupplyLeo).toString());
 
     const symbolLeo = await snarkOsFetchMappingValue({
       appName: programNames.LEO_NFT,
       mappingName: "general_settings",
       mappingKey: "2u8",
     });
-    const symbol = parseOutput.symbol(symbolLeo);
+    const symbol = leo2js.nft.symbol(symbolLeo);
 
     const baseUriPart0Leo = await snarkOsFetchMappingValue({
       appName: programNames.LEO_NFT,
@@ -65,21 +67,21 @@ const getNftCollectionInfo = async (): Promise<CollectionInfo> => {
       data2: baseUriPart2Leo,
       data3: baseUriPart3Leo,
     };
-    const baseURI = parseOutput.baseURI(baseUriLeo);
+    const baseURI = leo2js.nft.baseURI(baseUriLeo);
 
     const toggleSettingsLeo = await snarkOsFetchMappingValue({
       appName: programNames.LEO_NFT,
       mappingName: "toggle_settings",
       mappingKey: "0u8",
     });
-    const toggleSettings = parseOutput.toggleSettings(toggleSettingsLeo);
+    const toggleSettings = leo2js.nft.toggleSettings(toggleSettingsLeo);
 
     const mintAllowedBlockLeo = await snarkOsFetchMappingValue({
       appName: programNames.LEO_NFT,
       mappingName: "toggle_settings",
       mappingKey: "1u8",
     });
-    const mintAllowedFromBlock = parseOutput.u32(mintAllowedBlockLeo);
+    const mintAllowedFromBlock = leo2js.u32(mintAllowedBlockLeo);
 
     return {
       symbol,
@@ -114,11 +116,11 @@ const initializeCollection = async (
 ): Promise<CollectionInfo> => {
   const transition = "initialize_collection";
 
-  const leoTotal = leoParse.u128(total);
-  const leoSymbol = leoParse.symbol(symbol);
-  const leoBaseURI = leoParse.baseURI(baseURI);
+  const leoTotal = js2leo.u128(total);
+  const leoSymbol = js2leo.nft.symbol(symbol);
+  const leoBaseURI = js2leo.nft.baseURI(baseURI);
 
-  const leoBaseURIParam = leoParse.stringifyLeoCmdParam(leoBaseURI);
+  const leoBaseURIParam = js2leo.stringifyLeoCmdParam(leoBaseURI);
 
   const params = [leoTotal, leoSymbol, leoBaseURIParam];
 
@@ -143,10 +145,10 @@ const addNft = async (
 ): Promise<any> => {
   const transition = "add_nft";
 
-  const leoTokenId = leoParse.tokenId(tokenId);
-  const leoEdition = leoParse.edition(edition);
+  const leoTokenId = js2leo.nft.tokenId(tokenId);
+  const leoEdition = js2leo.nft.edition(edition);
 
-  const leoTokenIdParam = leoParse.stringifyLeoCmdParam(leoTokenId);
+  const leoTokenIdParam = js2leo.stringifyLeoCmdParam(leoTokenId);
 
   const params = [leoTokenIdParam, leoEdition];
 
@@ -171,7 +173,7 @@ const addMinter = async (
 ): Promise<any> => {
   const transition = "add_minter";
 
-  const leoAmount = leoParse.u8(amount);
+  const leoAmount = js2leo.u8(amount);
 
   const params = [minter, leoAmount];
 
@@ -186,7 +188,7 @@ const addMinter = async (
   });
 
   // TODO: do not parse the record as it may not belongs to the minter and not to us
-  const nftMintRecord = parseOutput.nftMintRecord(res);
+  const nftMintRecord = leo2js.nft.nftMintRecord(res);
   console.log(nftMintRecord);
   // return nftMintRecord;
   return getNftCollectionInfo();
@@ -202,7 +204,7 @@ const fetchUnspentNftMintRecords = async (
   const unspentNftMintRecords = [];
   for (let record of unspentRecords) {
     try {
-      const nftMintRecord = parseOutput.nftMintRecord(record);
+      const nftMintRecord = leo2js.nft.nftMintRecord(record);
       unspentNftMintRecords.push(nftMintRecord);
     } catch {}
   }
@@ -217,7 +219,7 @@ const updateToggleSettings = async (
 ): Promise<any> => {
   const transition = "update_toggle_settings";
 
-  const leoUpdatedToggleSettings = leoParse.toggleSettings(settings);
+  const leoUpdatedToggleSettings = js2leo.nft.toggleSettings(settings);
   const params = [leoUpdatedToggleSettings];
 
   await zkRun({
@@ -240,7 +242,7 @@ const setMintBlock = async (
 ): Promise<any> => {
   const transition = "set_mint_block";
 
-  const leoMintBlock = leoParse.u32(mintBlock);
+  const leoMintBlock = js2leo.u32(mintBlock);
   const params = [leoMintBlock];
 
   await zkRun({
@@ -263,7 +265,7 @@ const updateSymbol = async (
 ): Promise<any> => {
   const transition = "update_symbol";
 
-  const leoSymbol = leoParse.symbol(symbol);
+  const leoSymbol = js2leo.nft.symbol(symbol);
   const params = [leoSymbol];
 
   await zkRun({
@@ -286,8 +288,8 @@ const updateBaseURI = async (
 ): Promise<any> => {
   const transition = "update_base_uri";
 
-  const leoBaseURI = leoParse.baseURI(baseURI);
-  const leoBaseURIParam = leoParse.stringifyLeoCmdParam(leoBaseURI);
+  const leoBaseURI = js2leo.nft.baseURI(baseURI);
+  const leoBaseURIParam = js2leo.stringifyLeoCmdParam(leoBaseURI);
 
   const params = [leoBaseURIParam];
 
@@ -313,7 +315,7 @@ const getRandomLeoHidingNonce = () => {
     hidingNonce = hidingNonceArray.join("");
   }
 
-  const leoHidingNonce = leoParse.scalar(BigInt(hidingNonce));
+  const leoHidingNonce = js2leo.scalar(BigInt(hidingNonce));
   return leoHidingNonce;
 };
 
@@ -337,7 +339,7 @@ const openMint = async (
     fee: FEE,
   });
 
-  const nftClaimRecord = parseOutput.nftClaimRecord(res);
+  const nftClaimRecord = leo2js.nft.nftClaimRecord(res);
   return nftClaimRecord;
 };
 
@@ -351,7 +353,7 @@ const fetchUnspentNftClaimRecords = async (
   const unspentNftClaimRecords = [];
   for (let record of unspentRecords) {
     try {
-      const nftClaimRecord = parseOutput.nftClaimRecord(record);
+      const nftClaimRecord = leo2js.nft.nftClaimRecord(record);
       unspentNftClaimRecords.push(nftClaimRecord);
     } catch {}
   }
@@ -366,8 +368,8 @@ const mint = async (
 ): Promise<any> => {
   const transition = "mint";
 
-  const leoMintRecord = leoParse.nftMintRecord(mintRecord);
-  const leoMintRecordParam = leoParse.stringifyLeoCmdParam(leoMintRecord);
+  const leoMintRecord = js2leo.nft.nftMintRecord(mintRecord);
+  const leoMintRecordParam = js2leo.stringifyLeoCmdParam(leoMintRecord);
 
   const leoHidingNonce = getRandomLeoHidingNonce();
   const params = [leoMintRecordParam, leoHidingNonce];
@@ -384,7 +386,7 @@ const mint = async (
     fee: FEE,
   });
 
-  const nftMintRecord = parseOutput.nftMintRecord(res);
+  const nftMintRecord = leo2js.nft.nftMintRecord(res);
   return nftMintRecord;
 };
 
@@ -398,13 +400,13 @@ const claimNFT = async (
 ): Promise<any> => {
   const transition = "claim_nft";
 
-  const leoClaimRecord = leoParse.nftClaimRecord(claimRecord);
-  const leoClaimRecordParam = leoParse.stringifyLeoCmdParam(leoClaimRecord);
+  const leoClaimRecord = js2leo.nft.nftClaimRecord(claimRecord);
+  const leoClaimRecordParam = js2leo.stringifyLeoCmdParam(leoClaimRecord);
 
-  const leoTokenId = leoParse.tokenId(tokenId);
-  const leoTokenIdParam = leoParse.stringifyLeoCmdParam(leoTokenId);
+  const leoTokenId = js2leo.nft.tokenId(tokenId);
+  const leoTokenIdParam = js2leo.stringifyLeoCmdParam(leoTokenId);
 
-  const leoEdition = leoParse.edition(edition);
+  const leoEdition = js2leo.nft.edition(edition);
 
   const params = [leoClaimRecordParam, leoTokenIdParam, leoEdition];
 
@@ -422,7 +424,7 @@ const claimNFT = async (
 
   console.log(res);
 
-  const nftMintRecord = parseOutput.nftRecord(res);
+  const nftMintRecord = leo2js.nft.nftRecord(res);
   return nftMintRecord;
 };
 
@@ -436,7 +438,7 @@ const fetchUnspentNftRecords = async (
   const unspentNftRecords = [];
   for (let record of unspentRecords) {
     try {
-      const nftRecord = parseOutput.nftRecord(record);
+      const nftRecord = leo2js.nft.nftRecord(record);
       unspentNftRecords.push(nftRecord);
     } catch {}
   }

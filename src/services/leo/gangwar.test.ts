@@ -1,7 +1,6 @@
 import { characterSchema, GangwarSettings, Player, War } from "../../types";
 import { gangwar } from "./gangwar";
 import { createCharacters } from "../../core/gangwar";
-import { leoParse } from "../../utils";
 
 jest.setTimeout(600000);
 
@@ -20,63 +19,63 @@ describe("Gangwar Service", () => {
   let playerRecord: Player;
   let war: War;
 
-  // it("Create game", async () => {
-  //   const { owner, privateKey, viewKey } = keys;
+  it("Create game", async () => {
+    const { owner, privateKey, viewKey } = keys;
 
-  //   const simulationId = 1;
-  //   const registrationDuration = 1000;
-  //   const maxNumberOfPlayers = 10;
-  //   const maxRounds = 10;
+    const simulationId = 1;
+    const registrationDuration = 1000;
+    const maxNumberOfPlayers = 10;
+    const maxRounds = 10;
 
-  //   const settings: GangwarSettings = await gangwar.createGame(
-  //     privateKey,
-  //     viewKey,
-  //     simulationId,
-  //     registrationDuration,
-  //     maxNumberOfPlayers,
-  //     maxRounds
-  //   );
-  // });
+    const settings: GangwarSettings = await gangwar.createGame(
+      privateKey,
+      viewKey,
+      simulationId,
+      registrationDuration,
+      maxNumberOfPlayers,
+      maxRounds
+    );
+  });
 
-  // it("Sign a Character", async () => {
-  //   const { owner, privateKey, viewKey } = keys;
-  //   const { sk, k } = schnorrKeys;
+  it("Sign a Character", async () => {
+    const { owner, privateKey, viewKey } = keys;
+    const { sk, k } = schnorrKeys;
 
-  //   const character = createCharacters(1, ["Apple"])[0];
-  //   console.log(character);
-  //   console.log(JSON.stringify(character));
+    const character = createCharacters(1, ["Apple"])[0];
+    console.log(character);
+    console.log(JSON.stringify(character));
 
-  //   const validityTimestamp = 200; // 100 blocks
-  //   const signature = await gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);
-  //   console.log(signature);
-  // });
+    const validityTimestamp = 200; // 100 blocks
+    const signature = await gangwar.sign(character, sk, k);
+    console.log(signature);
+  });
 
-  // it("Join a Game", async () => {
-  //   const { owner, privateKey, viewKey } = keys;
-  //   const { sk, k } = schnorrKeys;
+  it("Join a Game", async () => {
+    const { owner, privateKey, viewKey } = keys;
+    const { sk, k } = schnorrKeys;
 
-  //   const character = createCharacters(1, ["Apple"])[0];
+    const character = createCharacters(1, ["Apple"])[0];
 
-  //   const validityTimestamp = 200; // 100 blocks
-  //   const signature = await gangwar.sign(privateKey, viewKey, character, sk, k, validityTimestamp);
+    const validityTimestamp = 200; // 100 blocks
+    const signature = await gangwar.sign(character, sk, k);
 
-  //   const simulationId = 1;
-  //   playerRecord = await gangwar.joinGame(privateKey, viewKey, simulationId, character, signature);
-  //   console.log(JSON.stringify(playerRecord));
-  // });
+    const simulationId = 1;
+    playerRecord = await gangwar.joinGame(privateKey, viewKey, simulationId, character, signature);
+    console.log(JSON.stringify(playerRecord));
+  });
 
-  // it("Start the Game", async () => {
-  //   const PLAYER_COUNT = 6;
-  //   const { owner, privateKey, viewKey } = keys;
-  //   const simulationId = 1;
+  it("Start the Game", async () => {
+    const PLAYER_COUNT = 6;
+    const { owner, privateKey, viewKey } = keys;
+    const simulationId = 1;
 
-  //   const players: Player[] = [];
-  //   for (let i = 0; i < PLAYER_COUNT; i++) {
-  //     players.push(playerRecord);
-  //   }
-  //   war = await gangwar.startGame(privateKey, viewKey, simulationId, players);
-  //   console.log(JSON.stringify(war));
-  // });
+    const players: Player[] = [];
+    for (let i = 0; i < PLAYER_COUNT; i++) {
+      players.push(playerRecord);
+    }
+    war = await gangwar.startGame(privateKey, viewKey, simulationId, players);
+    console.log(JSON.stringify(war));
+  });
 
   it("Simulate 1vs1", async () => {
     const { owner, privateKey, viewKey } = keys;

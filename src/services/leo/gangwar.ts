@@ -17,17 +17,10 @@ import {
   warBracketPattern,
 } from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
-import { leoParse } from "../../utils";
-import {
-  contractsPath,
-  fetchUnspentRecords,
-  leoRun,
-  networkClient,
-  parseOutput,
-  parseRecordString,
-  snarkOsFetchMappingValue,
-  zkRun,
-} from "./util";
+import { contractsPath, fetchUnspentRecords, leoRun, networkClient, parseRecordString, snarkOsFetchMappingValue, zkRun } from "./util";
+
+import { js2leo } from "../../parsers/js2leo";
+import { leo2js } from "../../parsers/leo2js";
 
 const gangwarPath = join(contractsPath, "gangwar");
 
@@ -41,10 +34,10 @@ const createGame = async (
 ): Promise<GangwarSettings> => {
   const transition = "create_game";
 
-  const leoSimulationId = leoParse.u32(simulationId);
-  const leoRegistrationDuration = leoParse.u32(registrationDuration);
-  const leoMaxNumberOfPlayers = leoParse.u8(maxNumberOfPlayers);
-  const leoGameLoopCount = leoParse.u8(maxRounds);
+  const leoSimulationId = js2leo.u32(simulationId);
+  const leoRegistrationDuration = js2leo.u32(registrationDuration);
+  const leoMaxNumberOfPlayers = js2leo.u8(maxNumberOfPlayers);
+  const leoGameLoopCount = js2leo.u8(maxRounds);
   const params = [leoSimulationId, leoRegistrationDuration, leoMaxNumberOfPlayers, leoGameLoopCount];
 
   console.log("gangwar.ts Trying to create game with ", simulationId, programNames.GANGWAR);
@@ -64,7 +57,7 @@ const createGame = async (
 };
 
 const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettings> => {
-  const leoSimulationId = leoParse.u32(simulationId);
+  const leoSimulationId = js2leo.u32(simulationId);
   if (env.ZK_MODE !== "leo") {
     const res = await snarkOsFetchMappingValue({
       appName: programNames.GANGWAR,
@@ -72,7 +65,7 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
       mappingKey: leoSimulationId,
     });
     const gangwarSettingsLeo = parseRecordString(res);
-    const gangwarSettings = parseOutput.settings(gangwarSettingsLeo);
+    const gangwarSettings = leo2js.gangwar.settings(gangwarSettingsLeo);
     return gangwarSettings;
   } else {
     return {
@@ -93,8 +86,8 @@ const sign = async (
 ): Promise<SchnorrSignature> => {
   const transition = "sign";
   // const leoSk: LeoScalar = leoScalarSchema.parse(sk);
-  const leoSk = leoParse.scalar(BigInt(sk));
-  const leoK = leoParse.scalar(BigInt(k));
+  const leoSk = js2leo.scalar(BigInt(sk));
+  const leoK = js2leo.scalar(BigInt(k));
 
   // TODO: Verify block duration to provide validityTimestamp
   // May need to convert timestamp to proper block (may not be deterministic)
@@ -111,10 +104,10 @@ const sign = async (
     validTimestamp = VALIDITY_DURATION;
   }
 
-  const leoValidityTimestamp = leoParse.u32(validTimestamp);
-  const leoCharacter = leoParse.character(character);
+  const leoValidityTimestamp = js2leo.u32(validTimestamp);
+  const leoCharacter = js2leo.gangwar.character(character);
   console.log(leoCharacter);
-  let leoCharacterParam = leoParse.stringifyLeoCmdParam(leoCharacter);
+  let leoCharacterParam = js2leo.stringifyLeoCmdParam(leoCharacter);
 
   // TODO: search if there's a better approach
   // Yes. Implement later. Check stringifyLeoCmdParam function
@@ -130,7 +123,7 @@ const sign = async (
     params,
   });
 
-  const signature = parseOutput.signature(res);
+  const signature = leo2js.gangwar.signature(res);
 
   return signature;
 };
@@ -144,13 +137,13 @@ const joinGame = async (
 ): Promise<Player> => {
   const transition = "join_game";
 
-  const leoSimulationId = leoParse.u32(simulationId);
+  const leoSimulationId = js2leo.u32(simulationId);
 
-  const leoCharacter = leoParse.character(character);
-  const leoSignature = leoParse.signature(signature);
+  const leoCharacter = js2leo.gangwar.character(character);
+  const leoSignature = js2leo.gangwar.signature(signature);
 
-  const leoCharacterParam = leoParse.stringifyLeoCmdParam(leoCharacter);
-  const leoSignatureParam = leoParse.stringifyLeoCmdParam(leoSignature);
+  const leoCharacterParam = js2leo.stringifyLeoCmdParam(leoCharacter);
+  const leoSignatureParam = js2leo.stringifyLeoCmdParam(leoSignature);
 
   const params = [leoSimulationId, leoCharacterParam, leoSignatureParam];
 
@@ -168,7 +161,7 @@ const joinGame = async (
     playerRecordBracketPattern()
   );
 
-  const playerRecord = parseOutput.playerRecord(res);
+  const playerRecord = leo2js.gangwar.playerRecord(res);
   return playerRecord;
 };
 
@@ -184,7 +177,7 @@ const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey
   const playerRecords = [];
   for (let record of unspentRecords) {
     try {
-      const playerRecord = parseOutput.playerRecord(record);
+      const playerRecord = leo2js.gangwar.playerRecord(record);
       if (playerRecord.simulationId == simulationId) {
         playerRecords.push(playerRecord);
       }
@@ -205,7 +198,7 @@ const fetchWarRecord = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, si
   const warRecords = [];
   for (let record of unspentRecords) {
     try {
-      const warRecord = parseOutput.war(record);
+      const warRecord = leo2js.gangwar.war(record);
       if (warRecord.simulationId == simulationId) {
         warRecords.push(warRecord);
       }
@@ -220,16 +213,16 @@ const fetchWarRecord = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, si
 const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number, players: Player[]): Promise<War> => {
   const transition = "start_game";
 
-  const leoSimulationId = leoParse.u32(simulationId);
+  const leoSimulationId = js2leo.u32(simulationId);
 
   const gangwarSettings = fetchGangwarSettings(simulationId);
-  const leoRandomSeed = leoParse.u16((await gangwarSettings).randomNumber);
+  const leoRandomSeed = js2leo.u16((await gangwarSettings).randomNumber);
 
   const leoPlayerRecordParams = [];
   // console.log(player);
   for (let player of players) {
-    const leoPlayerRecord = leoParse.playerRecord(player);
-    const leoPlayerRecordParam = leoParse.stringifyLeoCmdParam(leoPlayerRecord);
+    const leoPlayerRecord = js2leo.gangwar.playerRecord(player);
+    const leoPlayerRecordParam = js2leo.stringifyLeoCmdParam(leoPlayerRecord);
     leoPlayerRecordParams.push(leoPlayerRecordParam);
   }
 
@@ -246,7 +239,7 @@ const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulat
     fee: FEE,
   });
 
-  const warRecord = parseOutput.war(res);
+  const warRecord = leo2js.gangwar.war(res);
   console.log(warRecord);
   return warRecord;
 };
@@ -255,12 +248,12 @@ const simulate1vs1 = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war:
   const transition = "simulate1vs1";
 
   const gangwarSettings = fetchGangwarSettings(war.simulationId);
-  const leoRandomSeed = leoParse.u16((await gangwarSettings).randomNumber);
+  const leoRandomSeed = js2leo.u16((await gangwarSettings).randomNumber);
   console.log(leoRandomSeed);
 
-  const leoWarRecord = leoParse.warRecord(war);
+  const leoWarRecord = js2leo.gangwar.warRecord(war);
 
-  const leoWarRecordParam = leoParse.stringifyLeoCmdParam(leoWarRecord);
+  const leoWarRecordParam = js2leo.stringifyLeoCmdParam(leoWarRecord);
 
   const params = [leoWarRecordParam, leoRandomSeed];
 
@@ -275,7 +268,7 @@ const simulate1vs1 = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war:
     fee: FEE,
   });
 
-  const warRecord = parseOutput.war(res);
+  const warRecord = leo2js.gangwar.war(res);
   console.log(warRecord);
   return warRecord;
 };
@@ -289,12 +282,12 @@ const finishGame = async (
   const transition = "finish_game";
 
   const gangwarSettings = fetchGangwarSettings(war.simulationId);
-  const leoRandomSeed = leoParse.u16((await gangwarSettings).randomNumber);
+  const leoRandomSeed = js2leo.u16((await gangwarSettings).randomNumber);
   console.log(leoRandomSeed);
 
-  const leoWarRecord = leoParse.warRecord(war);
+  const leoWarRecord = js2leo.gangwar.warRecord(war);
 
-  const leoWarRecordParam = leoParse.stringifyLeoCmdParam(leoWarRecord);
+  const leoWarRecordParam = js2leo.stringifyLeoCmdParam(leoWarRecord);
 
   const params = [leoWarRecordParam, leoRandomSeed];
 

@@ -1,6 +1,7 @@
+import { js2leo } from "../../parsers/js2leo";
+import { leo2js } from "../../parsers/leo2js";
 import { characterBracketPattern, warBracketPattern } from "../../types";
-import { leoParse } from "../../utils";
-import { decryptRecord, parseOutput, parseRecordString } from "./util";
+import { decryptRecord, parseRecordString } from "./util";
 
 jest.setTimeout(600000);
 
@@ -25,11 +26,11 @@ describe("Utilies Test", () => {
   it("Probability u16", async () => {
     // const prob = Math.random();
     const prob = 0.391;
-    let probInUint16 = leoParse.u16Prob(prob);
-    let probInNumber = parseOutput.u16Prob(probInUint16);
+    let probInUint16 = js2leo.u16Prob(prob);
+    let probInNumber = leo2js.u16Prob(probInUint16);
     console.log(probInUint16, probInNumber);
 
-    probInUint16 = leoParse.u16Prob(probInNumber);
+    probInUint16 = js2leo.u16Prob(probInNumber);
     console.log(probInNumber, probInUint16);
   });
 });

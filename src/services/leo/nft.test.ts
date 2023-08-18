@@ -1,7 +1,6 @@
 import { characterSchema, GangwarSettings, Player, ToggleSettings, War } from "../../types";
 import { nft } from "./nft";
 import { createCharacters } from "../../core/gangwar";
-import { leoParse } from "../../utils";
 
 jest.setTimeout(600000);
 
