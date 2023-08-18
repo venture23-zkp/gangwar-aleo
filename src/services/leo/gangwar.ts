@@ -129,6 +129,62 @@ const sign = async (
   return signature;
 };
 
+// const updateMaxRounds = async (
+//   privateKey: LeoPrivateKey,
+//   viewKey: LeoViewKey,
+//   simulationId: number,
+//   maxRounds: number
+// ): Promise<GangwarSettings> => {
+//   const transition = "update_max_rounds";
+
+//   const leoSimulationId = js2leo.u32(simulationId);
+//   const leoGameLoopCount = js2leo.u8(maxRounds);
+//   const params = [leoSimulationId, leoGameLoopCount];
+
+//   console.log("gangwar.ts Trying to create game with ", simulationId, programNames.GANGWAR);
+//   await zkRun({
+//     privateKey,
+//     viewKey,
+//     appName: programNames.GANGWAR,
+//     contractPath: gangwarPath,
+//     transition,
+//     params,
+//     fee: FEE,
+//   });
+
+//   // Query blockchain for the settings
+//   const gangwarSettings = fetchGangwarSettings(simulationId);
+//   return gangwarSettings;
+// };
+
+const updateRegistrationTime = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  simulationId: number,
+  gameStartTime: number
+): Promise<GangwarSettings> => {
+  const transition = "update_registration_time";
+
+  const leoSimulationId = js2leo.u32(simulationId);
+  const leoGameStartTime = js2leo.u32(gameStartTime);
+  const params = [leoSimulationId, leoGameStartTime];
+
+  console.log("gangwar.ts Trying to create game with ", simulationId, programNames.GANGWAR);
+  await zkRun({
+    privateKey,
+    viewKey,
+    appName: programNames.GANGWAR,
+    contractPath: gangwarPath,
+    transition,
+    params,
+    fee: FEE,
+  });
+
+  // Query blockchain for the settings
+  const gangwarSettings = fetchGangwarSettings(simulationId);
+  return gangwarSettings;
+};
+
 const joinGame = async (
   privateKey: LeoPrivateKey,
   viewKey: LeoViewKey,
@@ -314,4 +370,6 @@ export const gangwar = {
   fetchGangwarSettings,
   fetchPlayerRecords,
   fetchWarRecord,
+  updateRegistrationTime,
+  // updateMaxRounds,
 };

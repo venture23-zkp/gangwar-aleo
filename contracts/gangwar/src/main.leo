@@ -147,32 +147,6 @@ program gangwar.aleo {
         Mapping::set(gangwar_settings, simulation_id, settings);
     }
 
-    transition update_max_rounds(simulation_id: u32, max_rounds: u8) {
-        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
-        return then finalize(simulation_id, max_rounds);
-    }
-
-    finalize update_max_rounds(simulation_id: u32, max_rounds: u8) {
-        // Ensure that the game exists
-        let game_exists: bool = Mapping::contains(gangwar_settings, simulation_id);
-        assert(game_exists);
-
-        let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
-
-        // Ensure settings cannot be updated after game can be started
-        assert(settings.deadline_to_register > block.height);
-
-        let updated_settings: GangwarSettings = GangwarSettings {
-            created_at: settings.created_at,
-            deadline_to_register: settings.deadline_to_register,
-            max_number_of_players: settings.max_number_of_players,
-            max_rounds,
-            registered_players: settings.registered_players + 1u8,
-            random_number: settings.random_number,
-        };
-        Mapping::set(gangwar_settings, simulation_id, updated_settings);
-    }
-
     transition update_registration_time(simulation_id: u32, registration_time: u32) {
         assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
         return then finalize(simulation_id, registration_time);

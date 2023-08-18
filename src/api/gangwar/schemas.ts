@@ -65,5 +65,19 @@ export const schemas = {
       owner: leoAddressSchema,
       war: warSchema,
     }),
+    updateRegistrationTime: z.object({
+      privateKey: leoPrivateKeySchema,
+      viewKey: leoViewKeySchema,
+      owner: leoAddressSchema,
+      simulationId: z.number(),
+      registrationDuration: z.number(),
+    }),
+    updateMaxRounds: z.object({
+      privateKey: leoPrivateKeySchema,
+      viewKey: leoViewKeySchema,
+      owner: leoAddressSchema,
+      simulationId: z.number(),
+      maxRounds: z.number(),
+    }),
   },
 };

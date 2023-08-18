@@ -15,3 +15,5 @@ router.post("/start", validate({ body: schemas.body.startGame }), asyncHandler(g
 router.post("/simulate", validate({ body: schemas.body.simulate }), asyncHandler(gangwarController.simulate));
 router.post("/fetch/players", validate({ body: schemas.body.fetchPlayerRecords }), asyncHandler(gangwarController.fetchPlayerRecords));
 router.post("/fetch/war", validate({ body: schemas.body.fetchWarRecord }), asyncHandler(gangwarController.fetchWarRecord));
+router.post("/update/registrationTime", validate({ body: schemas.body.fetchWarRecord }), asyncHandler(gangwarController.fetchWarRecord));
+// router.post("/update/maxRounds", validate({ body: schemas.body.fetchWarRecord }), asyncHandler(gangwarController.fetchWarRecord));

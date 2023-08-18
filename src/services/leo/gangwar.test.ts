@@ -37,6 +37,17 @@ describe("Gangwar Service", () => {
     );
   });
 
+  it("Update game registrationTime", async () => {
+    const { owner, privateKey, viewKey } = keys;
+
+    const simulationId = 1;
+    const registrationDuration = 1000;
+    const maxNumberOfPlayers = 10;
+    const maxRounds = 10;
+
+    const settings: GangwarSettings = await gangwar.updateRegistrationTime(privateKey, viewKey, simulationId, registrationDuration);
+  });
+
   it("Sign a Character", async () => {
     const { owner, privateKey, viewKey } = keys;
     const { sk, k } = schnorrKeys;

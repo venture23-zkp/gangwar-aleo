@@ -5,6 +5,7 @@ import { logger } from "../../utils";
 
 interface GangwarController {
   createGame: RequestHandler;
+  updateRegistrationTime: RequestHandler;
   sign: RequestHandler;
   joinGame: RequestHandler;
   fetchSettings: RequestHandler;
@@ -26,6 +27,12 @@ export const gangwarController: GangwarController = {
       maxRounds
     );
     logger.info(gameSettings);
+    res.send({ gameSettings });
+  },
+  updateRegistrationTime: async (req, res) => {
+    const { owner, privateKey, viewKey, simulationId, registrationDuration } = req.body;
+    const gameSettings = await leo.gangwar.updateRegistrationTime(privateKey, viewKey, simulationId, registrationDuration);
+    // logger.info(gameSettings);
     res.send({ gameSettings });
   },
   fetchSettings: async (req, res) => {
