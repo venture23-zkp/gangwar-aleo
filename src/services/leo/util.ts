@@ -251,9 +251,9 @@ const snarkOsExecute = async (
 
   const baseRoute = env.ZK_MODE === "testnet_public" ? "https://vm.aleo.org/api" : "http://127.0.0.1:3030";
   const url = `${baseRoute}/testnet3/transaction/${txId}`;
-  const res = await attemptFetch(url);
-
   console.log("Tx URL", url);
+
+  const res = await attemptFetch(url);
 
   const tx: Record<string, unknown> = res.data;
   const parsedTx = leoTxSchema.parse(tx);
@@ -308,7 +308,7 @@ export const deployPrograms = async () => {
   if (!privateKey) return;
 
   const fees = {
-    gangwar: 15,
+    gangwar_v0: 15,
     leo_nft: 15,
   };
 

@@ -169,7 +169,7 @@ const updateRegistrationTime = async (
   const leoGameStartTime = js2leo.u32(gameStartTime);
   const params = [leoSimulationId, leoGameStartTime];
 
-  console.log("gangwar.ts Trying to create game with ", simulationId, programNames.GANGWAR);
+  console.log("gangwar.ts Trying to update registration time ", simulationId, programNames.GANGWAR);
   await zkRun({
     privateKey,
     viewKey,
@@ -228,7 +228,7 @@ const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey
 
   // TODO: maybe store startBlock on chain
   // const startBlock = settings.deadlineToRegister - 1000;
-  const startBlock = 250;
+  const startBlock = settings.createdAt;
   const bracketPattern = playerRecordBracketPattern();
   const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "Player", startBlock, bracketPattern);
   const playerRecords = [];
@@ -286,15 +286,18 @@ const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulat
   const params = [leoSimulationId, leoRandomSeed, ...leoPlayerRecordParams];
 
   // console.log("gangwar.ts Joining game ", simulationId);
-  let res = await zkRun({
-    privateKey,
-    viewKey,
-    appName: programNames.GANGWAR,
-    contractPath: gangwarPath,
-    transition,
-    params,
-    fee: FEE,
-  });
+  let res = await zkRun(
+    {
+      privateKey,
+      viewKey,
+      appName: programNames.GANGWAR,
+      contractPath: gangwarPath,
+      transition,
+      params,
+      fee: FEE,
+    },
+    warBracketPattern(3, 3)
+  );
 
   const warRecord = leo2js.gangwar.war(res);
   console.log(warRecord);
@@ -316,15 +319,18 @@ const simulate1vs1 = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war:
   const params = [leoWarRecordParam, leoRandomSeed];
 
   // console.log("gangwar.ts Joining game ", simulationId);
-  let res = await zkRun({
-    privateKey,
-    viewKey,
-    appName: programNames.GANGWAR,
-    contractPath: gangwarPath,
-    transition,
-    params,
-    fee: FEE,
-  });
+  let res = await zkRun(
+    {
+      privateKey,
+      viewKey,
+      appName: programNames.GANGWAR,
+      contractPath: gangwarPath,
+      transition,
+      params,
+      fee: FEE,
+    },
+    warBracketPattern(3, 3)
+  );
 
   const warRecord = leo2js.gangwar.war(res);
   console.log(warRecord);

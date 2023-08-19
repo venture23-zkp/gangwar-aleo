@@ -13,7 +13,12 @@ router.post("/sign", validate({ body: schemas.body.sign }), asyncHandler(gangwar
 router.post("/join", validate({ body: schemas.body.joinGame }), asyncHandler(gangwarController.joinGame));
 router.post("/start", validate({ body: schemas.body.startGame }), asyncHandler(gangwarController.startGame));
 router.post("/simulate", validate({ body: schemas.body.simulate }), asyncHandler(gangwarController.simulate));
+router.post("/finish", validate({ body: schemas.body.simulate }), asyncHandler(gangwarController.finish));
 router.post("/fetch/players", validate({ body: schemas.body.fetchPlayerRecords }), asyncHandler(gangwarController.fetchPlayerRecords));
 router.post("/fetch/war", validate({ body: schemas.body.fetchWarRecord }), asyncHandler(gangwarController.fetchWarRecord));
-router.post("/update/registrationTime", validate({ body: schemas.body.fetchWarRecord }), asyncHandler(gangwarController.fetchWarRecord));
+router.post(
+  "/update/registrationTime",
+  validate({ body: schemas.body.fetchWarRecord }),
+  asyncHandler(gangwarController.updateRegistrationTime)
+);
 // router.post("/update/maxRounds", validate({ body: schemas.body.fetchWarRecord }), asyncHandler(gangwarController.fetchWarRecord));
