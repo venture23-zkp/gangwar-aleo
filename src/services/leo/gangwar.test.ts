@@ -80,11 +80,7 @@ describe("Gangwar Service", () => {
     const { owner, privateKey, viewKey } = keys;
     const simulationId = 1;
 
-    const players: Player[] = [];
-    for (let i = 0; i < PLAYER_COUNT; i++) {
-      players.push(playerRecord);
-    }
-    war = await gangwar.startGame(privateKey, viewKey, simulationId, players);
+    war = await gangwar.startGame(privateKey, viewKey, simulationId);
     console.log(JSON.stringify(war));
   });
 
