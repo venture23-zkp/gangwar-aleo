@@ -142,8 +142,6 @@ const team = (team: TeamLeo): Team => {
 };
 
 const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
-  const mainIndex = u8(damage.main);
-  const targetIndex = u8(damage.main);
   const damageValue = u16(damage.damage);
   const totalCriticalHits = u16(damage.total_critical_hits);
   const totalNormalHits = u16(damage.total_normal_hits);
@@ -161,17 +159,42 @@ const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
   return phyiscalAttackSchema.parse(res);
 };
 
+const convertIndexToNftId = (index: number, team: Team): number => {
+  switch (index) {
+    case 0:
+      return 0;
+    case 1:
+      return team.p1.nftId;
+    case 2:
+      return team.p2.nftId;
+    case 3:
+      return team.p3.nftId;
+    default:
+      throw Error("Not a proper index");
+  }
+};
+
 const war = (record: Record<string, unknown>): War => {
   const parsed = warLeoSchema.parse(record);
   // console.log(parsed);
   const { main_team, target_team } = parsed;
+  const mainTeam = team(main_team);
+  const targetTeam = team(target_team);
+  const attack = physicalAttack(parsed.physical_attack);
+
+  console.log(attack);
+  const mainNftId = convertIndexToNftId(attack.main, targetTeam);
+  const targetNftId = convertIndexToNftId(attack.main, mainTeam);
+
+  const updatedAttack: PhysicalAttack = { ...attack, main: mainNftId, target: targetNftId };
+
   const war: War = {
     owner: address(parsed.owner),
     simulationId: u32(parsed.simulation_id),
     round: u8(parsed.round),
-    mainTeam: team(main_team),
-    targetTeam: team(target_team),
-    physicalAttack: physicalAttack(parsed.physical_attack),
+    mainTeam,
+    targetTeam,
+    physicalAttack: updatedAttack,
     _nonce: group(parsed._nonce).toString(),
   };
 

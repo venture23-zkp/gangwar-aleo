@@ -1,3 +1,4 @@
+import { number } from "zod";
 import {
   Character,
   CharacterLeo,
@@ -126,7 +127,7 @@ const physicalAttackRecord = (damage: PhysicalAttack): PhysicalAttackLeo => {
     total_critical_hits: privateField(u16(damage.totalCriticalHits)),
     damage: privateField(u16(damage.damage)),
   };
-  console.log(res);
+  // console.log(res);
   return physicalAttackLeoSchema.parse(res);
 };
 
@@ -191,27 +192,55 @@ const teamRecord = (team: Team): TeamLeo => {
   return teamLeoSchema.parse(res);
 };
 
+const convertNftIdToIndex = (nftId: number, team: Team): number => {
+  switch (nftId) {
+    case 0:
+      return 0;
+      break;
+    case team.p1.nftId:
+      return 1;
+      break;
+    case team.p2.nftId:
+      return 2;
+      break;
+    case team.p3.nftId:
+      return 3;
+      break;
+    default:
+      throw Error("Not a proper Nft Id");
+      break;
+  }
+};
+
 const war = (war: War): WarLeo => {
+  const attack = war.physicalAttack;
+  const mainIndex = convertNftIdToIndex(attack.main, war.targetTeam);
+  const targetIndex = convertNftIdToIndex(attack.target, war.mainTeam);
+  const updatedAttack = { ...attack, main: mainIndex, target: targetIndex };
   const res: WarLeo = {
     owner: war.owner,
     simulation_id: u32(war.simulationId),
     round: privateField(u16(war.round)),
     main_team: team(war.mainTeam),
     target_team: team(war.targetTeam),
-    physical_attack: physicalAttack(war.physicalAttack),
+    physical_attack: physicalAttack(updatedAttack),
     _nonce: war._nonce,
   };
   return warLeoSchema.parse(res);
 };
 
 const warRecord = (war: War): WarLeo => {
+  const attack = war.physicalAttack;
+  const mainIndex = convertNftIdToIndex(attack.main, war.targetTeam);
+  const targetIndex = convertNftIdToIndex(attack.target, war.mainTeam);
+  const updatedAttack = { ...attack, main: mainIndex, target: targetIndex };
   const res: WarLeo = {
     owner: privateField(war.owner),
     simulation_id: privateField(u32(war.simulationId)),
     round: privateField(u8(war.round)),
     main_team: teamRecord(war.mainTeam),
     target_team: teamRecord(war.targetTeam),
-    physical_attack: physicalAttackRecord(war.physicalAttack),
+    physical_attack: physicalAttackRecord(updatedAttack),
     _nonce: publicField(group(BigInt(war._nonce))),
   };
   return warLeoSchema.parse(res);

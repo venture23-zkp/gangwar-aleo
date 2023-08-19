@@ -323,6 +323,8 @@ const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulat
     warBracketPattern(3, 3)
   );
 
+  console.log(JSON.stringify(res));
+
   const warRecord = leo2js.gangwar.war(res);
   console.log(warRecord);
   return warRecord;
@@ -331,8 +333,8 @@ const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulat
 const simulate1vs1 = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war: War): Promise<War> => {
   const transition = "simulate1vs1";
 
-  const gangwarSettings = fetchGangwarSettings(war.simulationId);
-  const leoRandomSeed = js2leo.u16((await gangwarSettings).randomNumber);
+  const gangwarSettings = await fetchGangwarSettings(war.simulationId);
+  const leoRandomSeed = js2leo.u16(gangwarSettings.randomNumber);
   console.log(leoRandomSeed);
 
   const leoWarRecord = js2leo.gangwar.warRecord(war);
@@ -369,8 +371,8 @@ const finishGame = async (
 ): Promise<any> => {
   const transition = "finish_game";
 
-  const gangwarSettings = fetchGangwarSettings(war.simulationId);
-  const leoRandomSeed = js2leo.u16((await gangwarSettings).randomNumber);
+  const gangwarSettings = await fetchGangwarSettings(war.simulationId);
+  const leoRandomSeed = js2leo.u16(gangwarSettings.randomNumber);
   console.log(leoRandomSeed);
 
   const leoWarRecord = js2leo.gangwar.warRecord(war);
