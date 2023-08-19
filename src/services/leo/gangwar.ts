@@ -271,17 +271,41 @@ const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulat
   const transition = "start_game";
 
   const leoSimulationId = js2leo.u32(simulationId);
-
-  const gangwarSettings = fetchGangwarSettings(simulationId);
-  const leoRandomSeed = js2leo.u16((await gangwarSettings).randomNumber);
+  const gangwarSettings = await fetchGangwarSettings(simulationId);
+  const leoRandomSeed = js2leo.u16(gangwarSettings.randomNumber);
 
   const leoPlayerRecordParams = [];
-  // console.log(player);
-  for (let player of players) {
-    const leoPlayerRecord = js2leo.gangwar.playerRecord(player);
-    const leoPlayerRecordParam = js2leo.stringifyLeoCmdParam(leoPlayerRecord);
-    leoPlayerRecordParams.push(leoPlayerRecordParam);
+  if (env.ZK_MODE !== "leo") {
+    const onChainPlayers = await fetchPlayerRecords(privateKey, viewKey, simulationId);
+    if (onChainPlayers.length != gangwarSettings.maxNumberOfPlayers) {
+      throw Error("Game can only be started when all players have joined");
+    }
+
+    // Sort the players by strength
+    for (let i = 0; i < players.length; i++) {
+      for (let j = 0; j < players.length - i - 1; j++) {
+        if (players[j].char.primaryStats.strength < players[j + 1].char.primaryStats.strength) {
+          const temp = players[j];
+          players[j] = players[j + 1];
+          players[j + 1] = temp;
+        }
+      }
+    }
+
+    for (let player of onChainPlayers) {
+      const leoPlayerRecord = js2leo.gangwar.playerRecord(player);
+      const leoPlayerRecordParam = js2leo.stringifyLeoCmdParam(leoPlayerRecord);
+      leoPlayerRecordParams.push(leoPlayerRecordParam);
+    }
+  } else {
+    for (let player of players) {
+      const leoPlayerRecord = js2leo.gangwar.playerRecord(player);
+      const leoPlayerRecordParam = js2leo.stringifyLeoCmdParam(leoPlayerRecord);
+      leoPlayerRecordParams.push(leoPlayerRecordParam);
+    }
   }
+
+  // console.log(player);
 
   const params = [leoSimulationId, leoRandomSeed, ...leoPlayerRecordParams];
 
