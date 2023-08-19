@@ -5,64 +5,8 @@ import { promisify } from "util";
 
 import { Address, AleoNetworkClient, DevelopmentClient, PrivateKey, ViewKey } from "../../aleo-sdk";
 import { env, FEE, LOCAL_NETWORK_PRIVATE_KEY, programNames } from "../../constants";
-import {
-  LeoTx,
-  leoTxSchema,
-  LeoRecord,
-  LeoViewKey,
-  War,
-  warLeoSchema,
-  PrimaryStatsLeo,
-  primaryStatsSchema,
-  PrimaryStats,
-  SecondaryStatsLeo,
-  SecondaryStats,
-  secondaryStatsSchema,
-  WeaponLeo,
-  Weapon,
-  weaponSchema,
-  // ItemLeo,
-  // Item,
-  // itemSchema,
-  Character,
-  characterSchema,
-  CharacterLeo,
-  TeamLeo,
-  Team,
-  teamSchema,
-  warSchema,
-  PhysicalAttack,
-  PhysicalAttackLeo,
-  phyiscalAttackSchema,
-  playerLeoSchema,
-  PlayerLeo,
-  leoAddressSchema,
-  Player,
-  playerSchema,
-  GangwarSettings,
-  gangwarSettingsLeoSchema,
-  gangwarSettingsSchema,
-  NftMintRecord,
-  nftClaimRecordLeoSchema,
-  nftMintRecordSchema,
-  NftClaimRecord,
-  nftMintRecordLeoSchema,
-  nftClaimRecordSchema,
-  NftRecord,
-  nftRecordSchema,
-  NftTokenIdLeo,
-  tokenIdLeoSchema,
-  nftRecordLeoSchema,
-  BaseURILeo,
-  baseURILeoSchema,
-  SymbolLeo,
-  leoU128Schema,
-  LeoU32,
-  leoU32Schema,
-  ToggleSettings,
-} from "../../types";
-import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema, schnorrSignatureSchema } from "../../types/dsa";
-import { apiError, attemptFetch, decodeId, logger, wait } from "../../utils";
+import { LeoTx, leoTxSchema, LeoRecord, LeoViewKey } from "../../types";
+import { attemptFetch, logger, wait } from "../../utils";
 
 export const developmentClient = new DevelopmentClient(env.DEVELOPMENT_SERVER_URL);
 const baseRoute = env.ZK_MODE === "testnet_public" ? "https://vm.aleo.org/api" : "http://127.0.0.1:3030";
@@ -366,6 +310,11 @@ const transferCredits = async (amount: number, recipient: string, privateKey = L
       }
     }
   }
+};
+
+export const getLatestHeight = async () => {
+  const latestHeight = await networkClient.getLatestHeight();
+  return latestHeight;
 };
 
 export const fetchUnspentRecords = async (

@@ -17,7 +17,16 @@ import {
   warBracketPattern,
 } from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
-import { contractsPath, fetchUnspentRecords, leoRun, networkClient, parseRecordString, snarkOsFetchMappingValue, zkRun } from "./util";
+import {
+  contractsPath,
+  fetchUnspentRecords,
+  getLatestHeight,
+  leoRun,
+  networkClient,
+  parseRecordString,
+  snarkOsFetchMappingValue,
+  zkRun,
+} from "./util";
 
 import { js2leo } from "../../parsers/js2leo";
 import { leo2js } from "../../parsers/leo2js";
@@ -56,20 +65,40 @@ const createGame = async (
   return gangwarSettings;
 };
 
+const estimateWarStartTime = async (startBlockHeight: number): Promise<number> => {
+  const latestTime = new Date().getTime();
+  let latestBlockHeight;
+  if (env.ZK_MODE !== "leo") {
+    // Query latest block
+    latestBlockHeight = Number(await getLatestHeight());
+  } else {
+    latestBlockHeight = 100;
+  }
+  const EXPECTED_BLOCK_DURATION = 13 * 1000;
+  const remainingBlocks = startBlockHeight - latestBlockHeight;
+  const remainingTime = latestTime - remainingBlocks * EXPECTED_BLOCK_DURATION;
+  const expectedTime = latestTime + remainingTime;
+  return expectedTime;
+};
+
 const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettings> => {
   const leoSimulationId = js2leo.u32(simulationId);
+  const EXPECTED_BLOCK_DURATION = 2 * 1_000; // 2 seconds
   if (env.ZK_MODE !== "leo") {
     const res = await snarkOsFetchMappingValue({
       appName: programNames.GANGWAR,
       mappingName: "gangwar_settings",
       mappingKey: leoSimulationId,
     });
+
     const gangwarSettingsLeo = parseRecordString(res);
-    const gangwarSettings = leo2js.gangwar.settings(gangwarSettingsLeo);
-    return gangwarSettings;
+    let gangwarSettings = leo2js.gangwar.settings(gangwarSettingsLeo);
+    const startTime = await estimateWarStartTime(gangwarSettings.deadlineToRegister);
+    return { ...gangwarSettings, startTime };
   } else {
     return {
       createdAt: 0,
+      startTime: await estimateWarStartTime(1000),
       deadlineToRegister: 1000,
       maxNumberOfPlayers: 6,
       maxRounds: 10,

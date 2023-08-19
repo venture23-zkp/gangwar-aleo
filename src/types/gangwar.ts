@@ -14,6 +14,7 @@ export type GangwarSettingsLeo = z.infer<typeof gangwarSettingsLeoSchema>;
 
 export const gangwarSettingsSchema = z.object({
   createdAt: z.number().int().min(0),
+  startTime: z.number().int(),
   deadlineToRegister: z.number().int(),
   maxNumberOfPlayers: z.number().int(),
   maxRounds: z.number().int(),
