@@ -45,7 +45,6 @@ export const schemas = {
       viewKey: leoViewKeySchema,
       owner: leoAddressSchema,
       simulationId: z.number(),
-      players: z.array(playerSchema),
     }),
     fetchPlayerRecords: z.object({
       privateKey: leoPrivateKeySchema,

@@ -57,8 +57,8 @@ export const gangwarController: GangwarController = {
     res.send({ playerRecords });
   },
   startGame: async (req, res) => {
-    const { owner, privateKey, viewKey, simulationId, players } = req.body;
-    const warRecord = await leo.gangwar.startGame(privateKey, viewKey, simulationId, players);
+    const { owner, privateKey, viewKey, simulationId } = req.body;
+    const warRecord = await leo.gangwar.startGame(privateKey, viewKey, simulationId);
     res.send({ warRecord });
   },
   fetchWarRecord: async (req, res) => {

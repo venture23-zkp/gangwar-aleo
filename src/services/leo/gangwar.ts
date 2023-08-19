@@ -71,7 +71,7 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
     return {
       createdAt: 0,
       deadlineToRegister: 1000,
-      maxNumberOfPlayers: 10,
+      maxNumberOfPlayers: 6,
       maxRounds: 10,
       registeredPlayers: 1,
       randomNumber: Math.round(Math.random() * (Math.pow(2, 16) - 1)),
@@ -223,24 +223,59 @@ const joinGame = async (
 };
 
 const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number): Promise<any> => {
-  // TODO: add start block to the settings
   const settings = await fetchGangwarSettings(simulationId);
+  if (env.ZK_MODE !== "leo") {
+    const startBlock = settings.createdAt;
+    const bracketPattern = playerRecordBracketPattern();
+    const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "Player", startBlock, bracketPattern);
+    const playerRecords = [];
+    for (let record of unspentRecords) {
+      try {
+        const playerRecord = leo2js.gangwar.playerRecord(record);
+        if (playerRecord.simulationId == simulationId) {
+          playerRecords.push(playerRecord);
+        }
+      } catch {}
+    }
+    return playerRecords;
+  } else {
+    const playerRecords = [];
+    const samplePlayerRecord = {
+      owner: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
+      simulationId,
+      char: {
+        nftId: 2423,
+        playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
+        primaryStats: { strength: 221 },
+        secondaryStats: {
+          health: 1509,
+          dodgeChance: 0.4284275577935454,
+          hitChance: 0.13713282978561075,
+          criticalChance: 0.43514152742809187,
+          meleeDamage: 0.42864118410009916,
+        },
+        primaryEquipment: {
+          id: 8,
+          type: 2,
+          consumptionRate: 19,
+          criticalChance: 0.26889448386358433,
+          duraAmmo: 172,
+          damage: 168,
+          hitChance: 0.42232394903486686,
+          numberOfHits: 3,
+          isBroken: false,
+        },
+      },
+      _nonce: "5623229412638486632593736837515090893772292847363797498221203598604445760569",
+    };
+    for (let i = 0; i < settings.maxNumberOfPlayers; i++) {
+      playerRecords.push(samplePlayerRecord);
+    }
+    return playerRecords;
+  }
 
   // TODO: maybe store startBlock on chain
   // const startBlock = settings.deadlineToRegister - 1000;
-  const startBlock = settings.createdAt;
-  const bracketPattern = playerRecordBracketPattern();
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "Player", startBlock, bracketPattern);
-  const playerRecords = [];
-  for (let record of unspentRecords) {
-    try {
-      const playerRecord = leo2js.gangwar.playerRecord(record);
-      if (playerRecord.simulationId == simulationId) {
-        playerRecords.push(playerRecord);
-      }
-    } catch {}
-  }
-  return playerRecords;
 };
 
 const fetchWarRecord = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number): Promise<any> => {
@@ -267,7 +302,7 @@ const fetchWarRecord = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, si
   return warRecords[0];
 };
 
-const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number, players: Player[]): Promise<War> => {
+const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number): Promise<War> => {
   const transition = "start_game";
 
   const leoSimulationId = js2leo.u32(simulationId);
@@ -275,34 +310,26 @@ const startGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulat
   const leoRandomSeed = js2leo.u16(gangwarSettings.randomNumber);
 
   const leoPlayerRecordParams = [];
-  if (env.ZK_MODE !== "leo") {
-    const onChainPlayers = await fetchPlayerRecords(privateKey, viewKey, simulationId);
-    if (onChainPlayers.length != gangwarSettings.maxNumberOfPlayers) {
-      throw Error("Game can only be started when all players have joined");
-    }
+  const onChainPlayers = await fetchPlayerRecords(privateKey, viewKey, simulationId);
+  if (onChainPlayers.length != gangwarSettings.maxNumberOfPlayers) {
+    throw Error("Game can only be started when all players have joined");
+  }
 
-    // Sort the players by strength
-    for (let i = 0; i < players.length; i++) {
-      for (let j = 0; j < players.length - i - 1; j++) {
-        if (players[j].char.primaryStats.strength < players[j + 1].char.primaryStats.strength) {
-          const temp = players[j];
-          players[j] = players[j + 1];
-          players[j + 1] = temp;
-        }
+  // Sort the players by strength
+  for (let i = 0; i < onChainPlayers.length; i++) {
+    for (let j = 0; j < onChainPlayers.length - i - 1; j++) {
+      if (onChainPlayers[j].char.primaryStats.strength < onChainPlayers[j + 1].char.primaryStats.strength) {
+        const temp = onChainPlayers[j];
+        onChainPlayers[j] = onChainPlayers[j + 1];
+        onChainPlayers[j + 1] = temp;
       }
     }
+  }
 
-    for (let player of onChainPlayers) {
-      const leoPlayerRecord = js2leo.gangwar.playerRecord(player);
-      const leoPlayerRecordParam = js2leo.stringifyLeoCmdParam(leoPlayerRecord);
-      leoPlayerRecordParams.push(leoPlayerRecordParam);
-    }
-  } else {
-    for (let player of players) {
-      const leoPlayerRecord = js2leo.gangwar.playerRecord(player);
-      const leoPlayerRecordParam = js2leo.stringifyLeoCmdParam(leoPlayerRecord);
-      leoPlayerRecordParams.push(leoPlayerRecordParam);
-    }
+  for (let player of onChainPlayers) {
+    const leoPlayerRecord = js2leo.gangwar.playerRecord(player);
+    const leoPlayerRecordParam = js2leo.stringifyLeoCmdParam(leoPlayerRecord);
+    leoPlayerRecordParams.push(leoPlayerRecordParam);
   }
 
   // console.log(player);
