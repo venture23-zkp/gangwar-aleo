@@ -380,7 +380,7 @@ program gangwar.aleo {
 
         // TODO: Use array when it's available
 
-        if (eligible_player_in_main_team == 0u8 && eligible_player_in_target_team == 0u8) {
+        if (eligible_player_in_main_team == 1u8 && eligible_player_in_target_team == 1u8) {
             // p1 vs p1
             par = physical_attack_sequence(w.main_team.p1, w.target_team.p1, new_random_seed);
             updated_main_team = Team {
@@ -393,7 +393,7 @@ program gangwar.aleo {
                 p2: w.target_team.p2,
                 p3: w.target_team.p3
             };
-        } else if (eligible_player_in_main_team == 0u8 && eligible_player_in_target_team == 1u8) {
+        } else if (eligible_player_in_main_team == 1u8 && eligible_player_in_target_team == 2u8) {
             // p1 vs p2
             par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
             updated_main_team = Team {
@@ -406,7 +406,7 @@ program gangwar.aleo {
                 p2: par.updated_target_character,
                 p3: w.target_team.p3
             };
-        } else if (eligible_player_in_main_team == 0u8 && eligible_player_in_target_team == 2u8) {
+        } else if (eligible_player_in_main_team == 1u8 && eligible_player_in_target_team == 3u8) {
             // p1 vs p3
             par = physical_attack_sequence(w.main_team.p1, w.target_team.p3, new_random_seed);
             updated_main_team = Team {
@@ -419,7 +419,7 @@ program gangwar.aleo {
                 p2: w.target_team.p2,
                 p3: par.updated_target_character
             };
-        } else if (eligible_player_in_main_team == 1u8 && eligible_player_in_target_team == 0u8) {
+        } else if (eligible_player_in_main_team == 2u8 && eligible_player_in_target_team == 1u8) {
             // p2 vs p1
             par = physical_attack_sequence(w.main_team.p2, w.target_team.p1, new_random_seed);
             updated_main_team = Team {
@@ -432,7 +432,7 @@ program gangwar.aleo {
                 p2: w.target_team.p2,
                 p3: w.target_team.p3
             };
-        } else if (eligible_player_in_main_team == 1u8 && eligible_player_in_target_team == 1u8) {
+        } else if (eligible_player_in_main_team == 2u8 && eligible_player_in_target_team == 2u8) {
             // p2 vs p2
             par = physical_attack_sequence(w.main_team.p2, w.target_team.p2, new_random_seed);
             updated_main_team = Team {
@@ -445,9 +445,9 @@ program gangwar.aleo {
                 p2: par.updated_target_character,
                 p3: w.target_team.p3
             };
-        } else if (eligible_player_in_main_team == 1u8 && eligible_player_in_target_team == 2u8) {
+        } else if (eligible_player_in_main_team == 2u8 && eligible_player_in_target_team == 3u8) {
             // p2 vs p3
-            par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+            par = physical_attack_sequence(w.main_team.p2, w.target_team.p3, new_random_seed);
             updated_main_team = Team {
                 p1: w.main_team.p1,
                 p2: par.updated_main_character,
@@ -458,9 +458,9 @@ program gangwar.aleo {
                 p2: w.target_team.p2,
                 p3: par.updated_target_character
             };
-        } else if (eligible_player_in_main_team == 2u8 && eligible_player_in_target_team == 0u8) {
+        } else if (eligible_player_in_main_team == 3u8 && eligible_player_in_target_team == 1u8) {
             // p3 vs p1
-            par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+            par = physical_attack_sequence(w.main_team.p3, w.target_team.p1, new_random_seed);
             updated_main_team = Team {
                 p1: w.main_team.p1,
                 p2: w.main_team.p2,
@@ -471,9 +471,9 @@ program gangwar.aleo {
                 p2: w.target_team.p2,
                 p3: w.target_team.p3
             };
-        } else if (eligible_player_in_main_team == 2u8 && eligible_player_in_target_team == 1u8) {
+        } else if (eligible_player_in_main_team == 3u8 && eligible_player_in_target_team == 2u8) {
             // p3 vs p2
-            par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+            par = physical_attack_sequence(w.main_team.p3, w.target_team.p2, new_random_seed);
             updated_main_team = Team {
                 p1: w.main_team.p1,
                 p2: w.main_team.p2,
@@ -484,13 +484,13 @@ program gangwar.aleo {
                 p2: par.updated_target_character,
                 p3: w.target_team.p3
             };
-        } else if (eligible_player_in_main_team == 2u8 && eligible_player_in_target_team == 2u8) {
+        } else if (eligible_player_in_main_team == 3u8 && eligible_player_in_target_team == 3u8) {
             // p3 vs p3
-            par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+            par = physical_attack_sequence(w.main_team.p3, w.target_team.p3, new_random_seed);
             updated_main_team = Team {
-                p1: par.updated_main_character,
+                p1: w.main_team.p1,
                 p2: w.main_team.p2,
-                p3: w.main_team.p3
+                p3: par.updated_main_character
             };
             updated_target_team = Team {
                 p1: w.target_team.p1,
@@ -984,7 +984,7 @@ program gangwar.aleo {
                 }
             }
         }
-        return eligible_player_index;
+        return eligible_player_index + 1u8;
     }
 
 
