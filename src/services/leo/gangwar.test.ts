@@ -1,6 +1,9 @@
-import { characterSchema, GangwarSettings, Player, War } from "../../types";
+import { GangwarSettings, Player, War } from "../../types";
 import { gangwar } from "./gangwar";
 import { createCharacters } from "../../core/gangwar";
+
+// import { sampleParticipants } from "../../samples/participants";
+import { initialWarRecord } from "../../samples/initialWarRecord";
 
 jest.setTimeout(600000);
 
@@ -16,8 +19,7 @@ describe("Gangwar Service", () => {
     k: "1", // one time signature key
   };
 
-  let playerRecord: Player;
-  let war: War;
+  let updatedWar: War;
 
   it("Create game", async () => {
     const { owner, privateKey, viewKey } = keys;
@@ -71,7 +73,7 @@ describe("Gangwar Service", () => {
     const { signature } = await gangwar.sign(character, sk, k);
 
     const simulationId = 1;
-    playerRecord = await gangwar.joinGame(privateKey, viewKey, simulationId, character, signature);
+    const playerRecord = await gangwar.joinGame(privateKey, viewKey, simulationId, character, signature);
     console.log(JSON.stringify(playerRecord));
   });
 
@@ -80,7 +82,7 @@ describe("Gangwar Service", () => {
     const { owner, privateKey, viewKey } = keys;
     const simulationId = 1;
 
-    war = await gangwar.startGame(privateKey, viewKey, simulationId);
+    const war = await gangwar.startGame(privateKey, viewKey, simulationId);
     console.log(JSON.stringify(war));
   });
 
@@ -88,168 +90,7 @@ describe("Gangwar Service", () => {
     const { owner, privateKey, viewKey } = keys;
     const simulationId = 1;
 
-    let war: War = {
-      owner: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-      simulationId: 1,
-      round: 0,
-      mainTeam: {
-        p1: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-        p2: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-        p3: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-      },
-      targetTeam: {
-        p1: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-        p2: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-        p3: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-      },
-      physicalAttack: {
-        main: 0,
-        target: 0,
-        isDodged: true,
-        isHit: false,
-        isCritical: false,
-        totalCriticalHits: 0,
-        totalNormalHits: 0,
-        totalHits: 0,
-        damage: 0,
-      },
-      _nonce: "5967208642365040317664589798037377633370747933762135825300342793493163170453",
-    };
-
-    const updatedWar = await gangwar.simulate1vs1(privateKey, viewKey, war);
-    war = updatedWar;
+    updatedWar = await gangwar.simulate1vs1(privateKey, viewKey, initialWarRecord);
     console.log(JSON.stringify(updatedWar));
   });
 
@@ -257,166 +98,9 @@ describe("Gangwar Service", () => {
     const { owner, privateKey, viewKey } = keys;
     const simulationId = 1;
 
-    let war: War = {
-      owner: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-      simulationId: 1,
-      round: 0,
-      mainTeam: {
-        p1: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-        p2: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-        p3: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-      },
-      targetTeam: {
-        p1: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-        p2: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-        p3: {
-          nftId: 571,
-          playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-          primaryStats: { strength: 250 },
-          secondaryStats: {
-            health: 851,
-            dodgeChance: 0.4418182373046875,
-            hitChance: 0.10986328125,
-            criticalChance: 0.415557861328125,
-            meleeDamage: 0.777618408203125,
-          },
-          primaryEquipment: {
-            id: 13,
-            type: 2,
-            consumptionRate: 11,
-            criticalChance: 0.0989532470703125,
-            duraAmmo: 123,
-            damage: 188,
-            hitChance: 0.674407958984375,
-            numberOfHits: 5,
-            isBroken: false,
-          },
-        },
-      },
-      physicalAttack: {
-        main: 0,
-        target: 0,
-        isDodged: true,
-        isHit: false,
-        isCritical: false,
-        totalCriticalHits: 0,
-        totalNormalHits: 0,
-        totalHits: 0,
-        damage: 0,
-      },
-      _nonce: "5967208642365040317664589798037377633370747933762135825300342793493163170453",
-    };
+    // let war: War = initialWarRecord;
+    let war: War = updatedWar;
 
-    await gangwar.finishGame(privateKey, viewKey, war);
+    await gangwar.finishGame(privateKey, viewKey, updatedWar);
   });
 });

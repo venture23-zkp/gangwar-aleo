@@ -31,6 +31,8 @@ import {
 import { js2leo } from "../../parsers/js2leo";
 import { leo2js } from "../../parsers/leo2js";
 
+import { samplePlayerRecords } from "../../samples/playerRecords";
+
 const gangwarPath = join(contractsPath, "gangwar");
 
 const createGame = async (
@@ -268,38 +270,7 @@ const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey
     }
     return playerRecords;
   } else {
-    const playerRecords = [];
-    const samplePlayerRecord = {
-      owner: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-      simulationId,
-      char: {
-        nftId: 2423,
-        playerAddr: "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
-        primaryStats: { strength: 221 },
-        secondaryStats: {
-          health: 1509,
-          dodgeChance: 0.4284275577935454,
-          hitChance: 0.13713282978561075,
-          criticalChance: 0.43514152742809187,
-          meleeDamage: 0.42864118410009916,
-        },
-        primaryEquipment: {
-          id: 8,
-          type: 2,
-          consumptionRate: 19,
-          criticalChance: 0.26889448386358433,
-          duraAmmo: 172,
-          damage: 168,
-          hitChance: 0.42232394903486686,
-          numberOfHits: 3,
-          isBroken: false,
-        },
-      },
-      _nonce: "5623229412638486632593736837515090893772292847363797498221203598604445760569",
-    };
-    for (let i = 0; i < settings.maxNumberOfPlayers; i++) {
-      playerRecords.push(samplePlayerRecord);
-    }
+    const playerRecords = samplePlayerRecords;
     return playerRecords;
   }
 
