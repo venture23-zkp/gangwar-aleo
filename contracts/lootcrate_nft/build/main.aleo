@@ -1,4 +1,4 @@
-program leo_nft.aleo;
+program lootcrate_nft_v1.aleo;
 
 struct TokenId:
     data1 as u128;

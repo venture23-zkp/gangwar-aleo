@@ -32,9 +32,8 @@ export const BASE_URL = `localhost:${env.PORT}`;
 export const DELETE_PAYLOAD = { message: "deleted" };
 
 export const programNames = {
-  LEO_NFT: "leo_nft",
+  LOOTCRATE_NFT: "lootcrate_nft",
   GANGWAR: "gangwar" + env.GANGWAR_VERSION,
-  // WEAPON_NFT: "gangwar_weapon_nft" + env.GANGWAR_WEAPON_NFT_VERSION,
 };
 
 export const FEE = 1;

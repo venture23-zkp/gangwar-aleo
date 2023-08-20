@@ -17,48 +17,48 @@ import { contractsPath, fetchUnspentRecords, getRandomAleoScalar, snarkOsFetchMa
 import { js2leo } from "../../parsers/js2leo";
 import { leo2js } from "../../parsers/leo2js";
 
-const nftPath = join(contractsPath, "leo_nft");
+const nftPath = join(contractsPath, "lootcrate_nft");
 
 const getNftCollectionInfo = async (): Promise<CollectionInfo> => {
   if (env.ZK_MODE !== "leo") {
     const totalNftsLeo = await snarkOsFetchMappingValue({
-      appName: programNames.LEO_NFT,
+      appName: programNames.LOOTCRATE_NFT,
       mappingName: "general_settings",
       mappingKey: "0u8",
     });
     const totalNfts = Number(leo2js.u128(totalNftsLeo).toString());
 
     const totalSupplyLeo = await snarkOsFetchMappingValue({
-      appName: programNames.LEO_NFT,
+      appName: programNames.LOOTCRATE_NFT,
       mappingName: "general_settings",
       mappingKey: "1u8",
     });
     const totalSupply = Number(leo2js.u128(totalSupplyLeo).toString());
 
     const symbolLeo = await snarkOsFetchMappingValue({
-      appName: programNames.LEO_NFT,
+      appName: programNames.LOOTCRATE_NFT,
       mappingName: "general_settings",
       mappingKey: "2u8",
     });
     const symbol = leo2js.nft.symbol(symbolLeo);
 
     const baseUriPart0Leo = await snarkOsFetchMappingValue({
-      appName: programNames.LEO_NFT,
+      appName: programNames.LOOTCRATE_NFT,
       mappingName: "general_settings",
       mappingKey: "3u8",
     });
     const baseUriPart1Leo = await snarkOsFetchMappingValue({
-      appName: programNames.LEO_NFT,
+      appName: programNames.LOOTCRATE_NFT,
       mappingName: "general_settings",
       mappingKey: "4u8",
     });
     const baseUriPart2Leo = await snarkOsFetchMappingValue({
-      appName: programNames.LEO_NFT,
+      appName: programNames.LOOTCRATE_NFT,
       mappingName: "general_settings",
       mappingKey: "5u8",
     });
     const baseUriPart3Leo = await snarkOsFetchMappingValue({
-      appName: programNames.LEO_NFT,
+      appName: programNames.LOOTCRATE_NFT,
       mappingName: "general_settings",
       mappingKey: "5u8",
     });
@@ -71,14 +71,14 @@ const getNftCollectionInfo = async (): Promise<CollectionInfo> => {
     const baseURI = leo2js.nft.baseURI(baseUriLeo);
 
     const toggleSettingsLeo = await snarkOsFetchMappingValue({
-      appName: programNames.LEO_NFT,
+      appName: programNames.LOOTCRATE_NFT,
       mappingName: "toggle_settings",
       mappingKey: "0u8",
     });
     const toggleSettings = leo2js.nft.toggleSettings(toggleSettingsLeo);
 
     const mintAllowedBlockLeo = await snarkOsFetchMappingValue({
-      appName: programNames.LEO_NFT,
+      appName: programNames.LOOTCRATE_NFT,
       mappingName: "toggle_settings",
       mappingKey: "1u8",
     });
@@ -127,7 +127,7 @@ const initializeCollection = async (
   await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -149,7 +149,7 @@ const addNft = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, tokenId: s
   await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -168,7 +168,7 @@ const addMinter = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, minter:
   const res = await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -184,7 +184,7 @@ const addMinter = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, minter:
 
 const fetchUnspentNftMintRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<NftMintRecord[]> => {
   const startBlock = 0;
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT, "NFT_mint", startBlock);
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LOOTCRATE_NFT, "NFT_mint", startBlock);
   const unspentNftMintRecords = [];
   for (let record of unspentRecords) {
     try {
@@ -204,7 +204,7 @@ const updateToggleSettings = async (privateKey: LeoPrivateKey, viewKey: LeoViewK
   await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -222,7 +222,7 @@ const setMintBlock = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, mint
   await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -240,7 +240,7 @@ const updateSymbol = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, symb
   await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -260,7 +260,7 @@ const updateBaseURI = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, bas
   await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -279,7 +279,7 @@ const openMint = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise
   const res = await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -292,7 +292,7 @@ const openMint = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise
 
 const fetchUnspentNftClaimRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<NftClaimRecord[]> => {
   const startBlock = 0;
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT, "NFT_claim", startBlock);
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LOOTCRATE_NFT, "NFT_claim", startBlock);
   const unspentNftClaimRecords = [];
   for (let record of unspentRecords) {
     try {
@@ -316,7 +316,7 @@ const mint = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, mintRecord: 
   const res = await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -351,7 +351,7 @@ const claimNFT = async (
   const res = await zkRun({
     privateKey,
     viewKey,
-    appName: programNames.LEO_NFT,
+    appName: programNames.LOOTCRATE_NFT,
     contractPath: nftPath,
     transition,
     params,
@@ -366,7 +366,7 @@ const claimNFT = async (
 
 const fetchUnspentNftRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<NftRecord[]> => {
   const startBlock = 0;
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT, "NFT", startBlock);
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LOOTCRATE_NFT, "NFT", startBlock);
   const unspentNftRecords: NftRecord[] = [];
   for (let record of unspentRecords) {
     try {
