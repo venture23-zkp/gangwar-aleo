@@ -110,24 +110,18 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
   }
 };
 
-// TODO: to check in deployment
 const sign = async (
   character: Character,
   sk: string, // Secret key
   k: string // Nonce for signing
 ): Promise<any> => {
   const transition = "sign";
-  // const leoSk: LeoScalar = leoScalarSchema.parse(sk);
   const leoSk = js2leo.scalar(BigInt(sk));
   const leoK = js2leo.scalar(BigInt(k));
 
-  // TODO: Verify block duration to provide validityTimestamp
-  // May need to convert timestamp to proper block (may not be deterministic)
-  // For now Assume block duration = 1 sec
-  const SECONDS_IN_ONE_DAY = 86400;
-  const VALIDITY_DURATION = 1 * SECONDS_IN_ONE_DAY; // 1 day
+  const BLOCKS_IN_ONE_DAY = 7000; // Considering 13s as block duration
+  const VALIDITY_DURATION = 10 * BLOCKS_IN_ONE_DAY; // 10 days
 
-  // TODO: update variables
   let validTimestamp = 0;
   if (env.ZK_MODE !== "leo") {
     const blockHeight = Number(await networkClient.getLatestHeight());
@@ -141,11 +135,6 @@ const sign = async (
   console.log(leoCharacter);
   let leoCharacterParam = js2leo.stringifyLeoCmdParam(leoCharacter);
 
-  // TODO: search if there's a better approach
-  // Yes. Implement later. Check stringifyLeoCmdParam function
-  if (!leoCharacterParam.startsWith('"') || !leoCharacterParam.endsWith('"')) {
-    leoCharacterParam = '"' + leoCharacterParam + '"';
-  }
   const params = [leoCharacterParam, leoSk, leoK, leoValidityTimestamp];
 
   // console.log("gangwar.ts Trying to create game with ", simulationId);
@@ -273,18 +262,12 @@ const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey
     const playerRecords = samplePlayerRecords;
     return playerRecords;
   }
-
-  // TODO: maybe store startBlock on chain
-  // const startBlock = settings.deadlineToRegister - 1000;
 };
 
 const fetchWarRecord = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number): Promise<any> => {
-  // TODO: add start block to the settings
   const settings = await fetchGangwarSettings(simulationId);
 
-  // TODO: maybe store startBlock on chain
-  // const startBlock = settings.deadlineToRegister - 1000;
-  const startBlock = 250;
+  const startBlock = settings.deadlineToRegister;
   const bracketPattern = warBracketPattern(3, 3);
   const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "War", startBlock, bracketPattern);
   const warRecords = [];
@@ -390,12 +373,7 @@ const simulate1vs1 = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war:
   return warRecord;
 };
 
-const finishGame = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  war: War
-  // TODO: verify return type
-): Promise<any> => {
+const finishGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war: War): Promise<any> => {
   const transition = "finish_game";
 
   const gangwarSettings = await fetchGangwarSettings(war.simulationId);

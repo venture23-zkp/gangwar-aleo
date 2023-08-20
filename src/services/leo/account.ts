@@ -13,7 +13,6 @@ export const create = async () => {
 };
 
 const fetchUnspentCredits = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<any> => {
-  // TODO: add start block to the settings
   console.log("Fetch credit records");
   const startBlock = 0;
   const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, "credits", "credits", startBlock);

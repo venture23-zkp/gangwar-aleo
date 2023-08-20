@@ -154,30 +154,3 @@ export const u16Prob = (value: number): LeoU16 => {
   const parsed = prob("u16", MAX_UINT16, value);
   return leoU16Schema.parse(parsed);
 };
-
-// TODO: rename this to something else
-// export const common = {
-//   field,
-//   scalar,
-//   id,
-//   u8,
-//   u16,
-//   u16Prob,
-//   u32,
-//   u64,
-//   u128,
-//   stringifyLeoCmdParam,
-//   //   character,
-//   signature,
-//   //   playerRecord,
-//   //   team,
-//   // war,
-//   //   warRecord,
-//   symbol,
-//   baseURI,
-//   edition,
-//   tokenId,
-//   toggleSettings,
-//   nftMintRecord,
-//   nftClaimRecord,
-// };

@@ -51,14 +51,12 @@ describe("Gangwar Service", () => {
   });
 
   it("Sign a Character", async () => {
-    const { owner, privateKey, viewKey } = keys;
     const { sk, k } = schnorrKeys;
 
     const character = createCharacters(1, ["Apple"])[0];
     console.log(character);
     console.log(JSON.stringify(character));
 
-    const validityTimestamp = 200; // 100 blocks
     const signature = await gangwar.sign(character, sk, k);
     console.log(signature);
   });
@@ -78,7 +76,6 @@ describe("Gangwar Service", () => {
   });
 
   it("Start the Game", async () => {
-    const PLAYER_COUNT = 6;
     const { owner, privateKey, viewKey } = keys;
     const simulationId = 1;
 

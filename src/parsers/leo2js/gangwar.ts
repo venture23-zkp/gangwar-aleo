@@ -147,8 +147,8 @@ const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
   const totalCriticalHits = u16(damage.total_critical_hits);
   const totalNormalHits = u16(damage.total_normal_hits);
   const res: PhysicalAttack = {
-    main: u8(damage.main), //TODO: convert to nftId
-    target: u8(damage.target), // TODO: convert to nftId
+    main: u8(damage.main),
+    target: u8(damage.target),
     isDodged: bool(damage.is_dodged),
     isHit: damageValue > 0,
     isCritical: bool(damage.is_critical),
