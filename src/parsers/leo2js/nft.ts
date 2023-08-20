@@ -21,6 +21,8 @@ import {
 
 import { u8, u16, u16Prob, u32, u128, bool, group, address, scalar, field } from "./common";
 
+// Take from amazing work by DemoxLabs
+// https://github.com/demox-labs/art-factory
 function bigIntToString(bigIntValue: bigint): string {
   const bytes: number[] = [];
   let tempBigInt = bigIntValue;

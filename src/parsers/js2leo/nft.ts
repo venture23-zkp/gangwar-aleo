@@ -22,6 +22,8 @@ import {
 
 import { u8, u16, u32, u128, group, scalar, privateField, publicField, u16Prob, bool, field } from "./common";
 
+// Take from amazing work by DemoxLabs
+// https://github.com/demox-labs/art-factory
 function getBit(setting: boolean): string {
   return setting ? "1" : "0";
 }
