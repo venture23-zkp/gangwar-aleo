@@ -1,8 +1,8 @@
 // The 'gangwar' program.
 
-import leo_nft.leo;
+import lootcrate_nft_v1.leo;
 
-program gangwar.aleo {
+program gangwar_v1.aleo {
 
     ///////////////////////////////////
     //////////// STRUCTS //////////////
@@ -547,18 +547,18 @@ program gangwar.aleo {
 
     /// 31,422 constraints
     /// 2,028 constraints (add_minter)
-    transition finish_game(w: War, random_number: u16) -> (leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint, leo_nft.leo/NFT_mint ) {
+    transition finish_game(w: War, random_number: u16) -> (lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint ) {
         let (winning_team, losing_team, losing_team_health): (Team, Team, u16) = get_winners(w.main_team, w.target_team, random_number);
 
         // Provide 2 NFTs to each player of the winning team
-        let nft_mint_winner_p1: NFT_mint = leo_nft.leo/add_minter(winning_team.p1.player_addr, 2u8);
-        let nft_mint_winner_p2: NFT_mint = leo_nft.leo/add_minter(winning_team.p2.player_addr, 2u8);
-        let nft_mint_winner_p3: NFT_mint = leo_nft.leo/add_minter(winning_team.p3.player_addr, 2u8);
+        let nft_mint_winner_p1: NFT_mint = lootcrate_nft_v1.leo/add_minter(winning_team.p1.player_addr, 2u8);
+        let nft_mint_winner_p2: NFT_mint = lootcrate_nft_v1.leo/add_minter(winning_team.p2.player_addr, 2u8);
+        let nft_mint_winner_p3: NFT_mint = lootcrate_nft_v1.leo/add_minter(winning_team.p3.player_addr, 2u8);
 
         // Provide 1 NFT to each player of the losing team
-        let nft_mint_loser_p1: NFT_mint = leo_nft.leo/add_minter(losing_team.p1.player_addr, 1u8);
-        let nft_mint_loser_p2: NFT_mint = leo_nft.leo/add_minter(losing_team.p2.player_addr, 1u8);
-        let nft_mint_loser_p3: NFT_mint = leo_nft.leo/add_minter(losing_team.p3.player_addr, 1u8);
+        let nft_mint_loser_p1: NFT_mint = lootcrate_nft_v1.leo/add_minter(losing_team.p1.player_addr, 1u8);
+        let nft_mint_loser_p2: NFT_mint = lootcrate_nft_v1.leo/add_minter(losing_team.p2.player_addr, 1u8);
+        let nft_mint_loser_p3: NFT_mint = lootcrate_nft_v1.leo/add_minter(losing_team.p3.player_addr, 1u8);
 
         return (nft_mint_winner_p1,nft_mint_winner_p2, nft_mint_winner_p3, nft_mint_loser_p1, nft_mint_loser_p2, nft_mint_loser_p3) then finalize(w.simulation_id, w.round, losing_team_health, random_number);
     }
@@ -986,8 +986,5 @@ program gangwar.aleo {
         }
         return eligible_player_index + 1u8;
     }
-
-
-
 
 }

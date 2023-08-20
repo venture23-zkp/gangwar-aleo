@@ -265,8 +265,8 @@ export const deployPrograms = async () => {
   if (!privateKey) return;
 
   const fees = {
-    gangwar_v0: 15,
-    leo_nft: 15,
+    gangwar: 15,
+    lootcrate_nft: 15,
   };
 
   const successfulPrograms: string[] = [];
