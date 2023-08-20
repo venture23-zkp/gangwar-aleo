@@ -18,14 +18,26 @@ interface GangwarController {
 
 export const gangwarController: GangwarController = {
   createGame: async (req, res) => {
-    const { owner, privateKey, viewKey, simulationId, registrationDuration, maxNumberOfPlayers, maxRounds } = req.body;
+    const {
+      owner,
+      privateKey,
+      viewKey,
+      simulationId,
+      registrationDuration,
+      maxNumberOfPlayers,
+      maxRounds,
+      participationLootcrateCount,
+      winnerLootcrateCount,
+    } = req.body;
     const gameSettings = await leo.gangwar.createGame(
       privateKey,
       viewKey,
       simulationId,
       registrationDuration,
       maxNumberOfPlayers,
-      maxRounds
+      maxRounds,
+      participationLootcrateCount,
+      winnerLootcrateCount
     );
     logger.info(gameSettings);
     res.send({ gameSettings });

@@ -7,6 +7,8 @@ export const gangwarSettingsLeoSchema = z.object({
   deadline_to_register: leoU32Schema,
   max_number_of_players: leoU8Schema,
   max_rounds: leoU8Schema,
+  participation_lootcrate_count: leoU8Schema,
+  winner_lootcrate_count: leoU8Schema,
   registered_players: leoU8Schema,
   random_number: leoU16Schema,
 });
@@ -18,6 +20,8 @@ export const gangwarSettingsSchema = z.object({
   deadlineToRegister: z.number().int(),
   maxNumberOfPlayers: z.number().int(),
   maxRounds: z.number().int(),
+  participationLootcrateCount: z.number().int(),
+  winnerLootcrateCount: z.number().int(),
   registeredPlayers: z.number().int(),
   randomNumber: z.number(),
 });

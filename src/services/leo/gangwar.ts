@@ -42,7 +42,9 @@ const createGame = async (
   simulationId: number,
   registrationDuration: number,
   maxNumberOfPlayers: number,
-  maxRounds: number
+  maxRounds: number,
+  participationLootcrateCount: number,
+  winnerLootcrateCount: number
 ): Promise<GangwarSettings> => {
   const transition = "create_game";
 
@@ -50,7 +52,16 @@ const createGame = async (
   const leoRegistrationDuration = js2leo.u32(registrationDuration);
   const leoMaxNumberOfPlayers = js2leo.u8(maxNumberOfPlayers);
   const leoGameLoopCount = js2leo.u8(maxRounds);
-  const params = [leoSimulationId, leoRegistrationDuration, leoMaxNumberOfPlayers, leoGameLoopCount];
+  const leoParticipationLootcrateCount = js2leo.u8(participationLootcrateCount);
+  const leoWinnerLootcrateCount = js2leo.u8(winnerLootcrateCount);
+  const params = [
+    leoSimulationId,
+    leoRegistrationDuration,
+    leoMaxNumberOfPlayers,
+    leoGameLoopCount,
+    leoParticipationLootcrateCount,
+    leoWinnerLootcrateCount,
+  ];
 
   console.log("gangwar.ts Trying to create game with ", simulationId, programNames.GANGWAR);
   await zkRun({
@@ -86,7 +97,6 @@ const estimateWarStartTime = async (startBlockHeight: number): Promise<number> =
 
 const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettings> => {
   const leoSimulationId = js2leo.u32(simulationId);
-  const EXPECTED_BLOCK_DURATION = 2 * 1_000; // 2 seconds
   if (env.ZK_MODE !== "leo") {
     const res = await snarkOsFetchMappingValue({
       appName: programNames.GANGWAR,
@@ -105,6 +115,8 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
       deadlineToRegister: 1000,
       maxNumberOfPlayers: 6,
       maxRounds: 10,
+      participationLootcrateCount: 1,
+      winnerLootcrateCount: 1,
       registeredPlayers: 1,
       randomNumber: Math.round(Math.random() * (Math.pow(2, 16) - 1)),
     };
@@ -380,13 +392,15 @@ const finishGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war: W
 
   const gangwarSettings = await fetchGangwarSettings(war.simulationId);
   const leoRandomSeed = js2leo.u16(gangwarSettings.randomNumber);
+  const leoParticipationLootcrateCount = js2leo.u8(gangwarSettings.participationLootcrateCount);
+  const leoWinnerLootcrateCount = js2leo.u8(gangwarSettings.winnerLootcrateCount);
   console.log(leoRandomSeed);
 
   const leoWarRecord = js2leo.gangwar.warRecord(war);
 
   const leoWarRecordParam = js2leo.stringifyLeoCmdParam(leoWarRecord);
 
-  const params = [leoWarRecordParam, leoRandomSeed];
+  const params = [leoWarRecordParam, leoParticipationLootcrateCount, leoWinnerLootcrateCount, leoRandomSeed];
 
   // console.log("gangwar.ts Joining game ", simulationId);
   await zkRun({

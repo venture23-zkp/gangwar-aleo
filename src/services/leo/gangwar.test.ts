@@ -27,6 +27,8 @@ describe("Gangwar Service", () => {
     const registrationDuration = 1000;
     const maxNumberOfPlayers = 10;
     const maxRounds = 10;
+    const participationLootcrateCount = 1;
+    const winnerLootcrateCount = 1;
 
     const settings: GangwarSettings = await gangwar.createGame(
       privateKey,
@@ -34,7 +36,9 @@ describe("Gangwar Service", () => {
       simulationId,
       registrationDuration,
       maxNumberOfPlayers,
-      maxRounds
+      maxRounds,
+      participationLootcrateCount,
+      winnerLootcrateCount
     );
   });
 

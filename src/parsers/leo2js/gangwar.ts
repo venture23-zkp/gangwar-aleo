@@ -110,6 +110,8 @@ const settings = (record: Record<string, unknown>): GangwarSettings => {
     deadlineToRegister: u32(parsed.deadline_to_register),
     maxNumberOfPlayers: u8(parsed.max_number_of_players),
     maxRounds: u8(parsed.max_rounds),
+    participationLootcrateCount: u8(parsed.participation_lootcrate_count),
+    winnerLootcrateCount: u8(parsed.winner_lootcrate_count),
     registeredPlayers: u8(parsed.registered_players),
     randomNumber: u16(parsed.random_number),
   };

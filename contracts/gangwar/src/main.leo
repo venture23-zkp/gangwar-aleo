@@ -51,6 +51,8 @@ program gangwar_v1.aleo {
         deadline_to_register: u32,
         max_number_of_players: u8,
         max_rounds: u8,
+        participation_lootcrate_count: u8,
+        winner_lootcrate_count: u8,
         registered_players: u8,
         random_number: u16
     }
@@ -130,15 +132,15 @@ program gangwar_v1.aleo {
     ///////////////////////////////////
 
     /// 8 constraints
-    transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8) {
+    transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8, participation_lootcrate_count: u8, winner_lootcrate_count: u8) {
         assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
         // TODO: add other asserts
         // 1. Check if the time is sufficient for other to join
         // 2. Check if the max_number_of_players is upto how much we support
-        return then finalize(simulation_id, registration_time, max_number_of_players, max_rounds);
+        return then finalize(simulation_id, registration_time, max_number_of_players, max_rounds, participation_lootcrate_count, winner_lootcrate_count);
     }
 
-    finalize create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8) {
+    finalize create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8, participation_lootcrate_count: u8, winner_lootcrate_count: u8) {
         // Ensure game with same simulation_id has not been created previously
         let game_exists: bool = Mapping::contains(gangwar_settings, simulation_id);
         assert(!game_exists);
@@ -150,6 +152,8 @@ program gangwar_v1.aleo {
             deadline_to_register,
             max_number_of_players,
             max_rounds,
+            participation_lootcrate_count,
+            winner_lootcrate_count,
             registered_players: 0u8,
             random_number
         };
@@ -178,6 +182,8 @@ program gangwar_v1.aleo {
             deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             max_rounds: settings.max_rounds,
+            participation_lootcrate_count: settings.participation_lootcrate_count,
+            winner_lootcrate_count: settings.winner_lootcrate_count,
             registered_players: settings.registered_players + 1u8,
             random_number: settings.random_number,
         };
@@ -241,6 +247,8 @@ program gangwar_v1.aleo {
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             max_rounds: settings.max_rounds,
+            participation_lootcrate_count: settings.participation_lootcrate_count,
+            winner_lootcrate_count: settings.winner_lootcrate_count,
             registered_players: settings.registered_players + 1u8,
             random_number,
         };
@@ -330,6 +338,8 @@ program gangwar_v1.aleo {
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             max_rounds: settings.max_rounds,
+            participation_lootcrate_count: settings.participation_lootcrate_count,
+            winner_lootcrate_count: settings.winner_lootcrate_count,
             registered_players: settings.registered_players,
             random_number,
         };
@@ -539,6 +549,8 @@ program gangwar_v1.aleo {
             deadline_to_register: settings.deadline_to_register,
             max_number_of_players: settings.max_number_of_players,
             max_rounds: settings.max_rounds,
+            participation_lootcrate_count: settings.participation_lootcrate_count,
+            winner_lootcrate_count: settings.winner_lootcrate_count,
             registered_players: settings.registered_players,
             random_number,
         };
@@ -547,23 +559,24 @@ program gangwar_v1.aleo {
 
     /// 31,422 constraints
     /// 2,028 constraints (add_minter)
-    transition finish_game(w: War, random_number: u16) -> (lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint ) {
+    transition finish_game(w: War, participation_lootcrate_count: u8, winner_lootcrate_count: u8, random_number: u16) -> (lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint, lootcrate_nft_v1.leo/NFT_mint ) {
         let (winning_team, losing_team, losing_team_health): (Team, Team, u16) = get_winners(w.main_team, w.target_team, random_number);
 
-        // Provide 2 NFTs to each player of the winning team
-        let nft_mint_winner_p1: NFT_mint = lootcrate_nft_v1.leo/add_minter(winning_team.p1.player_addr, 2u8);
-        let nft_mint_winner_p2: NFT_mint = lootcrate_nft_v1.leo/add_minter(winning_team.p2.player_addr, 2u8);
-        let nft_mint_winner_p3: NFT_mint = lootcrate_nft_v1.leo/add_minter(winning_team.p3.player_addr, 2u8);
-
         // Provide 1 NFT to each player of the losing team
-        let nft_mint_loser_p1: NFT_mint = lootcrate_nft_v1.leo/add_minter(losing_team.p1.player_addr, 1u8);
-        let nft_mint_loser_p2: NFT_mint = lootcrate_nft_v1.leo/add_minter(losing_team.p2.player_addr, 1u8);
-        let nft_mint_loser_p3: NFT_mint = lootcrate_nft_v1.leo/add_minter(losing_team.p3.player_addr, 1u8);
+        let nft_mint_loser_p1: NFT_mint = lootcrate_nft_v1.leo/add_minter(losing_team.p1.player_addr, participation_lootcrate_count);
+        let nft_mint_loser_p2: NFT_mint = lootcrate_nft_v1.leo/add_minter(losing_team.p2.player_addr, participation_lootcrate_count);
+        let nft_mint_loser_p3: NFT_mint = lootcrate_nft_v1.leo/add_minter(losing_team.p3.player_addr, participation_lootcrate_count);
 
-        return (nft_mint_winner_p1,nft_mint_winner_p2, nft_mint_winner_p3, nft_mint_loser_p1, nft_mint_loser_p2, nft_mint_loser_p3) then finalize(w.simulation_id, w.round, losing_team_health, random_number);
+        let total_lootcrate_count: u8 = participation_lootcrate_count + winner_lootcrate_count;
+        let nft_mint_winner_p1: NFT_mint = lootcrate_nft_v1.leo/add_minter(winning_team.p1.player_addr, total_lootcrate_count);
+        let nft_mint_winner_p2: NFT_mint = lootcrate_nft_v1.leo/add_minter(winning_team.p2.player_addr, total_lootcrate_count);
+        let nft_mint_winner_p3: NFT_mint = lootcrate_nft_v1.leo/add_minter(winning_team.p3.player_addr, total_lootcrate_count);
+
+
+        return (nft_mint_winner_p1,nft_mint_winner_p2, nft_mint_winner_p3, nft_mint_loser_p1, nft_mint_loser_p2, nft_mint_loser_p3) then finalize(w.simulation_id, w.round, losing_team_health, participation_lootcrate_count, winner_lootcrate_count, random_number);
     }
 
-    finalize finish_game(simulation_id: u32, round: u8, min_health: u16, initial_random_seed: u16) {
+    finalize finish_game(simulation_id: u32, round: u8, min_health: u16, participation_lootcrate_count: u8, winner_lootcrate_count: u8, initial_random_seed: u16)  {
         let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
 
         // Ensure that either max rounds have reached
@@ -573,16 +586,8 @@ program gangwar_v1.aleo {
         // Ensure same random number is used  
         assert_eq(initial_random_seed, settings.random_number);
 
-        // Update the settings with new random number
-        let updated_settings: GangwarSettings = GangwarSettings {
-            created_at: settings.created_at,
-            deadline_to_register: settings.deadline_to_register,
-            max_number_of_players: settings.max_number_of_players,
-            max_rounds: settings.max_rounds,
-            registered_players: settings.registered_players,
-            random_number: settings.random_number,
-        };
-        Mapping::set(gangwar_settings, simulation_id, updated_settings);
+        assert_eq(settings.participation_lootcrate_count, participation_lootcrate_count);
+        assert_eq(settings.winner_lootcrate_count, winner_lootcrate_count);
 
     }
 
