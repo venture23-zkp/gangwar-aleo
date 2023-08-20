@@ -21,6 +21,7 @@ import {
   contractsPath,
   fetchUnspentRecords,
   getLatestHeight,
+  getRandomAleoScalar,
   leoRun,
   networkClient,
   parseRecordString,
@@ -112,12 +113,13 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
 
 const sign = async (
   character: Character,
-  sk: string, // Secret key
-  k: string // Nonce for signing
+  sk: string // Secret key
 ): Promise<any> => {
   const transition = "sign";
   const leoSk = js2leo.scalar(BigInt(sk));
-  const leoK = js2leo.scalar(BigInt(k));
+
+  const k = getRandomAleoScalar(); // Random signing nonce
+  const leoK = js2leo.scalar(k);
 
   const BLOCKS_IN_ONE_DAY = 7000; // Considering 13s as block duration
   const VALIDITY_DURATION = 10 * BLOCKS_IN_ONE_DAY; // 10 days

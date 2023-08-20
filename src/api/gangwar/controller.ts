@@ -43,7 +43,7 @@ export const gangwarController: GangwarController = {
   },
   sign: async (req, res) => {
     const { character, sk, k } = req.body;
-    const signature = await leo.gangwar.sign(character, sk, k);
+    const signature = await leo.gangwar.sign(character, sk);
     res.send({ signature });
   },
   joinGame: async (req, res) => {

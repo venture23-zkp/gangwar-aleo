@@ -16,7 +16,6 @@ describe("Gangwar Service", () => {
 
   const schnorrKeys = {
     sk: "2", // secret key
-    k: "1", // one time signature key
   };
 
   let updatedWar: War;
@@ -51,24 +50,24 @@ describe("Gangwar Service", () => {
   });
 
   it("Sign a Character", async () => {
-    const { sk, k } = schnorrKeys;
+    const { sk } = schnorrKeys;
 
     const character = createCharacters(1, ["Apple"])[0];
     console.log(character);
     console.log(JSON.stringify(character));
 
-    const signature = await gangwar.sign(character, sk, k);
+    const signature = await gangwar.sign(character, sk);
     console.log(signature);
   });
 
   it("Join a Game", async () => {
     const { owner, privateKey, viewKey } = keys;
-    const { sk, k } = schnorrKeys;
+    const { sk } = schnorrKeys;
 
     const character = createCharacters(1, ["Apple"])[0];
 
     const validityTimestamp = 200; // 100 blocks
-    const { signature } = await gangwar.sign(character, sk, k);
+    const { signature } = await gangwar.sign(character, sk);
 
     const simulationId = 1;
     const playerRecord = await gangwar.joinGame(privateKey, viewKey, simulationId, character, signature);

@@ -12,7 +12,7 @@ import {
   NftRecord,
   ToggleSettings,
 } from "../../types";
-import { contractsPath, fetchUnspentRecords, snarkOsFetchMappingValue, zkRun } from "./util";
+import { contractsPath, fetchUnspentRecords, getRandomAleoScalar, snarkOsFetchMappingValue, zkRun } from "./util";
 
 import { js2leo } from "../../parsers/js2leo";
 import { leo2js } from "../../parsers/leo2js";
@@ -269,24 +269,11 @@ const updateBaseURI = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, bas
   return getNftCollectionInfo();
 };
 
-const getRandomLeoHidingNonce = () => {
-  const EDWARDS_BLS12_SCALAR_FIELD = "2111115437357092606062206234695386632838870926408408195193685246394721360383";
-  let hidingNonce = EDWARDS_BLS12_SCALAR_FIELD;
-
-  while (Number(hidingNonce) >= Number(EDWARDS_BLS12_SCALAR_FIELD)) {
-    var buf = new Uint32Array(8);
-    const hidingNonceArray = crypto.getRandomValues(buf);
-    hidingNonce = hidingNonceArray.join("");
-  }
-
-  const leoHidingNonce = js2leo.scalar(BigInt(hidingNonce));
-  return leoHidingNonce;
-};
-
 const openMint = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<NftClaimRecord> => {
   const transition = "open_mint";
 
-  const leoHidingNonce = getRandomLeoHidingNonce();
+  const hidingNonce = getRandomAleoScalar();
+  const leoHidingNonce = js2leo.scalar(hidingNonce);
   const params = [leoHidingNonce];
 
   const res = await zkRun({
@@ -322,11 +309,10 @@ const mint = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, mintRecord: 
   const leoMintRecord = js2leo.nft.nftMintRecord(mintRecord);
   const leoMintRecordParam = js2leo.stringifyLeoCmdParam(leoMintRecord);
 
-  const leoHidingNonce = getRandomLeoHidingNonce();
+  const hidingNonce = getRandomAleoScalar();
+  const leoHidingNonce = js2leo.scalar(hidingNonce);
   const params = [leoMintRecordParam, leoHidingNonce];
 
-  // Note: this results in two different records but only first one is caught
-  // TODO: fix this in zkRun code itself; might need to return array of Records (a bit tricky?)
   const res = await zkRun({
     privateKey,
     viewKey,
