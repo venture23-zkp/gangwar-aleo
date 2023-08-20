@@ -9,6 +9,7 @@ import {
   LeoViewKey,
   NftClaimRecord,
   NftMintRecord,
+  NftRecord,
   ToggleSettings,
 } from "../../types";
 import { contractsPath, fetchUnspentRecords, snarkOsFetchMappingValue, zkRun } from "./util";
@@ -112,7 +113,6 @@ const initializeCollection = async (
   total: number,
   symbol: string,
   baseURI: string
-  // TODO: verify return type
 ): Promise<CollectionInfo> => {
   const transition = "initialize_collection";
 
@@ -136,13 +136,7 @@ const initializeCollection = async (
   return getNftCollectionInfo();
 };
 
-const addNft = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  tokenId: string,
-  edition: string
-  // TODO: verify return type
-): Promise<any> => {
+const addNft = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, tokenId: string, edition: string): Promise<CollectionInfo> => {
   const transition = "add_nft";
 
   const leoTokenId = js2leo.nft.tokenId(tokenId);
@@ -164,13 +158,7 @@ const addNft = async (
   return getNftCollectionInfo();
 };
 
-const addMinter = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  minter: LeoAddress,
-  amount: number
-  // TODO: verify return type
-): Promise<any> => {
+const addMinter = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, minter: LeoAddress, amount: number): Promise<CollectionInfo> => {
   const transition = "add_minter";
 
   const leoAmount = js2leo.u8(amount);
@@ -187,18 +175,14 @@ const addMinter = async (
     fee: FEE,
   });
 
-  // TODO: do not parse the record as it may not belongs to the minter and not to us
-  const nftMintRecord = leo2js.nft.nftMintRecord(res);
-  console.log(nftMintRecord);
+  // Note: do not parse the record as it may not belongs to the minter and not to us
+  // const nftMintRecord = leo2js.nft.nftMintRecord(res);
+  // console.log(nftMintRecord);
   // return nftMintRecord;
   return getNftCollectionInfo();
 };
 
-const fetchUnspentNftMintRecords = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey
-  // TODO: verify return type
-): Promise<any> => {
+const fetchUnspentNftMintRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<NftMintRecord[]> => {
   const startBlock = 0;
   const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT, "NFT_mint", startBlock);
   const unspentNftMintRecords = [];
@@ -211,12 +195,7 @@ const fetchUnspentNftMintRecords = async (
   return unspentNftMintRecords;
 };
 
-const updateToggleSettings = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  settings: ToggleSettings
-  // TODO: verify return type
-): Promise<any> => {
+const updateToggleSettings = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, settings: ToggleSettings): Promise<CollectionInfo> => {
   const transition = "update_toggle_settings";
 
   const leoUpdatedToggleSettings = js2leo.nft.toggleSettings(settings);
@@ -234,12 +213,7 @@ const updateToggleSettings = async (
   return getNftCollectionInfo();
 };
 
-const setMintBlock = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  mintBlock: number
-  // TODO: verify return type
-): Promise<any> => {
+const setMintBlock = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, mintBlock: number): Promise<CollectionInfo> => {
   const transition = "set_mint_block";
 
   const leoMintBlock = js2leo.u32(mintBlock);
@@ -257,12 +231,7 @@ const setMintBlock = async (
   return getNftCollectionInfo();
 };
 
-const updateSymbol = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  symbol: string
-  // TODO: verify return type
-): Promise<any> => {
+const updateSymbol = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, symbol: string): Promise<CollectionInfo> => {
   const transition = "update_symbol";
 
   const leoSymbol = js2leo.nft.symbol(symbol);
@@ -280,12 +249,7 @@ const updateSymbol = async (
   return getNftCollectionInfo();
 };
 
-const updateBaseURI = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  baseURI: string
-  // TODO: verify return type
-): Promise<any> => {
+const updateBaseURI = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, baseURI: string): Promise<CollectionInfo> => {
   const transition = "update_base_uri";
 
   const leoBaseURI = js2leo.nft.baseURI(baseURI);
@@ -319,11 +283,7 @@ const getRandomLeoHidingNonce = () => {
   return leoHidingNonce;
 };
 
-const openMint = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey
-  // TODO: verify return type
-): Promise<any> => {
+const openMint = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<NftClaimRecord> => {
   const transition = "open_mint";
 
   const leoHidingNonce = getRandomLeoHidingNonce();
@@ -343,11 +303,7 @@ const openMint = async (
   return nftClaimRecord;
 };
 
-const fetchUnspentNftClaimRecords = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey
-  // TODO: verify return type
-): Promise<any> => {
+const fetchUnspentNftClaimRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<NftClaimRecord[]> => {
   const startBlock = 0;
   const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT, "NFT_claim", startBlock);
   const unspentNftClaimRecords = [];
@@ -360,12 +316,7 @@ const fetchUnspentNftClaimRecords = async (
   return unspentNftClaimRecords;
 };
 
-const mint = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey,
-  mintRecord: NftMintRecord
-  // TODO: verify return type
-): Promise<any> => {
+const mint = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, mintRecord: NftMintRecord): Promise<NftMintRecord> => {
   const transition = "mint";
 
   const leoMintRecord = js2leo.nft.nftMintRecord(mintRecord);
@@ -396,8 +347,7 @@ const claimNFT = async (
   claimRecord: NftClaimRecord,
   tokenId: string,
   edition: string
-  // TODO: verify return type
-): Promise<any> => {
+): Promise<NftRecord> => {
   const transition = "claim_nft";
 
   const leoClaimRecord = js2leo.nft.nftClaimRecord(claimRecord);
@@ -428,17 +378,13 @@ const claimNFT = async (
   return nftMintRecord;
 };
 
-const fetchUnspentNftRecords = async (
-  privateKey: LeoPrivateKey,
-  viewKey: LeoViewKey
-  // TODO: verify return type
-): Promise<any> => {
+const fetchUnspentNftRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<NftRecord[]> => {
   const startBlock = 0;
   const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.LEO_NFT, "NFT", startBlock);
-  const unspentNftRecords = [];
+  const unspentNftRecords: NftRecord[] = [];
   for (let record of unspentRecords) {
     try {
-      const nftRecord = leo2js.nft.nftRecord(record);
+      const nftRecord: NftRecord = leo2js.nft.nftRecord(record);
       unspentNftRecords.push(nftRecord);
     } catch {}
   }
