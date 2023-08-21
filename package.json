@@ -1,0 +1,61 @@
+{
+  "name": "zkgaming-toolkit",
+  "packageManager": "yarn@3.2.2",
+  "author": "Kryha",
+  "description": "Toolkit for game development on the Aleo platform",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": "^18.16.0"
+  },
+  "files": [
+    "build"
+  ],
+  "main": "build/src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://Kryha-io@dev.azure.com/Kryha-io/Aleo/_git/zkgaming-toolkit"
+  },
+  "scripts": {
+    "build": "yarn clean && tsc",
+    "clean": "rm -rf build/",
+    "deploy": "DEPLOY_PROGRAMS=true DEPLOY_PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH yarn start",
+    "start": "NODE_ENV=development ZK_MODE=testnet_local yarn build && NODE_PATH=. node --enable-source-maps build/src/index.js",
+    "test": "NODE_ENV=development ZK_MODE=leo && NODE_PATH=. jest"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.3",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/express-serve-static-core": "^4.17.30",
+    "@types/jest": "^28.1.7",
+    "@types/morgan": "^1.9.3",
+    "@types/node": "^18.7.6",
+    "@types/source-map-support": "^0.5.6",
+    "@types/supertest": "^2.0.12",
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
+    "eslint": "^8.21.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "jest": "^28.1.3",
+    "supertest": "^6.2.4",
+    "ts-jest": "^28.0.8",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@aleohq/wasm": "^0.4.0",
+    "@types/axios": "^0.14.0",
+    "axios": "^1.3.4",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-async-handler": "^1.2.0",
+    "helmet": "^5.1.1",
+    "morgan": "^1.10.0",
+    "source-map-support": "^0.5.21",
+    "winston": "^3.8.1",
+    "zod": "^3.18.0"
+  }
+}

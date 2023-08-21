@@ -1,0 +1,19 @@
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: zk-gaming-tk
+build:
+  tagPolicy:
+    sha256: {}
+  local:
+    concurrency: 0
+  artifacts:
+    - image: zk-gaming-tk
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  kustomize:
+    paths:
+      - ./deployment/local
+deploy:
+  kubectl: {}

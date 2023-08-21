@@ -1,0 +1,5 @@
+[create_game]
+simulation_id: u32 = 1u32;
+deadline_to_register: u32 = 1u32;
+max_number_of_players: u8 = 2u8;
+no_of_events: u8 = 1u8

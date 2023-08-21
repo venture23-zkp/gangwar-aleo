@@ -1,0 +1,5 @@
+resources:
+  - deployments/toolkit.yaml
+  - services/toolkit.yaml
+generatorOptions:
+  disableNameSuffixHash: true

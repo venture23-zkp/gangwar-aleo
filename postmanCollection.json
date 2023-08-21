@@ -1,0 +1,991 @@
+{
+	"info": {
+		"_postman_id": "1521507d-b1c3-4c78-80f5-c587bfe17fdf",
+		"name": "GangwarAleo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13941134"
+	},
+	"item": [
+		{
+			"name": "Account",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/account/create",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"account",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/account/fetch",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"account",
+								"fetch"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"testMessage\",\n    \"playerSign\": \"testSignature\",\n    \"pubAddress\": \"testPubAddress\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5001/account/verify",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5001",
+							"path": [
+								"account",
+								"verify"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GangwarEngineAleo",
+			"item": [
+				{
+					"name": "start-game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"simulationId\": 1,\n    \"randomSeed\": 1,\n    \"teamA\": {\n        \"player_1\": {\n            \"nftId\": 1,\n            \"primaryStats\": {\n                \"strength\": 171\n            },\n            \"secondaryStats\": {\n                \"health\": 1031,\n                \"dodgeChance\": 0.48332156472430887,\n                \"hitChance\": 0.023742040222151872,\n                \"criticalChance\": 0.4923824798284985,\n                \"meleeDamage\": 0.7201290420616357\n            },\n            \"primaryEquipment\": {\n                \"id\": 2,\n                \"type\": 1,\n                \"consumptionRate\": 20,\n                \"criticalChance\": 0.08639998503564172,\n                \"damage\": 113,\n                \"duraAmmo\": 129,\n                \"hitChance\": 0.6244303078022932,\n                \"numberOfHits\": 2,\n                \"isBroken\": false\n            }\n        }\n    },\n    \"teamB\": {\n        \"player_1\": {\n            \"nftId\": 2,\n            \"primaryStats\": {\n                \"strength\": 150\n            },\n            \"secondaryStats\": {\n                \"health\": 912,\n                \"dodgeChance\": 0.3365832203679933,\n                \"hitChance\": 0.2028213439754054,\n                \"criticalChance\": 0.3616060325269269,\n                \"meleeDamage\": 0.9246248365355854\n            },\n            \"primaryEquipment\": {\n                \"id\": 3,\n                \"type\": 1,\n                \"consumptionRate\": 13,\n                \"criticalChance\": 0.037980270725820706,\n                \"damage\": 193,\n                \"duraAmmo\": 110,\n                \"hitChance\": 0.43222659209231656,\n                \"numberOfHits\": 4,\n                \"isBroken\": false\n            }\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/start-game",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"start-game"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "initialize",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/initialize",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"initialize"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "game-loop",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"randomSeed\": 1,\n    \"war\": {\n        \"owner\": \"aleo15g9c69urtdhvfml0vjl8px07txmxsy454urhgzk57szmcuttpqgq5cvcdy.private\",\n        \"simulationId\": \"1u128.private\",\n        \"round\": 0,\n        \"mainTeam\": {\n            \"player_1\": {\n                \"nftId\": 2,\n                \"primaryStats\": {\n                    \"strength\": 150\n                },\n                \"secondaryStats\": {\n                    \"health\": 912,\n                    \"dodgeChance\": 0.33658322036799204,\n                    \"hitChance\": 0.20282134397540635,\n                    \"criticalChance\": 0.3616060325269258,\n                    \"meleeDamage\": 0.9246248365355842\n                },\n                \"primaryEquipment\": {\n                    \"id\": 3,\n                    \"type\": 1,\n                    \"consumptionRate\": 13,\n                    \"criticalChance\": 0.03798027072581988,\n                    \"duraAmmo\": 110,\n                    \"damage\": 193,\n                    \"hitChance\": 0.4322265920923158,\n                    \"numberOfHits\": 4,\n                    \"isBroken\": false\n                }\n            }\n        },\n        \"targetTeam\": {\n            \"player_1\": {\n                \"nftId\": 1,\n                \"primaryStats\": {\n                    \"strength\": 171\n                },\n                \"secondaryStats\": {\n                    \"health\": 1031,\n                    \"dodgeChance\": 0.48332156472430843,\n                    \"hitChance\": 0.023742040222152015,\n                    \"criticalChance\": 0.4923824798284971,\n                    \"meleeDamage\": 0.7201290420616354\n                },\n                \"primaryEquipment\": {\n                    \"id\": 2,\n                    \"type\": 1,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.08639998503564235,\n                    \"duraAmmo\": 129,\n                    \"damage\": 113,\n                    \"hitChance\": 0.6244303078022927,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            }\n        },\n        \"physicalAttack\": {\n            \"isDodged\": true,\n            \"isHit\": false,\n            \"isCritical\": false,\n            \"damage\": 0\n        },\n        \"_nonce\": \"5086162772567412515232001322470490179970570997641284695294720213177820891667group.public\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{port}}/gangwar/game-loop",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"gangwar",
+								"game-loop"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GangwarAleo",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"simulationId\": 3,\n    \"registrationDuration\": 1500,\n    \"maxNumberOfPlayers\": 6,\n    \"maxRounds\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/create",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"simulationId\": 2,\n    \"registrationDuration\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/update/registrationTime",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"update",
+								"registrationTime"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sign",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"character\": {\n        \"nftId\": 1857,\n        \"playerAddr\": \"{{owner}}\",\n        \"primaryStats\": {\n            \"strength\": 242\n        },\n        \"secondaryStats\": {\n            \"health\": 1213,\n            \"dodgeChance\": 0.391,\n            \"hitChance\": 0.0377,\n            \"criticalChance\": 0.437,\n            \"meleeDamage\": 0.515\n        },\n        \"primaryEquipment\": {\n            \"id\": 10,\n            \"type\": 2,\n            \"consumptionRate\": 20,\n            \"criticalChance\": 0.036,\n            \"damage\": 192,\n            \"duraAmmo\": 136,\n            \"hitChance\": 0.338,\n            \"numberOfHits\": 2,\n            \"isBroken\": false\n        }\n    },\n    \"sk\": {{schnorrSecretKey}},\n    \"k\": {{schnorrNonce}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/sign",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"sign"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "join-game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"simulationId\": 2,\n    \"character\": {\n        \"nftId\": 1857,\n        \"playerAddr\": \"{{owner}}\",\n        \"primaryStats\": {\n            \"strength\": 242\n        },\n        \"secondaryStats\": {\n            \"health\": 1213,\n            \"dodgeChance\": 0.391,\n            \"hitChance\": 0.0377,\n            \"criticalChance\": 0.437,\n            \"meleeDamage\": 0.515\n        },\n        \"primaryEquipment\": {\n            \"id\": 10,\n            \"type\": 2,\n            \"consumptionRate\": 20,\n            \"criticalChance\": 0.036,\n            \"damage\": 192,\n            \"duraAmmo\": 136,\n            \"hitChance\": 0.338,\n            \"numberOfHits\": 2,\n            \"isBroken\": false\n        }\n    },\n    \"signature\": {\n        \"r\": \"1540945439182663264862696551825005342995406165131907382295858612069623286213\",\n        \"s\": \"2436137294094961559012745842157013834606969181973047685562011084807788016928\",\n        \"validityTimestamp\": 86520\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/join",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"join"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "start-game",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"simulationId\": 2,\n    \"players\": [\n        {\n            \"owner\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n            \"simulationId\": 2,\n            \"char\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"_nonce\": \"8073121097448870029798784882618508372560616891194146256829636059894116410344\"\n        },\n        {\n            \"owner\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n            \"simulationId\": 2,\n            \"char\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"_nonce\": \"3831912756915543580716706676949599637157000814286716739346303493868133698817\"\n        },\n        {\n            \"owner\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n            \"simulationId\": 2,\n            \"char\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"_nonce\": \"838684932408133390583066813951176235416935876020157723692770761214385019626\"\n        },\n        {\n            \"owner\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n            \"simulationId\": 2,\n            \"char\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"_nonce\": \"4137990771890440100167930433078270311998181803488438067581780992694974034493\"\n        },\n        {\n            \"owner\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n            \"simulationId\": 2,\n            \"char\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"_nonce\": \"1701959835092759182883836757769921734646576570198358751484446749872485446423\"\n        },\n        {\n            \"owner\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n            \"simulationId\": 2,\n            \"char\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"_nonce\": \"7644232993721413853422503841844152940024013991407711383156756444736876598278\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/start",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"start"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "simulate",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"simulationId\": 1,\n    \"war\": {\n        \"owner\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n        \"simulationId\": 2,\n        \"round\": 1,\n        \"mainTeam\": {\n            \"p1\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"p2\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"p3\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            }\n        },\n        \"targetTeam\": {\n            \"p1\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"p2\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"p3\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            }\n        },\n        \"physicalAttack\": {\n            \"main\": 2,\n            \"target\": 1,\n            \"isDodged\": true,\n            \"isHit\": false,\n            \"isCritical\": false,\n            \"totalCriticalHits\": 0,\n            \"totalNormalHits\": 0,\n            \"totalHits\": 0,\n            \"damage\": 0\n        },\n        \"_nonce\": \"271336389765161333487075472298035950338073071310822017377647993240057841700\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/simulate",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"simulate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "finish",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"simulationId\": 2,\n    \"war\": {\n        \"owner\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n        \"simulationId\": 2,\n        \"round\": 2,\n        \"mainTeam\": {\n            \"p1\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"p2\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"p3\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            }\n        },\n        \"targetTeam\": {\n            \"p1\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"p2\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            },\n            \"p3\": {\n                \"nftId\": 1857,\n                \"playerAddr\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n                \"primaryStats\": {\n                    \"strength\": 242\n                },\n                \"secondaryStats\": {\n                    \"health\": 1213,\n                    \"dodgeChance\": 0.3909971770809491,\n                    \"hitChance\": 0.037705043106736856,\n                    \"criticalChance\": 0.4370031280994888,\n                    \"meleeDamage\": 0.5150072480354009\n                },\n                \"primaryEquipment\": {\n                    \"id\": 10,\n                    \"type\": 2,\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.035996032654306856,\n                    \"duraAmmo\": 136,\n                    \"damage\": 192,\n                    \"hitChance\": 0.33800259403372246,\n                    \"numberOfHits\": 2,\n                    \"isBroken\": false\n                }\n            }\n        },\n        \"physicalAttack\": {\n            \"main\": 2,\n            \"target\": 1,\n            \"isDodged\": true,\n            \"isHit\": false,\n            \"isCritical\": false,\n            \"totalCriticalHits\": 0,\n            \"totalNormalHits\": 0,\n            \"totalHits\": 0,\n            \"damage\": 0\n        },\n        \"_nonce\": \"6776818679392084077314125130864719366793553401076689266313760392282303092057\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/finish",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"finish"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fetch-players",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"simulationId\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/fetch/players",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"fetch",
+								"players"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "fetch-war",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"simulationId\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/fetch/war",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"fetch",
+								"war"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "settings",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"simulationId\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/gangwar/settings",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"gangwar",
+								"settings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GameServer",
+			"item": [
+				{
+					"name": "StargGameManually",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roomId\": \"gangwar#5016636630328\",\n    \"simulationId\": 5016636630328,\n    \"duration\": \"0x23C34600\",\n    \"objectives\": [\n        \"0x1\"\n    ],\n    \"teamA\": [\n        {\n            \"name\": \"GangstaBet #1\",\n            \"nftId\": 1,\n            \"defaultEquipment\": {\n                \"_id\": \"16\",\n                \"name\": \"Knife\",\n                \"equipmentId\": 16,\n                \"imageUrl\": \"https://d3o1y7koafmnju.cloudfront.net/default_equipment_images/16.png\",\n                \"description\": \"A knife to strike your enemies with, even if a GangstaBet is not holding anything they will have a knife to use during a battle.\",\n                \"isSupport\": false,\n                \"type\": \"Melee\",\n                \"stats\": {\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.05,\n                    \"damage\": 35,\n                    \"duraAmmo\": 60,\n                    \"hitChance\": 0.7,\n                    \"numberofHits\": 2\n                },\n                \"properties\": {\n                    \"masteryRequired\": 0\n                }\n            },\n            \"primaryEquipment\": null,\n            \"items\": [\n            ],\n            \"passiveAbilities\": [],\n            \"allAbilities\": [],\n            \"type\": \"CYBORG\",\n            \"primaryStats\": {\n                \"strength\": 2223,\n                \"accuracy\": 316,\n                \"mastery\": 23,\n                \"agility\": 21,\n                \"luck\": 248,\n                \"total\": 1229\n            },\n            \"secondaryStats\": {\n                \"health\": 509,\n                \"speed\": 14,\n                \"duraAmmo\": 0.02,\n                \"dodgeChance\": 0,\n                \"hitChance\": 0.01,\n                \"criticalChance\": 0,\n                \"supportEffectiveness\": 0,\n                \"SupportTriggerChance\": 0,\n                \"meleeDamage\": 0\n            }\n        }\n\n    ],\n    \"teamB\": [\n        {\n            \"name\": \"GangstaBet #3\",\n            \"nftId\": 3,\n            \"defaultEquipment\": {\n                \"_id\": \"2\",\n                \"name\": \"Revolver\",\n                \"equipmentId\": 2,\n                \"imageUrl\": \"https://d3o1y7koafmnju.cloudfront.net/default_equipment_images/2.png\",\n                \"description\": \"Unbranded revolvers - the most common firearm in The Emerald City that can still dish out a ton of damage with their high crit rate.\",\n                \"isSupport\": false,\n                \"type\": \"Range\",\n                \"stats\": {\n                    \"consumptionRate\": 20,\n                    \"criticalChance\": 0.1,\n                    \"damage\": 65,\n                    \"duraAmmo\": 100,\n                    \"hitChance\": 0.55,\n                    \"numberofHits\": 1\n                },\n                \"properties\": {\n                    \"masteryRequired\": 0\n                }\n            },\n            \"primaryEquipment\": null,\n            \"items\": [],\n            \"passiveAbilities\": [],\n            \"allAbilities\": [],\n            \"type\": \"HUMAN\",\n            \"primaryStats\": {\n                \"strength\": 195,\n                \"accuracy\": 280,\n                \"mastery\": 262,\n                \"agility\": 208,\n                \"luck\": 286,\n                \"total\": 1230\n            },\n            \"secondaryStats\": {\n                \"health\": 509,\n                \"speed\": 14,\n                \"duraAmmo\": 0.02,\n                \"dodgeChance\": 0,\n                \"hitChance\": 0.01,\n                \"criticalChance\": 0,\n                \"supportEffectiveness\": 0,\n                \"SupportTriggerChance\": 0,\n                \"meleeDamage\": 0\n            }\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/gangwar/start_simulation_with_manual_payload",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"gangwar",
+								"start_simulation_with_manual_payload"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "NFT",
+			"item": [
+				{
+					"name": "collectionInfo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/collection-info",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"collection-info"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "initializeCollection",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"maxSupply\": 100000,\n    \"symbol\": \"POAP\",\n    \"baseURI\": \"http://POAP\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/initialize-collection",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"initialize-collection"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add NFT",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"tokenId\": \"1\",\n    \"edition\": \"1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/add-nft",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"add-nft"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Minter",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"minter\": \"{{owner}}\",\n    \"amount\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/add-minter",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"add-minter"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Toggle Settings",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"settings\": {\n        \"frozen\": false,\n        \"active\": true,\n        \"whiteList\": true,\n        \"initialized\": true\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/update-toggle-settings",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"update-toggle-settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Set Mint Block",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"mintBlock\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/set-mint-block",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"set-mint-block"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Symbol",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"symbol\": \"U-POAP\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/update-symbol",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"update-symbol"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Base URI",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"baseURI\": \"http://updated-POAP\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/update-baseURI",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"update-baseURI"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Mint",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"mintRecord\": {\n            \"owner\": \"aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px\",\n            \"amount\": 100,\n            \"_nonce\": \"5328633487698925436901568319288215063750924076288150829738018791865779413122\"\n        }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/mint",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"mint"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch NFT Mint Records",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/fetch/nft-mint-records",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"fetch",
+								"nft-mint-records"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch NFT Claim Records",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/nft/fetch/nft-claim-records",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"nft",
+								"fetch",
+								"nft-claim-records"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TestMerge",
+			"item": [
+				{
+					"name": "Mint",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/merge/mint",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"merge",
+								"mint"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/merge/fetch",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"merge",
+								"fetch"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Merge",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"records\": [\n        {\n            \"owner\": \"aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t\",\n            \"amount\": 1,\n            \"msg1\": 0,\n            \"_nonce\": \"507947992700645759319969938188122321816710161238932421097329155432138467198\"\n        },\n        {\n            \"owner\": \"aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t\",\n            \"amount\": 1,\n            \"msg1\": 0,\n            \"_nonce\": \"6293206726326864689318608277112508947930895015346511115859621144670633121895\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/merge/merge",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"merge",
+								"merge"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Increment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"privateKey\": \"{{privateKey}}\",\n    \"viewKey\": \"{{viewKey}}\",\n    \"owner\": \"{{owner}}\",\n    \"record\": {\n        \"owner\": \"aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t\",\n        \"amount\": 1,\n        \"msg1\": 0,\n        \"_nonce\": \"2514611628620403097696105650867053406890174468659925045064515372464270687168\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}:{{aleoGangwarSimulationEnginePort}}/merge/increment",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{aleoGangwarSimulationEnginePort}}",
+							"path": [
+								"merge",
+								"increment"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"program_id\": \"test_merge.aleo\",\n  \"program_function\": \"increment\",\n  \"inputs\": [\n    \"{owner:aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t.private,amount:1u32.private,msg1:1u128.private,_nonce:6293206726326864689318608277112508947930895015346511115859621144670633121895group.public}\"\n  ],\n  \"private_key\": \"APrivateKey1zkpJcSwp6yTqPcsDcsHeoZhhLcm9CTVdZMUVL1LdtNoNvaG\",\n  \"fee\": 1000000\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:4040/testnet3/execute",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "4040",
+					"path": [
+						"testnet3",
+						"execute"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
