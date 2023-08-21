@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { Signature, Address } from "../../aleo-sdk";
+import { stringifyLeoCmdParam } from "../../parsers/js2leo/common";
 
 import { leo } from "../../services";
 import { fetchUnspentRecords, transferCredits } from "../../services/leo/util";
@@ -30,6 +31,7 @@ export const accountController: AccoutController = {
   fetch: async (req, res) => {
     const { privateKey, viewKey, startHeight } = req.body;
     const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, "credits", "credits", startHeight);
-    res.send(unspentRecords);
+    const unspentRecordsInLeo = unspentRecords.map((x) => stringifyLeoCmdParam(x));
+    res.send({ unspentRecords, unspentRecordsInLeo });
   },
 };

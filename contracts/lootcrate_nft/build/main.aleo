@@ -61,7 +61,7 @@ function initialize_collection:
     input r0 as u128.public;
     input r1 as u128.public;
     input r2 as BaseURI.public;
-    assert.eq self.caller aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    assert.eq self.caller aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t;
 
     finalize r0 r1 r2;
 
@@ -86,7 +86,7 @@ finalize initialize_collection:
 function add_nft:
     input r0 as TokenId.public;
     input r1 as scalar.public;
-    assert.eq self.caller aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    assert.eq self.caller aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t;
     hash.bhp256 r0 into r2 as field;    commit.bhp256 r2 r1 into r3 as field;
     finalize r3;
 
@@ -107,7 +107,7 @@ finalize add_nft:
 function add_minter:
     input r0 as address.private;
     input r1 as u8.public;
-    assert.eq self.caller aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    assert.eq self.caller aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t;
     cast r0 r1 into r2 as NFT_mint.record;
     output r2 as NFT_mint.record;
 
@@ -121,7 +121,7 @@ finalize add_minter:
 
 function update_toggle_settings:
     input r0 as u32.public;
-    assert.eq self.caller aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    assert.eq self.caller aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t;
 
     finalize r0;
 
@@ -137,7 +137,7 @@ finalize update_toggle_settings:
 
 function set_mint_block:
     input r0 as u32.public;
-    assert.eq self.caller aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    assert.eq self.caller aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t;
 
     finalize r0;
 
@@ -151,7 +151,7 @@ finalize set_mint_block:
 
 function update_symbol:
     input r0 as u128.public;
-    assert.eq self.caller aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    assert.eq self.caller aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t;
 
     finalize r0;
 
@@ -165,7 +165,7 @@ finalize update_symbol:
 
 function update_base_uri:
     input r0 as BaseURI.public;
-    assert.eq self.caller aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px;
+    assert.eq self.caller aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t;
 
     finalize r0;
 
