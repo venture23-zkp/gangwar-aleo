@@ -1,3 +1,18 @@
+Table of contents
+=================
+
+<!--ts-->
+   * [Gangwars](#gangwars)
+      * [High Level Overview of Gangwars](#high-level-overview-of-gangwars-as-on-other-public-mainstream-chains)
+      * [Scope of Improvement
+](#scope-of-improvement)
+  * [Gangwars on Aleo](#gangwars-on-aleo)
+      * [Major differences in implemention of Gangwars on Aleo as compared to Aleo on other mainstream public chains](#major-differences-in-implemention-of-gangwars-on-aleo-as-compared-to-aleo-on-other-mainstream-public-chains)
+      * [Transitions used
+](#transitions-used)
+      * [Kryha's SDK](#kryhas-sdk)
+<!--te-->
+
 # Gangwars
 [Gangwars](https://war.gangstaverse.co/) is already a successful online game of battle between two teams with five members each currently live on ICON chain with plans to expand it on BASE in near future. So far, users have spent 24,000+ ICX and 500,000+ CROWN to participate in the games and everyday all the games are fully packed with players.
 ## High Level Overview of Gangwars as on other public mainstream chains
