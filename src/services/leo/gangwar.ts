@@ -151,15 +151,15 @@ const sign = async (
   const params = [leoCharacterParam, leoSk, leoK, leoValidityTimestamp];
 
   // console.log("gangwar.ts Trying to create game with ", simulationId);
-  const res = await leoRun({
+  const signatureLeo = await leoRun({
     contractPath: gangwarPath,
     transition,
     params,
   });
 
-  const signature = leo2js.gangwar.signature(res);
+  const signature = leo2js.gangwar.signature(signatureLeo);
 
-  return { signature, leoCharacterParam };
+  return { signature, leoCharacterParam, signatureLeo };
 };
 
 // const updateMaxRounds = async (
