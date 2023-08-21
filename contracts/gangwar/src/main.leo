@@ -133,10 +133,8 @@ program gangwar_v1.aleo {
 
     /// 8 constraints
     transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8, participation_lootcrate_count: u8, winner_lootcrate_count: u8) {
-        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
-        // TODO: add other asserts
-        // 1. Check if the time is sufficient for other to join
-        // 2. Check if the max_number_of_players is upto how much we support
+        assert_eq(self.caller, aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t); 
+        assert(max_number_of_players == 6u8);
         return then finalize(simulation_id, registration_time, max_number_of_players, max_rounds, participation_lootcrate_count, winner_lootcrate_count);
     }
 
@@ -161,7 +159,7 @@ program gangwar_v1.aleo {
     }
 
     transition update_registration_time(simulation_id: u32, registration_time: u32) {
-        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); // TODO: SERVER ADDRESS
+        assert_eq(self.caller, aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t);
         return then finalize(simulation_id, registration_time);
     }
 
@@ -217,10 +215,10 @@ program gangwar_v1.aleo {
     /// signature should be valid for time
     /// 21,377 constraints
     transition join_game(simulation_id: u32, char: Character, signature: Signature) -> Player {
-        assert(verify(char, 1540945439182663264862696551825005342995406165131907382295858612069623286213group, signature)); // SERVER SCHNORR SIGNING PUBLIC KEY
+        assert(verify(char, 260659305187315727333921279129486274337749465555639679957460661172861393683group, signature)); 
         assert_eq(char.player_addr, self.caller);
         return Player {
-            owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px, // TODO: SERVER ADDRESS
+            owner: aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t,
             simulation_id,
             char
         } then finalize(simulation_id, signature.validity_timestamp);
@@ -310,7 +308,7 @@ program gangwar_v1.aleo {
         } 
 
         let war: War = War {
-            owner: self.caller, // TODO: Server address
+            owner: self.caller,
             simulation_id,
             round: 0u8,
             main_team,
@@ -520,7 +518,7 @@ program gangwar_v1.aleo {
         };
         
         return War {
-            owner: self.caller, // TODO: Server address
+            owner: self.caller,
             simulation_id: w.simulation_id,
             round: w.round.add(1u8),
             main_team: updated_target_team,
@@ -624,9 +622,8 @@ program gangwar_v1.aleo {
             p5.primary_stats.strength >= p6.primary_stats.strength
        );
 
-        // TODO: Compare ABAB method and use the one that results in the least different of strength between two team
         /*
-            METHOD II: ABBA METHOD 
+            METHOD: ABBA METHOD 
             1     4       Team A
               2 3         Team B
             Whichever is the weakest team assign 5th player to that team and remaining to another team
@@ -746,19 +743,12 @@ program gangwar_v1.aleo {
             // if primary equipment is broken use punch
             damage = main.primary_stats.strength / 5u16;
         } else {
-            // todo: check if primary equipment is special
-            // special weapon includes: 
-            // Normal: remington_870, grenade, pr_flame_bottles
-            // Default: molotov_cocktail, sawed_off_shotgun, shotgun
-
-            // for now assume special_weapon = true
-
             // primay_equipment.w_type = 1 = Range
             // primay_equipment.w_type = 2 = Support
             damage = main.primary_equipment.damage;
             // if primary_equipment.w_type = 0 = Melee ; add extra damage
             if(main.primary_equipment.w_type == 0u16) {
-                let extra_damage: u16 = multiply_with_probability(main.primary_equipment.damage, main.secondary_stats.melee_damage); // percentange TODO: handle percentage multiplication
+                let extra_damage: u16 = multiply_with_probability(main.primary_equipment.damage, main.secondary_stats.melee_damage);
                 damage += extra_damage;
             } 
 
@@ -768,8 +758,6 @@ program gangwar_v1.aleo {
             }
             total_normal_hits = total_hits - total_critical_hits;
 
-            // assume isCollateral = false
-            // TODO: double check; handle when negative; there's more logic
             is_equipment_broken = sub_to_zero(main.primary_equipment.dura_ammo, main.primary_equipment.consumption_rate) == 0u16;
 
             let normal_hit_damage: u16 = total_normal_hits * damage;
@@ -834,7 +822,6 @@ program gangwar_v1.aleo {
     /// 5,418 constraints
     function get_winners(team_a: Team, team_b: Team, random_number: u16) -> (Team, Team, u16) {
 
-        // TODO: Ensure that the sum of the players is less than u16::MAX
         let team_a_health: u16 = team_a.p1.secondary_stats.health + team_a.p2.secondary_stats.health + team_a.p3.secondary_stats.health;
         let team_b_health: u16 = team_b.p1.secondary_stats.health + team_b.p2.secondary_stats.health + team_b.p3.secondary_stats.health;
 
@@ -886,7 +873,6 @@ program gangwar_v1.aleo {
     }
     
     /// If ((a+b > a) && (a+b > b)) return a+b else returns u16::MAX
-    /// TODO: Since this addition is in case of probability, maybe name the function to add_probabilities?
     /// 71 constraints
     inline add_to_max(a: u16, b:u16) -> u16 {
         let u16_max: u16 = 65535u16;
