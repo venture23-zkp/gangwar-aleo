@@ -1,5 +1,400 @@
-# ZK Gaming SDK
+# Gangwars
+[Gangwars](https://war.gangstaverse.co/) is already a successful online game of battle between two teams with five members each currently live on ICON chain with plans to expand it on BASE in near future. So far, users have spent 24,000+ ICX and 500,000+ CROWN to participate in the games and everyday all the games are fully packed with players.
+## High Level Overview of Gangwars as on other public mainstream chains
+The current version of the game as running on the ICON can be briefly summarized with the following points:
+- Firstly game admin creates the game on chain and announces the battle beginning time and the deadline for registration.
+- Next to participate on game player has to register with a player character NFT onchain. The NFT holds the properties necessary to determine it's strength, weapons, damage chance, hit chance etc.
+- After the registration deadline a **centralized server** fetches the NFT of players registered in a game and divides them in two teams such that their strength is balanced.
+- The war is started in the centralized server:
+  - There are various ways/modes of battle one team can attack other team. One of such modes as mentioned below is selected at **random** in each round.
+      - One vs One \(One player is selected **randomly** from each team.\)
+      - Two vs One \(Two players from first and one player from second team are selected **randomly**.\)
+      - 20+ such modes with variety of combination of players and weapons are available which can be viewed on [Gangwars](https://war.gangstaverse.co/).
+  - The health of attacked player\(s\) is calcuated based on whether the player was hit or missed. The hit or miss of an attack is decided based on the probability of hit also called as hit chance of the player NFT.
+  - There are provisions for players to use medic kits to regain health.
+  - Several rounds of battles/faceoffs between two teams continues in a loop with alternative roles as an attacker and as a target.
+  - Every events as described above is displayed at frontend with symbolic representation and meaningful narrations.
+  - The game ends when all of the players from one of the team die.
+ - The winning team is declared and updated on chain which allows the players from winning team to earn onchain assets.
 
+### Scope of Improvement
+The game on ICON is well appreciated by the community, yet we see some scope of improvement:
+- Everything is fine upto the user registration phase. But when it comes to team division we try to balance team such that total strength of each team is comparable. This task is handled by a central server and is not verified. The impact of creating a biased team could lead to predictable win to the team favored by the server.
+- Another important part which could be done any better is using **verifiable randomness** i.e. proving spectators that we are making moves based on randomness for choosing the mode of battle and the players in each round.
+
+In short, we need a way to validate our offchain actions which could have significant impact on end outcomes.
+
+# Gangwars on Aleo
+With Aleo we are trying to implement a verifiable version of Gangwars. Before we begin with actual flow of how our game is made verifiable by using Aleo it is recommended to get familiarized with Aleo Blockchain, Zero Knowledge Proof and Zero Knowledge Succicnt Non-Interactive Arguments of Knowledge \(zk-snarks\).
+> #### How do we prove random moves in Gangwars on Aleo?
+> - In each transition where we make moves randomly we need to use the random number available on Aleo chain.
+> - For the first time random number is seeded by `start_game` transition.
+> - After that while making every transition call the random number should be supplied along with other necessary parameters.
+> - The transition will make use of random number to decide any actions which requires verifiable randomness. Please refer to game_loop transition for better insight.
+> - When all the necessary computations of attacks are done we regenerate a random number by xoring the current Aleo's random number given by `ChaCha::rand_u16()` with the previous one and update it on chain.
+> - This loop continues until game end.
+
+Generic Flow diagram of this process is as shown in the image below:
+
+![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1pMJN-HOJua8MeCeeLfm6M1YZrP4y-1ZW)
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+> Note: we are supplying random number, which is stored in previous transition call, in each transition call. It is mainly because we have used `ChaCha::rand_u16()` in finalize block which gives us current random number from Aleo chain which changes depending upon transactions and block formation. For proving our random move we cannot rely on live onchain random value which changes frequently. Instead we use the one that we have saved in a transition call and generate proof of using it and update it with **current random number xored with previous one** for next transition call. And so on.
+### Major differences in implemention of Gangwars on Aleo as compared to Aleo on other mainstream public chains
+- The most important difference is the random moves being verifiable. Players no more need to trust our central server for an honest gameplay.
+- For this specfic phase of submission
+  - Gangwars with 3 players in each team with the plan of expanding it to 5 vs 5.
+  - Also there will only be one mode \(1 vs 1 mode\) of attack instead of 20+ modes.
+### Transitions used
+Our overall game can be covered by 6 major transitions which can also be viewed as different phases of game:
+1. Game Creation (Transition)
+
+In this phase admin will create a game on Aleo chain with following information and it's visible on frontend:
+    - Simulation ID \(Unique ID for a game instance \)
+    - Start time
+    - Registration deadline
+    - Maximum number of rounds \(Max. allowed faceoffs\)
+    - Maximum number of players
+
+  This phase will update onchain mapping with above information using Simulation ID as a key. An approximate example of output of this phase is:
+    
+    
+    Mapping[Simulation_ID] =  GangwarSettings {
+        deadline_to_register,
+        max_number_of_players,
+        gameloop_count,
+        registered_players: 0u8,
+        random_number  // random seed 
+    };
+    
+        
+  Sequence diagram of this phase is as shown in the image below:
+    ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1BMkJJbViWwZK1ZWlO5PBGTvb7M-n0zjM)
+    [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+2. Player Registration / Game Joining
+
+Once a game is created players may now join the game before pre-specified deadline. At present we want users to use NFTs from ICON blockchain as players for our game in Aleo Blockchain as well \(in future this approach may be changed\). The process for registration is as specified below:
+  - Users may select and **request** the available player character from a pool of character NFTs. For this transaction user do not interact with the ICON chain instead the interaction will be between the user and our centralized server which is authorized to sign the player character. Central Server responses with the player NFT along with stats and the signature. \)
+    > This particular step of requesting  character can be done before game creation as well but they won't be able to join until a game is created.
+    
+- After receiving the character and signature user can submit \(joinGame transition in the given image\) those into the Aleo chain. 
+  > One has to pay **transaction fee** for this transaction through **LEO Wallet**
+
+- After successful verification of signature a **record** of player is created with ownership of admin.
+        
+    ```
+    //An example of record created in this step: 
+    record Player {
+        owner: aleo1vhztlwxmqphujgq4j8cxqaqvpevujghnk02g5vjvsl3yx0n3sgyq0uxhnl,
+        simulation_id: 1u32,
+        char: reference_to_a_character_struct_formed_based_on_player_NFT
+    }   
+    ```
+#### Schnorr Signature Scheme in Leo \(Own implementation\)
+For the purpose of signing and verifying characters we have implemented Schnorr Signature Algorithm in Leo Language ourselves. We hope it will be helpful to the community and expect creative feedback on it.
+  ```
+      /// 28,100 constraints
+      transition sign(m: Character, sk: scalar, k: scalar, validity_timestamp: u32) -> Signature {
+        let r: group = k * group::GEN;
+        let h: HashStruct = HashStruct {
+            m,
+            r,
+            validity_timestamp
+        };
+        let e: scalar = BHP256::hash_to_scalar(h);
+
+        let s: group = k*group::GEN + e.mul(group::GEN).mul(sk); 
+
+        let signature: Signature = Signature{
+            r,
+            s,
+            validity_timestamp
+        };
+        
+        return signature;
+    }
+
+    /// 10,318 constraints
+    function verify(m: Character, pk: group, signature: Signature) -> bool {
+        let h: HashStruct = HashStruct {
+            m,
+            r: signature.r,
+            validity_timestamp: signature.validity_timestamp
+        };
+        let e: scalar = BHP256::hash_to_scalar(h);
+
+        let right: group = signature.r + pk.mul(e);
+        let verified:bool = right.eq(signature.s);
+
+        return verified;
+    }
+  ```
+
+  Sequence diagram of this phase is as shown in the image below:
+  ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1uIFQv9X5OsRSDLvBd0Ys3S-tHgH96Lnq)
+  [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+3. Game Start (Transition)
+
+   This is the phase from which we will feel the value of Aleo for creating verifiable gaming engine. After player registration deadline is met our central server fetches the unspent records of players registered for a particular **game Simulation ID** and sorts them in decreasing order of strength.
+
+   3.1 Team Division
+
+   Having filtered registered players we create two nearly equally powerful teams with the method as mentioned:
+    ```
+        1. Lets represent our sorted list of players as: p1,   p2,   p3,   p4,   p5,   p6.
+        2. We segregate them in team A and B in ABBA order except for the last two.
+            - p1(A),    p2(B),   p3(B),   p4(A)
+        3. Now calculate strength of each team
+            - Strength_team_a = p1.strength + p4.strength 
+            - Strength_team_b = p2.strength + p3.strength 
+        4. If Strength_team_a > Strength_team_b 
+                Include 6th player in team A and the 5th in team B
+            else
+                Include 5th player in team A and the 6th in team B
+    ```
+    We do above computation offchain yet verify it onchain using **zero knowledge proof** of it.
+
+   3.2 War Record Creation
+
+   War record is a structure used to maintain onchain state of the gangwars game with following declaration:
+   ```
+   record War {
+        owner: address,
+        simulation_id: u32,   
+        round: u8,  // Which round of attack is the current one. 
+        main_team: Team,  // It's the team which will attack in this round.
+        target_team: Team,  // It's the team which will be attacked in this round.
+        physical_attack: PhysicalAttack  // It's a struct which holds the information of every action that happened in this round.
+        // physical_attack is easily understandable in the example of War record instance. 
+    }
+   ```
+   
+   Lets see an instance of a War record with explanation of each variable used:
+   ```
+   {
+    "warRecord": {
+        "owner": "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
+        "simulationId": 1,
+        "round": 0,  
+        "mainTeam": {	// Each team consists of three players p1, p2 & p3.
+            "p1": {	// First player from main team
+                "nftId": 1857,	// ID corresponding to NFT on ICON chain.
+                "playerAddr": "aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px",
+                "primaryStats": {
+                    "strength": 242
+                },
+                "secondaryStats": {
+                    "health": 1213,
+                    "dodgeChance": 0.3909971770809491,    // It is the probability that this player will dodge when attacked.
+                    "hitChance": 0.037705043106736856,	  // It is the probability that this player will get hit when attacked.
+                    "criticalChance": 0.4370031280994888, // It is the probability that this player will get critical i.e. health deteriorates 2x when attacked.
+                    "meleeDamage": 0.5150072480354009     // It is the damage factor used to calculate the damage that his/her melee can have on others while attacking.
+                },
+                "primaryEquipment": {   // This is the equipment which comes by default with the NFT character.
+                    "id": 10,
+                    "type": 2,               // We have three kinds of equipment "Range", "Support", "Melee"
+                    "consumptionRate": 20,   // Rate by which the equipment comsumes ammo.
+                    "criticalChance": 0.035996032654306856, // Chance of making target critical
+                    "duraAmmo": 136,    // Max. Number of attacks the weapon can be used for. For default it's infinitely large number.
+                    "damage": 192,      // Damage to target i.e. how much health is decucted
+                    "hitChance": 0.33800259403372246,   // Chace of hitting target
+                    "numberOfHits": 2,                  // Currently unused
+                    "isBroken": false                   // Wheter or not the weapon is broken.
+                }
+            },
+            "p2": {// Similar struct as that of p1 will exist with different ids, stats and equipments
+            },
+            "p3": {// Similar struct as that of p1 will exist with different ids, stats and equipments
+            }
+        },
+        "targetTeam": {// Just like Main team, here we will have struct for the target team with 3 different players
+        },
+        "physicalAttack": {     // This is the struct that holds the snapshopt of events that actually happened for this single round.
+            "isDodged": true,   // Whether or not the player from target team dodged.
+            "isHit": false,     // Target may be hit only if he did not dodge,
+            // Simplified logic to understand how isHit is determined is as followed.
+            // if (isDodged){
+            //  isHit = False
+            // }
+            // else {           // if target did not dodge then only we check if he gets hit by using target's hit chance.
+            //  if( findIfHit(hit_chance_of_target_player, random_number) ){    
+            //  isHit = true;    
+            // }    
+            // }
+              
+            "isCritical": false,    // Wheter or not the target is critical.
+            "totalCriticalHits": 0, // Total critical hits on target.
+            "totalNormalHits": 0,   // Total Normal hits on target.
+            "totalHits": 0,         // totalCriticalHits + totalNormalHits
+            "damage": 0             // Damage to target
+        },
+        "_nonce": "5534833066209720883638107450814171444187239793496702055322327037254406892437"
+      }
+    }
+    ```
+
+
+Sequence diagram of this phase is as shown in the image below:
+![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=10LDWXKCX9c7cu10sLclCMMexUkbMGXfW)
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+
+4. Game Loop \(Transition\)
+
+   This is the phase that actually comsumes a war record, makes all the moves randomly, submits proof to the chain and return an updated war record for next round. The transition takes two input parameter: war record and a random number, and returns war record by calling finalize block which updates the new random number for next round. Game loop transition can be understood by the following skeleton definition:
+   
+   ```
+   transition game_loop(w: War, random_seed: u16) -> War {
+       // Choose players from both teams to faceoff based on random_seed
+       // Calculate damage
+       // Create new war record with updated player stats in each team, and also swap the main_team and target_team for next round
+       // Return new war record
+       // Finalize game_loop
+
+   }
+   finalize game_loop(initial_random_seed: u128, new_random_seed: u128) {
+      let saved_random_seed: u128 = Mapping::get_or_use(settings, 0u128, 0u128);  // fetch the random number saved on chain
+      assert_eq(initial_random_seed, saved_random_seed);                          // ensure that the new_random_seed being used in this transition is actually the one saved on chain
+      let new_random_number: u128 = ChaCha::rand_u128();    // Generage new random number
+      Mapping::set(settings, 0u128, new_random_number);     // Save the newly generated random number
+   }
+
+   ```
+   
+   The pseudocode of choosing players to faceoff based on random seed is as follows:
+
+   ```
+    selected_player = random_seed % 3
+    if selected_player is alive then return selected_player
+    else{        // if randomly selected player is dead then we select next alive player
+      loop 2 times{
+        selected_player += 1
+        if selected_player is alive then return selected_player
+      }
+    if none could be selected then return a flag indicating the game is over.
+    }
+   ```
+
+  > In returned war record the main_team and target_team are **swapped** ensuring they attack and defend turn by turn.
+  > This game loop is called for maximum number of allowed rounds or until one of the whole team is dead.
+  > Once a war record is consumed it cannot be reused which is handled by the chain itself.
+   
+  Sequence diagram of this phase is as shown in the image below:
+  ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1aWqFNPi_aQAzFoftXE891Xyf88JHg6RW)
+  [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+  #### Necessity of Array in Leo
+  We have used bitwise operations over `u8` integer to store flags of alive status of players and also for flags for players who have already been selected in the same round of attack. In Leo language, we were limited with this approach for programmability mainly due to unavailability of **array in Leo**. Even though we do not launch 2 vs 1 or 3 vs 3 in current submission, the following logic is a dynamic way of selecting a player at random among alive and unique players for all modes of gameplay.
+  ```
+      inline get_eligible_player_index(alive_players: u8, already_selected_players: u8, random_seed: u16) -> u8 {
+        //  For 1 vs 1 mode of gameplay already_selected_players parameter will have no effect logically, since we only need 1 player.
+        //  But when it is **2 vs 1** then we do not want the both players from first team to be the same one.
+        /// Representation of players is in u8 as LSBs (Least Significant Bits)
+        /// For example: 7u8 => 00000111 => Represent all three players
+        /// For example: 4u8 => 00000100 => Represents third player 
+
+        /// Selects an eligible player based on a random_number
+        /// A player is eligible if he is alive and has not been selected previously
+
+        let eligible_player_index: u8 = 8u8; // Starting with an out of range value
+
+        // Select a random index to denote the player
+        // Since we have 3 players, mod by 3u8
+        let random_player_index: u8 = BHP256::hash_to_u8(random_seed).mod(3u8);
+
+        // Get a random player
+        // If random_player_index = 0u8 => random_player = 00000001 (p1)
+        // If random_player_index = 1u8 => random_player = 00000010 (p2)
+        // If random_player_index = 2u8 => random_player = 00000100 (p3)
+        let random_player: u8 = 1u8<<(random_player_index);
+
+        // Ensure the random_player is eligible
+        if (( 
+            (random_player & already_selected_players) == 0u8 ) && // Random player is not selected previously
+            ((random_player & alive_players) != 0u8 )) // Random player is alive
+            {
+                eligible_player_index = random_player_index;
+            }
+        else { // search for a random player
+            for i:u8 in 0u8..2u8{
+                random_player = random_player<< 1u8;   // try with next player
+                random_player_index += 1u8;
+                if (random_player == 8u8) { 
+                    random_player = 1u8;
+                    random_player_index = 0u8;
+                }
+                if ((random_player & already_selected_players)== 0u8 ) && ((random_player & alive_players) != 0u8 ){
+                    eligible_player_index = random_player_index;
+                }
+            }
+        }
+        return eligible_player_index + 1u8;  // if returned value is 9u8 then we will understand that all players in the team is dead else we will get one player.
+    }
+  ```
+  We faced similar complexity when implementing function call for faceoffs between any player from each team. For eg. in 1 vs 1 mode we have to select 1 player from each team at random. So there will be 9 combination of if ... else if ... statements. If there was provision of array then this could be done without any if statement by directly selecting players with array indexing.
+  ```
+  rand_player_team_a = get_eligible_player_index( team_a, ... );  // returns a random player from team a 
+  rand_player_team_b = get_eligible_player_index( team_b, ... );  // returns a random player from team b
+
+  if ( rand_player_team_a == 1u8 && rand_player_team_b == 1u8){  
+
+    par = physical_attack_sequence(w.main_team.p1, w.target_team.p1, new_random_seed);
+          // w is war record, this function executes the mathematics and logics of attack and is one of the core function.
+  }
+  if ( rand_player_team_a == 1u8 && rand_player_team_b == 2u8){  
+    par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
+  }
+  ...
+  ...
+  if ( rand_player_team_a == 3u8 && rand_player_team_b == 3u8){  
+    par = physical_attack_sequence(w.main_team.p3, w.target_team.p3, new_random_seed);
+  }
+  ```
+If there was provision for array then above code could be implemented by:
+  ```
+  rand_player_team_a = get_eligible_player_index( team_a, ... );  // returns a random player from team a 
+  rand_player_team_b = get_eligible_player_index( team_b, ... );  // returns a random player from team b
+
+  par = physical_attack_sequence(w.main_team.p[rand_player_team_a - 1u8], w.target_team.p[rand_player_team_b-1u8], new_random_seed);
+  ```
+The LOC doubles when we implement **2 vs 1**, since we have to write code as previously for allowing a player to attack from main team to a player from target team, and also we have to allow another player from main team at random except the already selected one to attack the same player from target team. It **triples** when we have to implement **3 vs 3**, and so on.
+
+> We understand the complexity Aleo team has to face to achieve this feature in zk circuits. But it would be a really nice feature to have in a high level programming language.
+
+5. Game End \(Transition\)
+
+   This is a simple transition which will be called when any of the following conditions meet:
+   -  All the players from any of the team are dead.
+   -  Maximum allowed rounds have been played.
+
+  Winner team is announced in this phase. All team members from the winning team are considered winners and are eligible for rewards provided by game.
+
+6. Reward distribution
+
+  We collect player's Leo address, while they submit the character during game joining phase, with the purpose of reward distribution. We will provide users with a NFT_mint record which they can spend later on to mint NFT on their ownership even in mainnet. For the purpose of NFT distribution we have used the program created by [Artfactory](https://art.privacypride.com/program-walkthrough/v4). The structure of NFT_mint and NFT records are:
+  ```
+    record NFT {
+        private owner: address,  // Address of player
+        private data: TokenId,   // NFT token ID
+        private edition: scalar, // which edition of the nft this particular one is -- will be 0 for unique NFTs
+    }
+
+    record NFT_mint {
+        private owner: address,  // Address of player
+        private amount: u8,      // Number of NFT that can be minted by spending this record
+    }
+  ```
+To get detailed technical overview of this NFT program please visit Artfactory's [official site](https://art.privacypride.com/program-walkthrough/v4). 
+
+
+# Kryha's SDK
+A huge round of applause to the Kryha team for open sourcing their SDK which was extremely helpful to integrate Aleo to the outward facing APIs to communicate with frontend and our other servers, type casting the request received through API into Aleo compatible data type and vice versa. At this initial phase of active development of Aleo finding such a useful resource has been really valuable and we have utilized it to the fullest. 
+
+> The following section has been written by the Kryha team and can be used to execute this project.
+
+# ZK Gaming SDK
 Game development API that allows interaction with the Aleo Zero-Knowledge platform.
 
 Check [Boloney!](https://github.com/Kryha/boloney) the first game built with ZK Gaming Toolkit.
