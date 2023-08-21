@@ -1,5 +1,5 @@
 import { Account } from "../../aleo-sdk";
-import { LeoPrivateKey, LeoViewKey } from "../../types";
+import { LeoAddress, LeoPrivateKey, LeoViewKey } from "../../types";
 import { fetchUnspentRecords } from "./util";
 
 export const create = async () => {
@@ -12,12 +12,4 @@ export const create = async () => {
   };
 };
 
-const fetchUnspentCredits = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey): Promise<any> => {
-  console.log("Fetch credit records");
-  const startBlock = 0;
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, "credits", "credits", startBlock);
-  console.log(unspentRecords);
-  return unspentRecords;
-};
-
-export const account = { create, fetchUnspentCredits };
+export const account = { create };

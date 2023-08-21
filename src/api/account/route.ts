@@ -9,3 +9,4 @@ export const router = Router();
 
 router.post("/create", asyncHandler(accountController.create));
 router.post("/verify", validate({ body: schemas.body.verify }), asyncHandler(accountController.verify));
+router.post("/fetch", validate({ body: schemas.body.fetch }), asyncHandler(accountController.fetch));

@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { Signature, Address } from "../../aleo-sdk";
 
 import { leo } from "../../services";
+import { fetchUnspentRecords, transferCredits } from "../../services/leo/util";
 
 interface AccoutController {
   create: RequestHandler;
@@ -27,9 +28,8 @@ export const accountController: AccoutController = {
     res.send({ verified: isVerryfied });
   },
   fetch: async (req, res) => {
-    const { privateKey, viewKey } = req.body;
-    const startHeight = 1600;
-    const credits = await leo.account.fetchUnspentCredits(privateKey, viewKey);
-    res.send(credits);
+    const { privateKey, viewKey, startHeight } = req.body;
+    const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, "credits", "credits", startHeight);
+    res.send(unspentRecords);
   },
 };

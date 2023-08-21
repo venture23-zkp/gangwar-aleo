@@ -307,7 +307,7 @@ export const deployPrograms = async () => {
  * @param privateKey - private key of the sender account, defaults to the private key of the local chain owner
  * @returns
  */
-const transferCredits = async (amount: number, recipient: string, privateKey = LOCAL_NETWORK_PRIVATE_KEY) => {
+export const transferCredits = async (amount: number, recipient: string, privateKey = LOCAL_NETWORK_PRIVATE_KEY) => {
   let attemptsLeft = 5;
   let transferred = false;
 
