@@ -122,13 +122,14 @@ export const getRandomAleoScalar = (): BigInt => {
   const EDWARDS_BLS12_SCALAR_FIELD = "2111115437357092606062206234695386632838870926408408195193685246394721360383";
   let hidingNonce = EDWARDS_BLS12_SCALAR_FIELD;
 
-  while (Number(hidingNonce) >= Number(EDWARDS_BLS12_SCALAR_FIELD)) {
-    var buf = new Uint32Array(8);
-    const hidingNonceArray = crypto.getRandomValues(buf);
-    hidingNonce = hidingNonceArray.join("");
-  }
+  // while (Number(hidingNonce) >= Number(EDWARDS_BLS12_SCALAR_FIELD)) {
+  //   var buf = new Uint32Array(8);
+  //   const hidingNonceArray = crypto.getRandomValues(buf);
+  //   hidingNonce = hidingNonceArray.join("");
+  // }
 
-  return BigInt(hidingNonce);
+  const randomNumber = Math.round(Math.random() * Number.MAX_SAFE_INTEGER);
+  return BigInt(randomNumber);
 };
 
 const getTxResult = (tx: LeoTx): string | undefined => {
