@@ -116,23 +116,73 @@ Generic Flow diagram of this process is as shown in the image below:
 
 Our overall game can be covered by 6 major transitions which can also be viewed as different phases of game:
 
-### 1. Game Creation (Transition)
+### 1. Game Creation
 
-In this phase admin will create a game on Aleo chain with following information and it's visible on frontend: - Simulation ID \(Unique ID for a game instance \) - Start time - Registration deadline - Maximum number of rounds \(Max. allowed faceoffs\) - Maximum number of players
+Game is created with create_game transition.
 
-This phase will update onchain mapping with above information using Simulation ID as a key. An approximate example of output of this phase is:
+```rust
+transition create_game(
+  simulation_id: u32,
+  registration_time: u32,
+  max_number_of_players: u8,
+  max_rounds: u8,
+  participation_lootcrate_count: u8,
+  winner_lootcrate_count: u8
+)
+```
 
-    Mapping[Simulation_ID] =  GangwarSettings {
-        deadline_to_register,
-        max_number_of_players,
-        gameloop_count,
-        registered_players: 0u8,
-        random_number  // random seed
-    };
+<details>
+<summary> Parameters </summary>
 
+#### Inputs
+
+- **simulation_id**: A unique identifier for a particular game. No two game can have the same id.
+- **registration_time**: Duration (in blocks) to which players can join the game. It is added with `block.height` to get `deadline_to_register`.
+- **max_number_of_players**: Max number of players that can join the particular war. For our case it is always 6.
+- **max_rounds** (Max allowed faceoffs) Max times the simulation will be run for this game.
+- participation_lootcrate_count: `Lootcrate NFT` to be received upon participation
+- **winner_lootcrate_count**: Additional `Lootcrate NFT` to be recieved upon win.
+</details>
+
+<details>
+<summary> Finalize </summary>
+
+#### Ouputs
+
+The transition does not have any output records. The input parameters are stored on chain in a mapping with `simulation_id` as key into the `GangwarSettings` struct as value.
+
+```rust
+struct GangwarSettings {
+  created_at: u32,
+  deadline_to_register: u32,
+  max_number_of_players: u8,
+  max_rounds: u8,
+  participation_lootcrate_count: u8,
+  winner_lootcrate_count: u8,
+  registered_players: u8,
+  random_number: u16
+}
+```
+
+- **created_at**: `block.height`
+- **deadline_to_register**: `block.height` + `registration_time`
+- **max_number_of_players**: Max number of players that can join the particular war. For our case it is always 6.
+- **max_rounds** (Max allowed faceoffs) Max times the simulation will be run for this game.
+- **participation_lootcrate_count**: `Lootcrate NFT` to be received upon participation.
+- **winner_lootcrate_count**: Additional `Lootcrate NFT` to be recieved upon win.
+- **registered_players**: Number of players who have joined this gangwar. Initially set to 0.
+- **random_number**: `ChaCha::rand_u16()`
+
+</details>
+
+> This transition can only be called by the admin
+
+<details>
+<summary> Sequence Diagram </summary>
 Sequence diagram of this phase is as shown in the image below:
 ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1BMkJJbViWwZK1ZWlO5PBGTvb7M-n0zjM)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+</details>
 
 ### 2. Player Registration / Game Joining
 
