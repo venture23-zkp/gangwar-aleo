@@ -10,6 +10,7 @@ export const router = Router();
 router.get("/settings", validate({ body: schemas.body.fetchGameSettings }), asyncHandler(gangwarController.fetchSettings));
 router.post("/create", validate({ body: schemas.body.createGame }), asyncHandler(gangwarController.createGame));
 router.post("/sign", validate({ body: schemas.body.sign }), asyncHandler(gangwarController.sign));
+router.post("/verify", validate({ body: schemas.body.verify }), asyncHandler(gangwarController.verify));
 router.post("/join", validate({ body: schemas.body.joinGame }), asyncHandler(gangwarController.joinGame));
 router.post("/start", validate({ body: schemas.body.startGame }), asyncHandler(gangwarController.startGame));
 router.post("/simulate", validate({ body: schemas.body.simulate }), asyncHandler(gangwarController.simulate));
