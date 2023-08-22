@@ -147,6 +147,7 @@ const sign = async (
   const leoValidityTimestamp = js2leo.u32(validTimestamp);
   const leoCharacter = js2leo.gangwar.character(character);
   let leoCharacterParam = `"${js2leo.stringifyLeoCmdParam(leoCharacter)}"`;
+  // let leoCharacterParam = js2leo.stringifyLeoCmdParam(leoCharacter);
 
   const params = [leoCharacterParam, leoSk, leoK, leoValidityTimestamp];
 
@@ -160,6 +161,29 @@ const sign = async (
   const signature = leo2js.gangwar.signature(signatureLeo);
 
   return { signature, leoCharacterParam, signatureLeo };
+};
+
+const verifySig = async (character: Character, signature: SchnorrSignature): Promise<any> => {
+  const transition = "verify_sig";
+
+  const leoCharacter = js2leo.gangwar.character(character);
+  const leoSignature = js2leo.gangwar.signature(signature);
+
+  // const leoCharacterParam = js2leo.stringifyLeoCmdParam(leoCharacter);
+  // const leoSignatureParam = js2leo.stringifyLeoCmdParam(leoSignature);
+  const leoCharacterParam = `"${js2leo.stringifyLeoCmdParam(leoCharacter)}"`;
+  const leoSignatureParam = `"${js2leo.stringifyLeoCmdParam(leoSignature)}"`;
+
+  const params = [leoCharacterParam, leoSignatureParam];
+
+  // console.log("gangwar.ts Trying to create game with ", simulationId);
+  const valid = await leoRun({
+    contractPath: gangwarPath,
+    transition,
+    params,
+  });
+
+  console.log(valid);
 };
 
 // const updateMaxRounds = async (
@@ -236,6 +260,8 @@ const joinGame = async (
   const leoSignatureParam = js2leo.stringifyLeoCmdParam(leoSignature);
 
   const params = [leoSimulationId, leoCharacterParam, leoSignatureParam];
+
+  console.log(params);
 
   // console.log("gangwar.ts Joining game ", simulationId);
   let res = await zkRun(
@@ -361,9 +387,10 @@ const simulate1vs1 = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war:
   console.log(leoRandomSeed);
 
   const leoWarRecord = js2leo.gangwar.warRecord(war);
-  console.log(leoWarRecord);
 
   const leoWarRecordParam = js2leo.stringifyLeoCmdParam(leoWarRecord);
+  console.log(leoWarRecordParam);
+  throw Error("here");
 
   const params = [leoWarRecordParam, leoRandomSeed];
 
@@ -416,6 +443,7 @@ const finishGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war: W
 export const gangwar = {
   createGame,
   sign,
+  verifySig,
   joinGame,
   startGame,
   simulate1vs1,

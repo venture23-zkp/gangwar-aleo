@@ -33,7 +33,7 @@ export const programNames = {
   GANGWAR: "gangwar_v1",
 };
 
-export const FEE = 1;
+export const FEE = 0.01;
 
 export const LOCAL_NETWORK_PRIVATE_KEY = "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH";
 export const LOCAL_NETWORK_VIEW_KEY = "AViewKey1mSnpFFC8Mj4fXbK5YiWgZ3mjiV8CxA79bYNa8ymUpTrw";

@@ -165,7 +165,7 @@ export const leoRun = async (
   const cmd = `cd ${contractPath} && leo run ${transition} ${stringedParams}`;
   console.log(cmd);
   const { stdout } = await execute(cmd);
-  // console.log(stdout);
+  console.log(stdout);
   const parsed = parseCmdOutput(stdout, correctBracketPattern);
 
   return parsed;

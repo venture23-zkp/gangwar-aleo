@@ -32,7 +32,11 @@ export const schemas = {
     sign: z.object({
       character: characterSchema,
       sk: z.string(), // Secret key
-      k: z.string(), // Nonce for signing
+      k: z.string(), // Not required
+    }),
+    verify: z.object({
+      character: characterSchema,
+      signature: schnorrSignatureSchema,
     }),
     joinGame: z.object({
       privateKey: leoPrivateKeySchema,

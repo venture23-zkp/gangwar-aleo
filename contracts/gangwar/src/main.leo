@@ -210,6 +210,21 @@ program gangwar_v1.aleo {
         return signature;
     }
 
+    transition verify_sig(m: Character, signature: Signature) -> bool {
+        let pk: group = 260659305187315727333921279129486274337749465555639679957460661172861393683group;
+        let h: HashStruct = HashStruct {
+            m,
+            r: signature.r,
+            validity_timestamp: signature.validity_timestamp
+        };
+        let e: scalar = BHP256::hash_to_scalar(h);
+
+        let right: group = signature.r + pk.mul(e);
+        let verified:bool = right.eq(signature.s);
+
+        return verified;
+    }
+
 
     /// To join a game, submit a Character and it's corresponding signature by the server address
     /// signature should be valid for time

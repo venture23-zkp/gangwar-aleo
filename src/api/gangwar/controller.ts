@@ -7,6 +7,7 @@ interface GangwarController {
   createGame: RequestHandler;
   updateRegistrationTime: RequestHandler;
   sign: RequestHandler;
+  verify: RequestHandler;
   joinGame: RequestHandler;
   fetchSettings: RequestHandler;
   startGame: RequestHandler;
@@ -57,6 +58,11 @@ export const gangwarController: GangwarController = {
     const { character, sk, k } = req.body;
     const signature = await leo.gangwar.sign(character, sk);
     res.send({ signature });
+  },
+  verify: async (req, res) => {
+    const { character, signature } = req.body;
+    const valid = await leo.gangwar.verifySig(character, signature);
+    res.send({ valid });
   },
   joinGame: async (req, res) => {
     const { owner, privateKey, viewKey, simulationId, character, signature } = req.body;
