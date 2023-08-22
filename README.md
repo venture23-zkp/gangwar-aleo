@@ -16,6 +16,10 @@ _ [Transitions used
 
 [Gangwars](https://war.gangstaverse.co/) is already a successful online game of battle between two teams with five members each currently live on ICON chain with plans to expand it on BASE in near future. So far, users have spent 24,000+ ICX and 500,000+ CROWN to participate in the games and everyday all the games are fully packed with players.
 
+<details>
+
+<summary> Expand this section to learn how Gangwars currently works on other chains. </summary>
+
 ## High Level Overview of Gangwars as on other public mainstream chains
 
 The current version of the game as running on the ICON can be briefly summarized with the following points:
@@ -57,6 +61,9 @@ Learn more about simulation and core mechanics [here](https://gangstaverse.mediu
 ### Victory Conditions and Rewards:
 
 The game concludes when all players from one of the teams have been defeated. The winning team is declared, and this information is updated on the blockchain. The event logs are pushed to Arweave. Players from the victorious team are rewarded with on-chain assets, adding an incentive for strategic gameplay and teamwork. These assets can be used to further enhance NFT's stats.
+
+</details>
+
 
 ### Overview
 
