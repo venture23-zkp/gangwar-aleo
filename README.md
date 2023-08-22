@@ -195,14 +195,19 @@ struct GangwarSettings {
 
 </details>
 
+<details>
+<summary> Sequence diagram </summary>
+
+#### Sequence Diagram
+
+![Sequence Diagram of Game Creation](https://drive.google.com/uc?id=1BMkJJbViWwZK1ZWlO5PBGTvb7M-n0zjM)
+
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+</details>
+
 > This transition can only be called by the admin
 
-<details>
-<summary> Sequence Diagram </summary>
-Sequence diagram of this phase is as shown in the image below:
-![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1BMkJJbViWwZK1ZWlO5PBGTvb7M-n0zjM)
-[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
-</details>
 
 ### 2. Player Registration / Game Joining
 
