@@ -29,6 +29,8 @@ import {
   PhysicalAttack,
   phyiscalAttackSchema,
   PhysicalAttackLeo,
+  phyAttackSchema,
+  PhyAttack,
   War,
   WarLeo,
   warLeoSchema,
@@ -144,6 +146,19 @@ const team = (team: TeamLeo): Team => {
   return teamSchema.parse(res);
 };
 
+const phyAttack = (damage: PhysicalAttackLeo): PhyAttack => {
+  const res: PhyAttack = {
+    main: u8(damage.main),
+    target: u8(damage.target),
+    isDodged: bool(damage.is_dodged),
+    isCritical: bool(damage.is_critical),
+    totalNormalHits: u16(damage.total_normal_hits),
+    totalCriticalHits: u16(damage.total_critical_hits),
+    damage: u16(damage.damage),
+  };
+  return phyAttackSchema.parse(res);
+};
+
 const physicalAttack = (damage: PhysicalAttackLeo): PhysicalAttack => {
   const damageValue = u16(damage.damage);
   const totalCriticalHits = u16(damage.total_critical_hits);
@@ -198,6 +213,7 @@ const war = (record: Record<string, unknown>): War => {
     mainTeam,
     targetTeam,
     physicalAttack: updatedAttack,
+    phyAttack: phyAttack(parsed.physical_attack),
     _nonce: group(parsed._nonce).toString(),
   };
 

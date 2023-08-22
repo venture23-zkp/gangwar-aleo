@@ -176,6 +176,20 @@ export const phyiscalAttackSchema = z.object({
 });
 export type PhysicalAttack = z.infer<typeof phyiscalAttackSchema>;
 
+// This is the same data that'll be on chain
+// This data will be used to for creation of full physicalAttack
+// Hence the name phyAttack 🤣
+export const phyAttackSchema = z.object({
+  main: z.number(), // Index
+  target: z.number(), // Index
+  isDodged: z.boolean(),
+  isCritical: z.boolean(),
+  totalNormalHits: z.number(),
+  totalCriticalHits: z.number(),
+  damage: z.number(),
+});
+export type PhyAttack = z.infer<typeof phyAttackSchema>;
+
 export const warLeoSchema = z.object({
   owner: leoAddressSchema,
   simulation_id: leoU32Schema,
@@ -194,6 +208,7 @@ export const warSchema = z.object({
   mainTeam: teamSchema,
   targetTeam: teamSchema,
   physicalAttack: phyiscalAttackSchema,
+  phyAttack: phyAttackSchema,
   _nonce: z.string(),
 });
 export type War = z.infer<typeof warSchema>;

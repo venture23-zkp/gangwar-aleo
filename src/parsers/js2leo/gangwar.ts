@@ -25,6 +25,7 @@ import {
   PhysicalAttackLeo,
   physicalAttackLeoSchema,
   warLeoSchema,
+  PhyAttack,
 } from "../../types";
 import { SchnorrSignature, SchnorrSignatureLeo, schnorrSignatureLeoSchema } from "../../types/dsa";
 import { u8, u16, u32, group, privateField, publicField, u16Prob, bool } from "./common";
@@ -117,7 +118,7 @@ const physicalAttack = (damage: PhysicalAttack): PhysicalAttackLeo => {
   return physicalAttackLeoSchema.parse(res);
 };
 
-const physicalAttackRecord = (damage: PhysicalAttack): PhysicalAttackLeo => {
+const physicalAttackRecord = (damage: PhyAttack): PhysicalAttackLeo => {
   const res: PhysicalAttackLeo = {
     main: privateField(u8(damage.main)),
     target: privateField(u8(damage.target)),
@@ -230,17 +231,13 @@ const war = (war: War): WarLeo => {
 };
 
 const warRecord = (war: War): WarLeo => {
-  const attack = war.physicalAttack;
-  const mainIndex = convertNftIdToIndex(attack.main, war.targetTeam);
-  const targetIndex = convertNftIdToIndex(attack.target, war.mainTeam);
-  const updatedAttack = { ...attack, main: mainIndex, target: targetIndex };
   const res: WarLeo = {
     owner: privateField(war.owner),
     simulation_id: privateField(u32(war.simulationId)),
     round: privateField(u8(war.round)),
     main_team: teamRecord(war.mainTeam),
     target_team: teamRecord(war.targetTeam),
-    physical_attack: physicalAttackRecord(updatedAttack),
+    physical_attack: physicalAttackRecord(war.phyAttack),
     _nonce: publicField(group(BigInt(war._nonce))),
   };
   return warLeoSchema.parse(res);
