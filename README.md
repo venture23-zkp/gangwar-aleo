@@ -132,7 +132,7 @@ transition create_game(
 ```
 
 <details>
-<summary> Parameters </summary>
+<summary> Inputs </summary>
 
 #### Inputs
 
@@ -145,11 +145,31 @@ transition create_game(
 </details>
 
 <details>
-<summary> Finalize </summary>
+<summary> Outputs </summary>
 
 #### Ouputs
 
-The transition does not have any output records. The input parameters are stored on chain in a mapping with `simulation_id` as key into the `GangwarSettings` struct as value.
+The transition does not have any outputs.
+
+</details>
+
+<details>
+<summary> Finalize </summary>
+
+#### Finalize
+
+```rust
+finalize create_game(
+  simulation_id: u32,
+  registration_time: u32,
+  max_number_of_players: u8,
+  max_rounds: u8,
+  participation_lootcrate_count: u8,
+  winner_lootcrate_count: u8
+)
+```
+
+The input parameters to the finalize statement is stored on chain in a mapping with `simulation_id` as key into the `GangwarSettings` struct as value.
 
 ```rust
 struct GangwarSettings {
