@@ -62,7 +62,7 @@ export const gangwarController: GangwarController = {
   verify: async (req, res) => {
     const { character, signature } = req.body;
     const valid = await leo.gangwar.verifySig(character, signature);
-    res.send({ valid });
+    res.send(valid);
   },
   joinGame: async (req, res) => {
     const { owner, privateKey, viewKey, simulationId, character, signature } = req.body;

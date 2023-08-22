@@ -183,7 +183,7 @@ const verifySig = async (character: Character, signature: SchnorrSignature): Pro
     params,
   });
 
-  console.log(valid);
+  return valid;
 };
 
 // const updateMaxRounds = async (

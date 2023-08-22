@@ -94,6 +94,10 @@ program gangwar_v1.aleo {
         new_random_number: u16
     }
 
+    struct SigValid {
+        valid: bool
+    }
+
     struct IPhysicalAttackResponse {
         updated_main_character: Character,
         updated_target_character: Character,
@@ -210,7 +214,7 @@ program gangwar_v1.aleo {
         return signature;
     }
 
-    transition verify_sig(m: Character, signature: Signature) -> bool {
+    transition verify_sig(m: Character, signature: Signature) -> SigValid {
         let pk: group = 260659305187315727333921279129486274337749465555639679957460661172861393683group;
         let h: HashStruct = HashStruct {
             m,
@@ -222,7 +226,9 @@ program gangwar_v1.aleo {
         let right: group = signature.r + pk.mul(e);
         let verified:bool = right.eq(signature.s);
 
-        return verified;
+        return SigValid{
+            valid: verified
+        };
     }
 
 
