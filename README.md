@@ -223,10 +223,7 @@ transition join_game(
 ) -> Player
 ```
 
-On each transition, a new random_number is saved as:
-`gangwar_settings[simulation_id] = gangwar_settings[simulation_id].random_number xor ChaCha::rand_u16()`
-
-This ensures that the `random_number` that is used later in simulation is not influenced by the admin.
+> A valid signature of the admin is required to join the game.
 
 <details>
 <summary> Inputs </summary>
@@ -249,8 +246,6 @@ struct Character {
 }
 ```
 
-> A valid signature of the admin is required to join the game.
-
 > To check the signature of the admin, we required something similar to `ecrecover` on Aleo. Since we couldn't find something similar, we instead implemented Schnorr Signature Algorithm in Leo.
 
 Players have the opportunity to choose their player character from a collection of characters available. These characters are based on actual NFTs on ICON Blockchain. To initiate this process, players make a selection request to our centralized server, which holds authorization to sign the player character. The centralized server responds by providing the `Character` along with its associated attributes and a `Signature`.
@@ -270,6 +265,18 @@ record Player {
   char: Character
 }
 ```
+
+</details>
+
+<details>
+<summary> Finalize</summary>
+
+#### Finalize
+
+On each finalize, a new random_number is saved in the mapping as:
+`gangwar_settings[simulation_id].random_number = gangwar_settings[simulation_id].random_number xor ChaCha::rand_u16()`
+
+This ensures that the `random_number` that is used later in simulation is not influenced by the admin.
 
 </details>
 
@@ -339,6 +346,42 @@ record War {
     physical_attack: PhysicalAttack
 }
 ```
+
+`Team` is a simple struct that holds the players belonging together. It is implemented as:
+
+```rust
+struct Team {
+  p1: Character,
+  p2: Character,
+  p3: Character
+}
+```
+
+`PhysicalAttack` is used to represent the event that happened for a particular round. It is implemented as:
+
+```rust
+struct PhysicalAttack {
+    main: u8, // Index of the main (attacking) player
+    target: u8, // Index of the targeted player
+    is_dodged: bool, // Whether the attack was dodged by targeted player
+    is_critical: bool, // Whether the hit by main player was critical.
+    total_normal_hits: u16, // Total hits
+    total_critical_hits: u16, // Total critical hits. Critical hits cause 2X damage.
+    damage: u16 // Actual damage to the targeted player
+}
+```
+
+</details>
+
+<details>
+<summary> Finalize</summary>
+
+#### Finalize
+
+On each finalize, a new random_number is saved in the mapping as:
+`gangwar_settings[simulation_id].random_number = gangwar_settings[simulation_id].random_number xor ChaCha::rand_u16()`
+
+This ensures that the `random_number` that is used later in simulation is not influenced by the admin.
 
 </details>
 
