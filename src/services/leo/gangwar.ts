@@ -90,8 +90,9 @@ const estimateWarStartTime = async (startBlockHeight: number): Promise<number> =
   }
   const EXPECTED_BLOCK_DURATION = 13 * 1000;
   const remainingBlocks = startBlockHeight - latestBlockHeight;
-  const remainingTime = latestTime - remainingBlocks * EXPECTED_BLOCK_DURATION;
-  const expectedTime = latestTime + remainingTime;
+  const expectedTime = latestTime + remainingBlocks * EXPECTED_BLOCK_DURATION;
+  // const remainingTime = latestTime - remainingBlocks * EXPECTED_BLOCK_DURATION;
+  // const expectedTime = latestTime + remainingTime;
   return expectedTime;
 };
 
