@@ -52,6 +52,8 @@ The game concludes when all players from one of the teams have been defeated. Th
 </details>
 
 <details>
+<summary>Scope of Improvement</summary>
+
 ### Scope of Improvement
 
 The game on ICON is well appreciated by the community, yet we see some scope of improvement:
