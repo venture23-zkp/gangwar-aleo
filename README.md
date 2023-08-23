@@ -121,7 +121,7 @@ Our overall game can be covered by 6 major transitions which can also be viewed 
 
 ### 1. Game Creation
 
-Game is created with create_game transition.
+Game is created with `create_game` transition.
 
 ```rust
 transition create_game(
@@ -133,6 +133,8 @@ transition create_game(
   winner_lootcrate_count: u8
 )
 ```
+
+> This transition can only be called by the admin
 
 <details>
 <summary> Inputs </summary>
@@ -209,11 +211,9 @@ struct GangwarSettings {
 
 </details>
 
-> This transition can only be called by the admin
+### 2. Player Registration
 
-### 2. Player Registration / Game Joining
-
-Once a game is created, players may now join the game before pre-specified deadline.
+Once a game is created, players may now join the game before pre-specified deadline with `join_game` transition.
 
 ```rust
 transition join_game(
@@ -290,9 +290,9 @@ Sequence diagram of this phase is as shown in the image below:
 
 </details>
 
-### 3. Game Start (Transition)
+### 3. Game Start
 
-Once all the players have joined, and the deadline to register has passed, game can be started. To start the game, central server fetches the unspent records of players registered to a particular `simulation_id` and creates a `War` record.
+Once all the players have joined, and the deadline to register has passed, game can be started. To start the game, central server fetches the unspent records of players registered to a particular `simulation_id` and creates a `War` record. The players are divided into two teams **fairly** and one of the team is chosen at random to be the attacking team (also called `main_team`).
 
 ```rust
 transition start_game(
@@ -307,10 +307,7 @@ transition start_game(
 ) -> War
 ```
 
-In this transition:
-
-- The players are divided into two teams fairly.
-- One of the team is chosen at random to be the attacking team (also called `main_team`).
+> Player records needs to be sorted by their strength i.e. p1.strength >= p2.strength >= ... >= p6.strength.
 
 <details>
 <summary> Inputs </summary>
@@ -326,7 +323,6 @@ In this transition:
 - **p5**: Player Record
 - **p6**: Player Record
 
-> Player records needs to be sorted by their strength i.e. p1.strength >= p2.strength >= ... >= p6.strength.
 > Although, sort could have been implemented within Leo program, we decided to do it outside and simply verify it. It helped us save computation time.
 
 </details>
@@ -396,166 +392,117 @@ Sequence diagram of this phase is as shown in the image below:
 
 </details>
 
-### 4. Game Loop \(Transition\)
+### 4. Game Loop
 
-This is the phase that actually comsumes a war record, makes all the moves randomly, submits proof to the chain and return an updated war record for next round. The transition takes two input parameter: war record and a random number, and returns war record by calling finalize block which updates the new random number for next round. Game loop transition can be understood by the following skeleton definition:
+Once `War` record is created, with `start_game` transition, the game can finally be simulated. Players from both teams are chosen for the faceoff. Randomly chosen player from the `main_team` attacks randomly chosen player from the `target_team`. To decide if a attack landed on the targeted player, a biased coin is flipped. The probability for landing a successful hit is based on the stats of both the attacking player and the targeted player as:
+`P(Successful Hit) = Hit Chance of Attacking Player * (1 - Dodge Chance of Dodged Player)`
+
+Damage is calculated based on the number of successful hits and the information is stored in `PhysicalAttack`.
 
 ````rust
-transition game_loop(w: War, random_seed: u16) -> War {
-    // Choose players from both teams to faceoff based on random_seed
-    // Calculate damage
-    // Create new war record with updated player stats in each team, and also swap the main_team and target_team for next round
-    // Return new war record
-    // Finalize game_loop
-}```
-
-
-finalize game_loop(initial_random_seed: u128, new_random_seed: u128) {
-   let saved_random_seed: u128 = Mapping::get_or_use(settings, 0u128, 0u128);  // fetch the random number saved on chain
-   assert_eq(initial_random_seed, saved_random_seed);                          // ensure that the new_random_seed being used in this transition is actually the one saved on chain
-   let new_random_number: u128 = ChaCha::rand_u128();    // Generage new random number
-   Mapping::set(settings, 0u128, new_random_number);     // Save the newly generated random number
-}
-
-````
-
-The pseudocode of choosing players to faceoff based on random seed is as follows:
-
-```
- selected_player = random_seed % 3
- if selected_player is alive then return selected_player
- else{        // if randomly selected player is dead then we select next alive player
-   loop 2 times{
-     selected_player += 1
-     if selected_player is alive then return selected_player
-   }
- if none could be selected then return a flag indicating the game is over.
- }
+transition simulate1vs1(
+  w: War,
+  random_seed: u16
+) -> War
 ```
 
-> In returned war record the main_team and target_team are **swapped** ensuring they attack and defend turn by turn.
 > This game loop is called for maximum number of allowed rounds or until one of the whole team is dead.
+> The newly created `War` record swaps the `main_team` and `target_team` ensuring they attack and defend turn by turn.
 > Once a war record is consumed it cannot be reused which is handled by the chain itself.
+
+<details>
+<summary> Inputs </summary>
+
+#### Inputs
+
+- **w**: Unspent `War` record. Only 1 unspent `War` record exist for a particular `simualtion_id`.
+- **random_seed**: Random number for the `simulation_id`. This must be the same value that is stored on the mapping.
+
+</details>
+
+<details>
+<summary> Outputs </summary>
+A new `War` record is created at every gameloop.
+</details>
+
+<details>
+<summary> Finalize</summary>
+
+#### Finalize
+
+On each finalize, we ensure that we are using the saved randomness. Then we updated the saved randomness as:
+`gangwar_settings[simulation_id].random_number = gangwar_settings[simulation_id].random_number xor ChaCha::rand_u16()`
+
+</details>
+
+
+<details>
+<summary> Sequence Diagram </summary>
 
 Sequence diagram of this phase is as shown in the image below:
 ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1aWqFNPi_aQAzFoftXE891Xyf88JHg6RW)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 
-#### Necessity of Array in Leo
+</details>
 
-We have used bitwise operations over `u8` integer to store flags of alive status of players and also for flags for players who have already been selected in the same round of attack. In Leo language, we were limited with this approach for programmability mainly due to unavailability of **array in Leo**. Even though we do not launch 2 vs 1 or 3 vs 3 in current submission, the following logic is a dynamic way of selecting a player at random among alive and unique players for all modes of gameplay.
+### 5. Game End And Reward Distribution
 
-```
-    inline get_eligible_player_index(alive_players: u8, already_selected_players: u8, random_seed: u16) -> u8 {
-      //  For 1 vs 1 mode of gameplay already_selected_players parameter will have no effect logically, since we only need 1 player.
-      //  But when it is **2 vs 1** then we do not want the both players from first team to be the same one.
-      /// Representation of players is in u8 as LSBs (Least Significant Bits)
-      /// For example: 7u8 => 00000111 => Represent all three players
-      /// For example: 4u8 => 00000100 => Represents third player
-
-      /// Selects an eligible player based on a random_number
-      /// A player is eligible if he is alive and has not been selected previously
-
-      let eligible_player_index: u8 = 8u8; // Starting with an out of range value
-
-      // Select a random index to denote the player
-      // Since we have 3 players, mod by 3u8
-      let random_player_index: u8 = BHP256::hash_to_u8(random_seed).mod(3u8);
-
-      // Get a random player
-      // If random_player_index = 0u8 => random_player = 00000001 (p1)
-      // If random_player_index = 1u8 => random_player = 00000010 (p2)
-      // If random_player_index = 2u8 => random_player = 00000100 (p3)
-      let random_player: u8 = 1u8<<(random_player_index);
-
-      // Ensure the random_player is eligible
-      if ((
-          (random_player & already_selected_players) == 0u8 ) && // Random player is not selected previously
-          ((random_player & alive_players) != 0u8 )) // Random player is alive
-          {
-              eligible_player_index = random_player_index;
-          }
-      else { // search for a random player
-          for i:u8 in 0u8..2u8{
-              random_player = random_player<< 1u8;   // try with next player
-              random_player_index += 1u8;
-              if (random_player == 8u8) {
-                  random_player = 1u8;
-                  random_player_index = 0u8;
-              }
-              if ((random_player & already_selected_players)== 0u8 ) && ((random_player & alive_players) != 0u8 ){
-                  eligible_player_index = random_player_index;
-              }
-          }
-      }
-      return eligible_player_index + 1u8;  // if returned value is 9u8 then we will understand that all players in the team is dead else we will get one player.
-  }
-```
-
-We faced similar complexity when implementing function call for faceoffs between any player from each team. For eg. in 1 vs 1 mode we have to select 1 player from each team at random. So there will be 9 combination of if ... else if ... statements. If there was provision of array then this could be done without any if statement by directly selecting players with array indexing.
-
-```
-rand_player_team_a = get_eligible_player_index( team_a, ... );  // returns a random player from team a
-rand_player_team_b = get_eligible_player_index( team_b, ... );  // returns a random player from team b
-
-if ( rand_player_team_a == 1u8 && rand_player_team_b == 1u8){
-
-  par = physical_attack_sequence(w.main_team.p1, w.target_team.p1, new_random_seed);
-        // w is war record, this function executes the mathematics and logics of attack and is one of the core function.
-}
-if ( rand_player_team_a == 1u8 && rand_player_team_b == 2u8){
-  par = physical_attack_sequence(w.main_team.p1, w.target_team.p2, new_random_seed);
-}
-...
-...
-if ( rand_player_team_a == 3u8 && rand_player_team_b == 3u8){
-  par = physical_attack_sequence(w.main_team.p3, w.target_team.p3, new_random_seed);
-}
-```
-
-If there was provision for array then above code could be implemented by:
-
-```
-rand_player_team_a = get_eligible_player_index( team_a, ... );  // returns a random player from team a
-rand_player_team_b = get_eligible_player_index( team_b, ... );  // returns a random player from team b
-
-par = physical_attack_sequence(w.main_team.p[rand_player_team_a - 1u8], w.target_team.p[rand_player_team_b-1u8], new_random_seed);
-```
-
-The LOC doubles when we implement **2 vs 1**, since we have to write code as previously for allowing a player to attack from main team to a player from target team, and also we have to allow another player from main team at random except the already selected one to attack the same player from target team. It **triples** when we have to implement **3 vs 3**, and so on.
-
-> We understand the complexity Aleo team has to face to achieve this feature in zk circuits. But it would be a really nice feature to have in a high level programming language.
-
-### 5. Game End \(Transition\)
-
-This is a simple transition which will be called when any of the following conditions meet:
-
+Game can be ended to distribute the rewards \(LootCrate NFT\) when any of the following conditions meet:
 - All the players from any of the team are dead.
 - Maximum allowed rounds have been played.
 
-Winner team is announced in this phase. All team members from the winning team are considered winners and are eligible for rewards provided by game.
-
-### 6. Reward distribution
-
-We collect player's Leo address, while they submit the character during game joining phase, with the purpose of reward distribution. We will provide users with a NFT_mint record which they can spend later on to mint NFT on their ownership even in mainnet. For the purpose of NFT distribution we have used the program created by [Artfactory](https://art.privacypride.com/program-walkthrough/v4). The structure of NFT_mint and NFT records are:
-
-```
-  record NFT {
-      private owner: address,  // Address of player
-      private data: TokenId,   // NFT token ID
-      private edition: scalar, // which edition of the nft this particular one is -- will be 0 for unique NFTs
-  }
-
-  record NFT_mint {
-      private owner: address,  // Address of player
-      private amount: u8,      // Number of NFT that can be minted by spending this record
-  }
+```rust
+transition finish_game(
+  w: War,
+  participation_lootcrate_count: u8,
+  winner_lootcrate_count: u8,
+  random_number: u16
+  ) -> (
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint
+  )
 ```
 
-To get detailed technical overview of this NFT program please visit Artfactory's [official site](https://art.privacypride.com/program-walkthrough/v4).
+<details>
+<summary> Inputs </summary>
+
+#### Inputs
+
+- **w**: Unspent `War` record.
+- **participation_lootcrate_count**: Number of NFTs to be received upon participation.
+- **winner_lootcrate_count**: Number of additional NFTs to be received upon upon.
+- **random_seed**: This is used to break a tie.
+
+</details>
+
+<details>
+<summary> Outputs </summary>
+`NFT_mint` record is minted for all the participants and the winners based on the initial value set in the mapping. The `NFT_mint` record can be later used to claim NFTs once they are added on `lootcrate_nft_v1`. These NFTs will be used to enhance `Character's` in the next version of the game.
+</details>
+
+<details>
+<summary> Finalize</summary>
+
+#### Finalize
+
+We ensure that the conditions to end the game has actually been met and the rewards has been distributed properly.
+
+</details>
+
+
+<details>
+<summary> Sequence Diagram </summary>
+
+
+
 
 # Kryha's SDK
 
 A huge round of applause to the Kryha team for open sourcing their SDK which was extremely helpful to integrate Aleo to the outward facing APIs to communicate with frontend and our other servers, type casting the request received through API into Aleo compatible data type and vice versa. At this initial phase of active development of Aleo finding such a useful resource has been really valuable and we have utilized it to the fullest.
 
 > The following section has been written by the Kryha team and can be used to execute this project.
+````
