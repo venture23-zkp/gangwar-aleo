@@ -208,72 +208,71 @@ struct GangwarSettings {
 
 > This transition can only be called by the admin
 
-
 ### 2. Player Registration / Game Joining
 
-Once a game is created players may now join the game before pre-specified deadline. At present we want users to use NFTs from ICON blockchain as players for our game in Aleo Blockchain as well \(in future this approach may be changed\). The process for registration is as specified below:
+Once a game is created, players may now join the game before pre-specified deadline.
 
-- Users may select and **request** the available player character from a pool of character NFTs. For this transaction user do not interact with the ICON chain instead the interaction will be between the user and our centralized server which is authorized to sign the player character. Central Server responses with the player NFT along with stats and the signature. \)
-  > This particular step of requesting character can be done before game creation as well but they won't be able to join until a game is created.
-- After receiving the character and signature user can submit \(joinGame transition in the given image\) those into the Aleo chain.
-
-  > One has to pay **transaction fee** for this transaction through **LEO Wallet**
-
-- After successful verification of signature a **record** of player is created with ownership of admin.
-  ```
-  //An example of record created in this step:
-  record Player {
-      owner: aleo1vhztlwxmqphujgq4j8cxqaqvpevujghnk02g5vjvsl3yx0n3sgyq0uxhnl,
-      simulation_id: 1u32,
-      char: reference_to_a_character_struct_formed_based_on_player_NFT
-  }
-  ```
-
-#### Schnorr Signature Scheme in Leo \(Own implementation\)
-
-For the purpose of signing and verifying characters we have implemented Schnorr Signature Algorithm in Leo Language ourselves. We hope it will be helpful to the community and expect creative feedback on it.
-
+```rust
+transition join_game(
+  simulation_id: u32,
+  char: Character,
+  signature: Signature
+) -> Player
 ```
-    /// 28,100 constraints
-    transition sign(m: Character, sk: scalar, k: scalar, validity_timestamp: u32) -> Signature {
-      let r: group = k * group::GEN;
-      let h: HashStruct = HashStruct {
-          m,
-          r,
-          validity_timestamp
-      };
-      let e: scalar = BHP256::hash_to_scalar(h);
 
-      let s: group = k*group::GEN + e.mul(group::GEN).mul(sk);
+<details>
+<summary> Inputs </summary>
 
-      let signature: Signature = Signature{
-          r,
-          s,
-          validity_timestamp
-      };
+#### Inputs
 
-      return signature;
-  }
+- **simulation_id**: A unique identifier for a particular game.
+- **char**: A Character struct
+- **signature**: Signature of admin
 
-  /// 10,318 constraints
-  function verify(m: Character, pk: group, signature: Signature) -> bool {
-      let h: HashStruct = HashStruct {
-          m,
-          r: signature.r,
-          validity_timestamp: signature.validity_timestamp
-      };
-      let e: scalar = BHP256::hash_to_scalar(h);
+Character is a struct that defines the attributes of the player. Each character has `PrimaryStats`, `SecondaryStats` and a `Weapon`. These attributes are responsible for the outcome in a battle.
 
-      let right: group = signature.r + pk.mul(e);
-      let verified:bool = right.eq(signature.s);
-
-      return verified;
-  }
+```rust
+struct Character {
+    nft_id: u16,
+    player_addr: address,
+    primary_stats: PrimaryStats,
+    secondary_stats: SecondaryStats,
+    primary_equipment: Weapon,
+}
 ```
+
+> A valid signature of the admin is required to join the game.
+
+> To check the signature of the admin, we required something similar to `ecrecover` on Aleo. Since we couldn't find something similar, we instead implemented Schnorr Signature Algorithm in Leo.
+
+Players have the opportunity to choose their player character from a collection of characters available. These characters are based on actual NFTs on ICON Blockchain. To initiate this process, players make a selection request to our centralized server, which holds authorization to sign the player character. The centralized server responds by providing the `Character` along with its associated attributes and a `Signature`.
+
+After acquiring the `Character` and `Signature`, players can join the game using **Leo Wallet**.
+
+</details>
+
+<details>
+<summary> Outputs </summary>
+This creates a `Player` record in the ownership of the admin. The `Player` record is defined as:
+
+```rust
+record Player {
+  owner: address,
+  simulation_id: u32,
+  char: Character
+}
+```
+
+</details>
+
+<details>
+<summary> Sequence Diagram </summary>
 
 Sequence diagram of this phase is as shown in the image below:
 ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1uIFQv9X5OsRSDLvBd0Ys3S-tHgH96Lnq)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+</details>
 
 ### 3. Game Start (Transition)
 
