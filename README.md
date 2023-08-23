@@ -1,17 +1,3 @@
-# Table of contents
-
-<!--ts-->
-
-- [Gangwars](#gangwars)
-  _ [High Level Overview of Gangwars](#high-level-overview-of-gangwars-as-on-other-public-mainstream-chains)
-  _ [Scope of Improvement
-  ](#scope-of-improvement)
-- [Gangwars on Aleo](#gangwars-on-aleo)
-_ [Major differences in implemention of Gangwars on Aleo as compared to Aleo on other mainstream public chains](#major-differences-in-implemention-of-gangwars-on-aleo-as-compared-to-aleo-on-other-mainstream-public-chains)
-_ [Transitions used
-](#transitions-used) \* [Kryha's SDK](#kryhas-sdk)
-<!--te-->
-
 # Gangwars
 
 [Gangwars](https://war.gangstaverse.co/) is already a successful online game of battle between two teams with five members each currently live on ICON chain with plans to expand it on BASE in near future. So far, users have spent 24,000+ ICX and 500,000+ CROWN to participate in the games and everyday all the games are fully packed with players.
@@ -256,6 +242,9 @@ After acquiring the `Character` and `Signature`, players can join the game using
 
 <details>
 <summary> Outputs </summary>
+
+#### Output
+
 This creates a `Player` record in the ownership of the admin. The `Player` record is defined as:
 
 ```rust
@@ -283,7 +272,7 @@ This ensures that the `random_number` that is used later in simulation is not in
 <details>
 <summary> Sequence Diagram </summary>
 
-Sequence diagram of this phase is as shown in the image below:
+#### Sequence Diagram
 
 ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1uIFQv9X5OsRSDLvBd0Ys3S-tHgH96Lnq)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
@@ -384,9 +373,8 @@ This ensures that the `random_number` that is used later in simulation is not in
 <details>
 <summary> Sequence Diagram </summary>
 
-Sequence diagram of this phase is as shown in the image below:
+#### Sequence Diagram
 
-Sequence diagram of this phase is as shown in the image below:
 ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=10LDWXKCX9c7cu10sLclCMMexUkbMGXfW)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 
@@ -394,10 +382,13 @@ Sequence diagram of this phase is as shown in the image below:
 
 ### 4. Game Loop
 
-Once `War` record is created, with `start_game` transition, the game can finally be simulated. Players from both teams are chosen for the faceoff. Randomly chosen player from the `main_team` attacks randomly chosen player from the `target_team`. To decide if a attack landed on the targeted player, a biased coin is flipped. The probability for landing a successful hit is based on the stats of both the attacking player and the targeted player as:
+After the creation of the `War` record through the activation of the `start_game` transition, the game enters the simulation phase. A player is randomly chosen from the `main_team` to initiate an attack on a randomly selected player from the opposing `target_team`.
+
+The determination of whether an attack successfully lands on the targeted player relies on the outcome of a **biased coin flip**. This coin flip is influenced by the respective stats of both the attacking player and the targeted player. The probability of achieving a successful hit is calculated as follow:
+
 `P(Successful Hit) = Hit Chance of Attacking Player * (1 - Dodge Chance of Dodged Player)`
 
-Damage is calculated based on the number of successful hits and the information is stored in `PhysicalAttack`.
+Damage inflicted during the faceoff is calculated based on the number of successful hits achieved. This information tracked and recorded in the `PhysicalAttack` struct within `War` record.
 
 ```rust
 transition simulate1vs1(
@@ -406,9 +397,9 @@ transition simulate1vs1(
 ) -> War
 ```
 
-> This game loop is called for maximum number of allowed rounds or until one of the whole team is dead.
 > The newly created `War` record swaps the `main_team` and `target_team` ensuring they attack and defend turn by turn.
-> Once a war record is consumed it cannot be reused which is handled by the chain itself.
+
+> This transition is called until conditions to end the game is fulfilled.
 
 <details>
 <summary> Inputs </summary>
@@ -438,7 +429,8 @@ On each finalize, we ensure that we are using the saved randomness. Then we upda
 <details>
 <summary> Sequence Diagram </summary>
 
-Sequence diagram of this phase is as shown in the image below:
+#### Sequence Diagram
+
 ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1aWqFNPi_aQAzFoftXE891Xyf88JHg6RW)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 
@@ -496,12 +488,10 @@ We ensure that the conditions to end the game has actually been met and the rewa
 <details>
 <summary> Sequence Diagram </summary>
 
-# Kryha's SDK
+#### Sequence Diagram
 
-A huge round of applause to the Kryha team for open sourcing their SDK which was extremely helpful to integrate Aleo to the outward facing APIs to communicate with frontend and our other servers, type casting the request received through API into Aleo compatible data type and vice versa. At this initial phase of active development of Aleo finding such a useful resource has been really valuable and we have utilized it to the fullest.
+</details>
 
-> The following section has been written by the Kryha team and can be used to execute this project.
+## Acknowledgements
 
-```
-
-```
+Thanks to the Kryha team for generously open sourcing their [zk-gaming-toolkit](https://github.com/kryha/zk-gaming-toolkit). This invaluable resource played a pivotal role in seamlessly integrating Aleo with our outward-facing APIs, facilitating communication with our frontend and other servers.
