@@ -399,7 +399,7 @@ Once `War` record is created, with `start_game` transition, the game can finally
 
 Damage is calculated based on the number of successful hits and the information is stored in `PhysicalAttack`.
 
-````rust
+```rust
 transition simulate1vs1(
   w: War,
   random_seed: u16
@@ -435,7 +435,6 @@ On each finalize, we ensure that we are using the saved randomness. Then we upda
 
 </details>
 
-
 <details>
 <summary> Sequence Diagram </summary>
 
@@ -448,6 +447,7 @@ Sequence diagram of this phase is as shown in the image below:
 ### 5. Game End And Reward Distribution
 
 Game can be ended to distribute the rewards \(LootCrate NFT\) when any of the following conditions meet:
+
 - All the players from any of the team are dead.
 - Maximum allowed rounds have been played.
 
@@ -493,16 +493,15 @@ We ensure that the conditions to end the game has actually been met and the rewa
 
 </details>
 
-
 <details>
 <summary> Sequence Diagram </summary>
-
-
-
 
 # Kryha's SDK
 
 A huge round of applause to the Kryha team for open sourcing their SDK which was extremely helpful to integrate Aleo to the outward facing APIs to communicate with frontend and our other servers, type casting the request received through API into Aleo compatible data type and vice versa. At this initial phase of active development of Aleo finding such a useful resource has been really valuable and we have utilized it to the fullest.
 
 > The following section has been written by the Kryha team and can be used to execute this project.
-````
+
+```
+
+```
