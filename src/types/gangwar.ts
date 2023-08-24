@@ -24,6 +24,7 @@ export const gangwarSettingsSchema = z.object({
   winnerLootcrateCount: z.number().int(),
   registeredPlayers: z.number().int(),
   randomNumber: z.number(),
+  latestHeight: z.number(),
 });
 export type GangwarSettings = z.infer<typeof gangwarSettingsSchema>;
 

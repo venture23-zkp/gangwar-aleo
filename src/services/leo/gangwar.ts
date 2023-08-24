@@ -108,7 +108,8 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
     const gangwarSettingsLeo = parseRecordString(res);
     let gangwarSettings = leo2js.gangwar.settings(gangwarSettingsLeo);
     const startTime = await estimateWarStartTime(gangwarSettings.deadlineToRegister);
-    return { ...gangwarSettings, startTime };
+    const latestHeight = Number(await getLatestHeight());
+    return { ...gangwarSettings, startTime, latestHeight };
   } else {
     return {
       createdAt: 0,
@@ -120,6 +121,7 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
       winnerLootcrateCount: 1,
       registeredPlayers: 1,
       randomNumber: Math.round(Math.random() * (Math.pow(2, 16) - 1)),
+      latestHeight: 100,
     };
   }
 };

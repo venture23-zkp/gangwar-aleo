@@ -116,6 +116,7 @@ const settings = (record: Record<string, unknown>): GangwarSettings => {
     winnerLootcrateCount: u8(parsed.winner_lootcrate_count),
     registeredPlayers: u8(parsed.registered_players),
     randomNumber: u16(parsed.random_number),
+    latestHeight: 0,
   };
   return gangwarSettingsSchema.parse(gangwarSettings);
 };
