@@ -337,12 +337,13 @@ export const fetchUnspentRecords = async (
   program: string,
   recordName: string,
   startHeight: number,
+  endHeight?: number,
   bracketPattern?: string
 ) => {
   console.log("Fetching unspent records");
   const unspentRecords = await networkClient.findUnspentRecords(
     startHeight,
-    undefined,
+    endHeight,
     privateKey,
     undefined,
     undefined,

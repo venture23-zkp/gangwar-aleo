@@ -296,8 +296,17 @@ const fetchPlayerRecords = async (
     if (startHeight && startHeight > startBlock) {
       startBlock = startHeight;
     }
+    const endHeight = settings.deadlineToRegister;
     const bracketPattern = playerRecordBracketPattern();
-    const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "Player", startBlock, bracketPattern);
+    const unspentRecords = await fetchUnspentRecords(
+      privateKey,
+      viewKey,
+      programNames.GANGWAR,
+      "Player",
+      startBlock,
+      endHeight,
+      bracketPattern
+    );
     const playerRecords = [];
     for (let record of unspentRecords) {
       try {
@@ -319,7 +328,7 @@ const fetchWarRecord = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, si
 
   const startBlock = settings.deadlineToRegister;
   const bracketPattern = warBracketPattern(3, 3);
-  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "War", startBlock, bracketPattern);
+  const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "War", startBlock, undefined, bracketPattern);
   const warRecords = [];
   for (let record of unspentRecords) {
     try {
