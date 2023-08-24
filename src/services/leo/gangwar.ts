@@ -282,10 +282,18 @@ const joinGame = async (
   return playerRecord;
 };
 
-const fetchPlayerRecords = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, simulationId: number): Promise<any> => {
+const fetchPlayerRecords = async (
+  privateKey: LeoPrivateKey,
+  viewKey: LeoViewKey,
+  simulationId: number,
+  startHeight?: number
+): Promise<any> => {
   const settings = await fetchGangwarSettings(simulationId);
   if (env.ZK_MODE !== "leo") {
-    const startBlock = settings.createdAt;
+    let startBlock = settings.createdAt;
+    if (startHeight && startHeight > startBlock) {
+      startBlock = startHeight;
+    }
     const bracketPattern = playerRecordBracketPattern();
     const unspentRecords = await fetchUnspentRecords(privateKey, viewKey, programNames.GANGWAR, "Player", startBlock, bracketPattern);
     const playerRecords = [];

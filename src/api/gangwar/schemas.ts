@@ -57,6 +57,7 @@ export const schemas = {
       viewKey: leoViewKeySchema,
       owner: leoAddressSchema,
       simulationId: z.number(),
+      startHeight: z.number().optional(),
     }),
     fetchWarRecord: z.object({
       privateKey: leoPrivateKeySchema,
