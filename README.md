@@ -281,7 +281,7 @@ This ensures that the `random_number` that is used later in simulation is not in
 
 </details>
 
-### 3. Game Start
+### 3. Game Onset
 
 Once all the players have joined, and the deadline to register has passed, game can be started with [`start_game`](/contracts/gangwar/src/main.leo#L259-L346) transition. To start the game, central server fetches the unspent records of players registered to a particular `simulation_id` and creates a `War` record. The players are divided into two teams **fairly** and one of the team is chosen at random to be the attacking team (also called `main_team`).
 
@@ -382,7 +382,7 @@ This ensures that the `random_number` that is used later in simulation is not in
 
 </details>
 
-### 4. Game Loop
+### 4. Gameplay Simulation
 
 After the creation of the `War` record, the game enters the simulation phase with [`simulate1vs1`](/contracts/gangwar/src/main.leo#L349-L556) transition. A player is randomly chosen from the `main_team` to initiate an attack on a randomly selected player from the opposing `target_team`.
 
@@ -439,7 +439,7 @@ On each finalize, we ensure that we are using the saved randomness. Then we upda
 
 </details>
 
-### 5. Game End And Reward Distribution
+### 5. Victory and Rewards
 
 Game can be ended to distribute the rewards \(LootCrate NFT\) with [`finish_game`](/contracts/gangwar/src/main.leo#L560-L590) transition when any of the following conditions meet:
 
