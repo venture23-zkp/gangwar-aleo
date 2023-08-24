@@ -87,7 +87,7 @@ In our game,
 
 Generic Flow diagram of this process is as shown in the image below:
 
-![Sequence Diagram of Game Creation ](https://github.com/purusang/gangwar-aleo/blob/main/img/RandomNumber.pngW#gh-light-mode-only)
+![Sequence Diagram of Game Creation ](https://github.com/purusang/gangwar-aleo/blob/main/img/RandomNumber.png#gh-light-mode-only)
 ![Sequence Diagram of Game Creation ](https://github.com/purusang/gangwar-aleo/blob/main/img/dRandomNumber.png#gh-dark-mode-only)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 
@@ -194,7 +194,8 @@ struct GangwarSettings {
 
 #### Sequence Diagram
 
-![Sequence Diagram of Game Creation](https://drive.google.com/uc?id=1BMkJJbViWwZK1ZWlO5PBGTvb7M-n0zjM)
+![Sequence Diagram of Game Creation](https://github.com/purusang/gangwar-aleo/blob/main/img/GameCreation.png#gh-light-mode-only)
+![Sequence Diagram of Game Creation](https://github.com/purusang/gangwar-aleo/blob/main/img/dGameCreation.png#gh-dark-mode-only)
 
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 
@@ -277,7 +278,8 @@ This ensures that the `random_number` that is used later in simulation is not in
 
 #### Sequence Diagram
 
-![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1uIFQv9X5OsRSDLvBd0Ys3S-tHgH96Lnq)
+![Sequence Diagram of Player Registration ](https://github.com/purusang/gangwar-aleo/blob/main/img/GameJoining.png#gh-light-mode-only)
+![Sequence Diagram of Player Registration ](https://github.com/purusang/gangwar-aleo/blob/main/img/dGameJoining.png#gh-dark-mode-only)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 
 </details>
@@ -378,7 +380,8 @@ This ensures that the `random_number` that is used later in simulation is not in
 
 #### Sequence Diagram
 
-![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=10LDWXKCX9c7cu10sLclCMMexUkbMGXfW)
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/StartGame.png#gh-light-mode-only)
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/dStartGame.png#gh-dark-mode-only)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 
 </details>
@@ -435,7 +438,8 @@ On each finalize, we ensure that we are using the saved randomness. Then we upda
 
 #### Sequence Diagram
 
-![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1aWqFNPi_aQAzFoftXE891Xyf88JHg6RW)
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/GameLoop.png#gh-light-mode-only)
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/dGameLoop.png#gh-dark-mode-only)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 
 </details>
