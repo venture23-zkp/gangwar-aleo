@@ -109,7 +109,7 @@ Our overall game can be covered by 6 major transitions which can also be viewed 
 
 ### 1. Game Creation
 
-Game is created with `create_game` transition.
+Game is created with [`create_game`](/contracts/gangwar/src/main.leo#L135-L159) transition.
 
 ```rust
 transition create_game(
@@ -201,7 +201,7 @@ struct GangwarSettings {
 
 ### 2. Player Registration
 
-Once a game is created, players may now join the game before pre-specified deadline with `join_game` transition.
+Once a game is created, players may now join the game before pre-specified deadline with [`join_game`](/contracts/gangwar/src/main.leo#L217-L254) transition.
 
 ```rust
 transition join_game(
@@ -234,7 +234,7 @@ struct Character {
 }
 ```
 
-> To check the signature of the admin, we required something similar to `ecrecover` on Aleo. Since we couldn't find something similar, we instead implemented Schnorr Signature Algorithm in Leo.
+> To check the signature of the admin, we required something similar to `ecrecover` on Aleo. Since we couldn't find something similar, we instead implemented [Schnorr Signature Algorithm in Leo](/contracts/dsa/src/main.leo).
 
 Players have the opportunity to choose their player character from a collection of characters available. These characters are based on actual NFTs on ICON Blockchain. To initiate this process, players make a selection request to our centralized server, which holds authorization to sign the player character. The centralized server responds by providing the `Character` along with its associated attributes and a `Signature`.
 
@@ -283,7 +283,7 @@ This ensures that the `random_number` that is used later in simulation is not in
 
 ### 3. Game Start
 
-Once all the players have joined, and the deadline to register has passed, game can be started. To start the game, central server fetches the unspent records of players registered to a particular `simulation_id` and creates a `War` record. The players are divided into two teams **fairly** and one of the team is chosen at random to be the attacking team (also called `main_team`).
+Once all the players have joined, and the deadline to register has passed, game can be started with [`start_game`](/contracts/gangwar/src/main.leo#L259-L346) transition. To start the game, central server fetches the unspent records of players registered to a particular `simulation_id` and creates a `War` record. The players are divided into two teams **fairly** and one of the team is chosen at random to be the attacking team (also called `main_team`).
 
 ```rust
 transition start_game(
@@ -384,7 +384,7 @@ This ensures that the `random_number` that is used later in simulation is not in
 
 ### 4. Game Loop
 
-After the creation of the `War` record through the activation of the `start_game` transition, the game enters the simulation phase. A player is randomly chosen from the `main_team` to initiate an attack on a randomly selected player from the opposing `target_team`.
+After the creation of the `War` record, the game enters the simulation phase with [`simulate1vs1`](/contracts/gangwar/src/main.leo#L349-L556) transition. A player is randomly chosen from the `main_team` to initiate an attack on a randomly selected player from the opposing `target_team`.
 
 The determination of whether an attack successfully lands on the targeted player relies on the outcome of a **biased coin flip**. This coin flip is influenced by the respective stats of both the attacking player and the targeted player. The probability of achieving a successful hit is calculated as follow:
 
@@ -415,6 +415,7 @@ transition simulate1vs1(
 
 <details>
 <summary> Outputs </summary>
+
 A new `War` record is created at every gameloop.
 </details>
 
@@ -440,7 +441,7 @@ On each finalize, we ensure that we are using the saved randomness. Then we upda
 
 ### 5. Game End And Reward Distribution
 
-Game can be ended to distribute the rewards \(LootCrate NFT\) when any of the following conditions meet:
+Game can be ended to distribute the rewards \(LootCrate NFT\) with [`finish_game`](/contracts/gangwar/src/main.leo#L560-L590) transition when any of the following conditions meet:
 
 - All the players from any of the team are dead.
 - Maximum allowed rounds have been played.
@@ -475,6 +476,7 @@ transition finish_game(
 
 <details>
 <summary> Outputs </summary>
+
 `NFT_mint` record is minted for all the participants and the winners based on the initial value set in the mapping. The `NFT_mint` record can be later used to claim NFTs once they are added on `lootcrate_nft_v1`. These NFTs will be used to enhance `Character's` in the next version of the game.
 </details>
 
