@@ -441,7 +441,7 @@ On each finalize, we ensure that we are using the saved randomness. Then we upda
 
 ### 5. Victory and Rewards
 
-Game can be ended to distribute the rewards \(LootCrate NFT\) with [`finish_game`](/contracts/gangwar/src/main.leo#L560-L590) transition when any of the following conditions meet:
+Game can be ended to distribute the rewards [\(LootCrate NFT\)](https://gangstaverse.medium.com/the-spoils-of-gangwars-lootcrates-7d32a4ad727d) with [`finish_game`](/contracts/gangwar/src/main.leo#L560-L590) transition when any of the following conditions meet:
 
 - All the players from any of the team are dead.
 - Maximum allowed rounds have been played.
