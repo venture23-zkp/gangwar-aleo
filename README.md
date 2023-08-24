@@ -499,6 +499,9 @@ We ensure that the conditions to end the game has actually been met and the rewa
 
 #### Sequence Diagram
 
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/FinishGame.png#gh-light-mode-only)
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/dFinishGame.png#gh-dark-mode-only)
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 </details>
 
 ## Acknowledgements
