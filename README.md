@@ -105,7 +105,7 @@ Generic Flow diagram of this process is as shown in the image below:
 
 ## Transitions
 
-Our overall game can be covered by 6 major transitions which can also be viewed as different phases of game:
+Our overall game can be covered by 5 major transitions which can also be viewed as different phases of game:
 
 ### 1. Game Creation
 
