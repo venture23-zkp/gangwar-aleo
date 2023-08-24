@@ -88,6 +88,7 @@ In our game,
 Generic Flow diagram of this process is as shown in the image below:
 
 ![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1pMJN-HOJua8MeCeeLfm6M1YZrP4y-1ZW#gh-light-mode-only)
+![Sequence Diagram of Game Creation ](https://drive.google.com/uc?id=1pMJN-HOJua8MeCeeLfm6M1YZrP4y-1ZW#gh-dark-mode-only)
 [View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
 
 > Note: we are supplying random number, which is stored in previous transition call, in each transition call. It is mainly because we have used `ChaCha::rand_u16()` in finalize block which gives us current random number from Aleo chain which changes depending upon transactions and block formation. For proving our random move we cannot rely on live onchain random value which changes frequently. Instead we use the one that we have saved in a transition call and generate proof of using it and update it with **current random number xored with previous one** for next transition call. And so on.
