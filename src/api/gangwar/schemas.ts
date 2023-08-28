@@ -30,9 +30,9 @@ export const schemas = {
       simulationId: z.number(),
     }),
     sign: z.object({
+      simulationId: z.number().optional(),
       character: characterSchema,
       sk: z.string(), // Secret key
-      k: z.string(), // Not required
     }),
     verify: z.object({
       character: characterSchema,

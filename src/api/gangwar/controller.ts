@@ -55,7 +55,7 @@ export const gangwarController: GangwarController = {
     res.send({ gameSettings });
   },
   sign: async (req, res) => {
-    const { character, sk, k } = req.body;
+    const { character, sk } = req.body;
     const signature = await leo.gangwar.sign(character, sk);
     res.send({ signature });
   },
