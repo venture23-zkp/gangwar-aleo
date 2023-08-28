@@ -15,6 +15,7 @@ import {
   playerRecordBracketPattern,
   War,
   warBracketPattern,
+  Team,
 } from "../../types";
 import { SchnorrSignature } from "../../types/dsa";
 import {
@@ -149,6 +150,7 @@ const sign = async (
 
   const leoValidityTimestamp = js2leo.u32(validTimestamp);
   const leoCharacter = js2leo.gangwar.character(character);
+
   let leoCharacterParam = `"${js2leo.stringifyLeoCmdParam(leoCharacter)}"`;
   // let leoCharacterParam = js2leo.stringifyLeoCmdParam(leoCharacter);
 
@@ -432,20 +434,40 @@ const simulate1vs1 = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war:
   return warRecord;
 };
 
-const finishGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war: War): Promise<any> => {
+const getWinningTeam = (teamA: Team, teamB: Team, randomNumber: number): Team => {
+  const teamAHealth = teamA.p1.secondaryStats.health + teamA.p2.secondaryStats.health + teamA.p3.secondaryStats.health;
+  const teamBHealth = teamB.p1.secondaryStats.health + teamB.p2.secondaryStats.health + teamB.p3.secondaryStats.health;
+  let winner: Team;
+  if (teamAHealth > teamBHealth) {
+    winner = teamA;
+  } else if (teamBHealth > teamAHealth) {
+    winner = teamB;
+  } else {
+    const isteamAWinner = randomNumber < 32768;
+    if (isteamAWinner) {
+      winner = teamA;
+    } else {
+      winner = teamB;
+    }
+  }
+  return winner;
+};
+
+const finishGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war: War): Promise<Team> => {
   const transition = "finish_game";
 
   const gangwarSettings = await fetchGangwarSettings(war.simulationId);
   const leoRandomSeed = js2leo.u16(gangwarSettings.randomNumber);
   const leoParticipationLootcrateCount = js2leo.u8(gangwarSettings.participationLootcrateCount);
   const leoWinnerLootcrateCount = js2leo.u8(gangwarSettings.winnerLootcrateCount);
-  console.log(leoRandomSeed);
 
   const leoWarRecord = js2leo.gangwar.warRecord(war);
 
   const leoWarRecordParam = js2leo.stringifyLeoCmdParam(leoWarRecord);
 
   const params = [leoWarRecordParam, leoParticipationLootcrateCount, leoWinnerLootcrateCount, leoRandomSeed];
+
+  const winningTeam = getWinningTeam(war.mainTeam, war.targetTeam, gangwarSettings.randomNumber);
 
   // console.log("gangwar.ts Joining game ", simulationId);
   await zkRun({
@@ -457,6 +479,8 @@ const finishGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war: W
     params,
     fee: FEE,
   });
+
+  return winningTeam;
 };
 
 export const gangwar = {

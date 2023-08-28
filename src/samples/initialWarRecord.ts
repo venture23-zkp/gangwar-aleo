@@ -144,6 +144,15 @@ export const initialWarRecord = {
       },
     },
   },
+  phyAttack: {
+    main: 0,
+    target: 0,
+    isDodged: true,
+    isCritical: false,
+    totalCriticalHits: 0,
+    totalNormalHits: 0,
+    damage: 0,
+  },
   physicalAttack: {
     main: 0,
     target: 0,
