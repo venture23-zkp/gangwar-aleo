@@ -117,7 +117,7 @@ const fetchGangwarSettings = async (simulationId: number): Promise<GangwarSettin
       startTime: await estimateWarStartTime(1000),
       deadlineToRegister: 1000,
       maxNumberOfPlayers: 6,
-      maxRounds: 10,
+      maxRounds: 2,
       participationLootcrateCount: 1,
       winnerLootcrateCount: 1,
       registeredPlayers: 1,
@@ -470,16 +470,19 @@ const finishGame = async (privateKey: LeoPrivateKey, viewKey: LeoViewKey, war: W
   const winningTeam = getWinningTeam(war.mainTeam, war.targetTeam, gangwarSettings.randomNumber);
 
   // console.log("gangwar.ts Joining game ", simulationId);
-  await zkRun({
-    privateKey,
-    viewKey,
-    appName: programNames.GANGWAR,
-    contractPath: gangwarPath,
-    transition,
-    params,
-    fee: FEE,
-  });
-
+  try {
+    await zkRun({
+      privateKey,
+      viewKey,
+      appName: programNames.GANGWAR,
+      contractPath: gangwarPath,
+      transition,
+      params,
+      fee: FEE,
+    });
+  } catch (err) {
+    console.log("Error is expected.");
+  }
   return winningTeam;
 };
 
