@@ -9,7 +9,7 @@ program dsa.aleo {
         m3: field
     }
 
-    struct Signature {
+    struct CustomSig {
         r: group,
         s: group,
     }
@@ -38,7 +38,7 @@ program dsa.aleo {
 
     /// Warning: k should never be used twice
     /// 18,321 constraints
-    transition sign(m: Payload, sk: scalar, k: scalar) -> Signature {
+    transition sign(m: Payload, sk: scalar, k: scalar) -> CustomSig {
         let r: group = k * group::GEN;
         let h: HashStruct = HashStruct {
             m,
@@ -48,29 +48,29 @@ program dsa.aleo {
 
         let s: group = k*group::GEN + e.mul(group::GEN).mul(sk); 
 
-        let signature: Signature = Signature{
+        let sig: CustomSig = CustomSig{
             r,
             s,
         };
         
-        return signature;
+        return sig;
     }
 
-    /// Verifies if a message m is signed by a particular sk based on signature
+    /// Verifies if a message m is signed by a particular sk based on sig
     /// m: Struct - Arbitrary message signed by a user
     /// pk: group - Public Key of the signer
-    /// signature: Signature of the signer
+    /// sig: CustomSig of the signer
 
     // 10,318 constraints
-    transition verify(m: Payload, pk: group, signature: Signature) -> bool {
+    transition verify(m: Payload, pk: group, sig: CustomSig) -> bool {
         let h: HashStruct = HashStruct {
             m,
-            r: signature.r
+            r: sig.r
         };
         let e: scalar = BHP256::hash_to_scalar(h);
 
-        let right: group = signature.r + pk.mul(e);
-        let verified:bool = right.eq(signature.s);
+        let right: group = sig.r + pk.mul(e);
+        let verified:bool = right.eq(sig.s);
 
         return verified;
     }

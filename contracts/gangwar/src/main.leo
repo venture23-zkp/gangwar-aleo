@@ -76,7 +76,7 @@ program gangwar_v1.aleo {
     }
 
 
-    struct Signature {
+    struct CustomSig {
         r: group,
         s: group,
         validity_timestamp: u32
@@ -137,7 +137,7 @@ program gangwar_v1.aleo {
 
     /// 8 constraints
     transition create_game(simulation_id: u32, registration_time: u32, max_number_of_players: u8, max_rounds: u8, participation_lootcrate_count: u8, winner_lootcrate_count: u8) {
-        assert_eq(self.caller, aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t); 
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px); 
         assert(max_number_of_players == 6u8);
         return then finalize(simulation_id, registration_time, max_number_of_players, max_rounds, participation_lootcrate_count, winner_lootcrate_count);
     }
@@ -163,7 +163,7 @@ program gangwar_v1.aleo {
     }
 
     transition update_registration_time(simulation_id: u32, registration_time: u32) {
-        assert_eq(self.caller, aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t);
+        assert_eq(self.caller, aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px);
         return then finalize(simulation_id, registration_time);
     }
 
@@ -194,7 +194,7 @@ program gangwar_v1.aleo {
 
 
     /// 28,100 constraints
-    transition sign(m: Character, sk: scalar, k: scalar, validity_timestamp: u32) -> Signature {
+    transition sign(m: Character, sk: scalar, k: scalar, validity_timestamp: u32) -> CustomSig {
         let r: group = k * group::GEN;
         let h: HashStruct = HashStruct {
             m,
@@ -205,26 +205,26 @@ program gangwar_v1.aleo {
 
         let s: group = k*group::GEN + e.mul(group::GEN).mul(sk); 
 
-        let signature: Signature = Signature{
+        let sig: CustomSig = CustomSig{
             r,
             s,
             validity_timestamp
         };
         
-        return signature;
+        return sig;
     }
 
-    transition verify_sig(m: Character, signature: Signature) -> SigValid {
-        let pk: group = 260659305187315727333921279129486274337749465555639679957460661172861393683group;
+    transition verify_sig(m: Character, sig: CustomSig) -> SigValid {
+        let pk: group = 0group;
         let h: HashStruct = HashStruct {
             m,
-            r: signature.r,
-            validity_timestamp: signature.validity_timestamp
+            r: sig.r,
+            validity_timestamp: sig.validity_timestamp
         };
         let e: scalar = BHP256::hash_to_scalar(h);
 
-        let right: group = signature.r + pk.mul(e);
-        let verified:bool = right.eq(signature.s);
+        let right: group = sig.r + pk.mul(e);
+        let verified:bool = right.eq(sig.s);
 
         return SigValid{
             valid: verified
@@ -232,22 +232,22 @@ program gangwar_v1.aleo {
     }
 
 
-    /// To join a game, submit a Character and it's corresponding signature by the server address
+    /// To join a game, submit a Character and it's corresponding sig by the server address
     /// signature should be valid for time
     /// 21,377 constraints
-    transition join_game(simulation_id: u32, char: Character, signature: Signature) -> Player {
-        assert(verify(char, 260659305187315727333921279129486274337749465555639679957460661172861393683group, signature)); 
-        assert_eq(char.player_addr, self.caller);
+    transition join_game(simulation_id: u32, char: Character, sig: CustomSig) -> Player {
+        assert(verify(char, 1540945439182663264862696551825005342995406165131907382295858612069623286213group, sig)); 
+        // assert_eq(char.player_addr, self.caller);
         return Player {
-            owner: aleo1s567xd2j2ale8t008gf8cx82pn0784l2c22c7uemxtqcuf973cyqc6cz6t,
+            owner: aleo1rhgdu77hgyqd3xjj8ucu3jj9r2krwz6mnzyd80gncr5fxcwlh5rsvzp9px,
             simulation_id,
             char
-        } then finalize(simulation_id, signature.validity_timestamp);
+        } then finalize(simulation_id, sig.validity_timestamp);
     }
 
     finalize join_game(simulation_id: u32, validity_timestamp: u32) {
 
-        // Ensure signature is valid till given time
+        // Ensure sig is valid till given time
         assert(validity_timestamp > block.height);
 
         let settings: GangwarSettings = Mapping::get(gangwar_settings, simulation_id);
@@ -616,16 +616,16 @@ program gangwar_v1.aleo {
     ///////////////////////////////////
 
     /// 10,318 constraints
-    function verify(m: Character, pk: group, signature: Signature) -> bool {
+    function verify(m: Character, pk: group, sig: CustomSig) -> bool {
         let h: HashStruct = HashStruct {
             m,
-            r: signature.r,
-            validity_timestamp: signature.validity_timestamp
+            r: sig.r,
+            validity_timestamp: sig.validity_timestamp
         };
         let e: scalar = BHP256::hash_to_scalar(h);
 
-        let right: group = signature.r + pk.mul(e);
-        let verified:bool = right.eq(signature.s);
+        let right: group = sig.r + pk.mul(e);
+        let verified:bool = right.eq(sig.s);
 
         return verified;
     }
