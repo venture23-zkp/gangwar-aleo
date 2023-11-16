@@ -133,6 +133,7 @@ export const getRandomAleoScalar = (): BigInt => {
 };
 
 const getTxResult = (tx: LeoTx): string | undefined => {
+  // TODO: handle multiple outputs
   return tx.execution.transitions.at(0)?.outputs.at(0)?.value;
 };
 

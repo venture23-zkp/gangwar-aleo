@@ -151,8 +151,8 @@ const sign = async (
   const leoValidityTimestamp = js2leo.u32(validTimestamp);
   const leoCharacter = js2leo.gangwar.character(character);
 
-  let leoCharacterParam = `"${js2leo.stringifyLeoCmdParam(leoCharacter)}"`;
-  // let leoCharacterParam = js2leo.stringifyLeoCmdParam(leoCharacter);
+  // let leoCharacterParam = `"${js2leo.stringifyLeoCmdParam(leoCharacter)}"`;
+  let leoCharacterParam = js2leo.stringifyLeoCmdParam(leoCharacter);
 
   const params = [leoCharacterParam, leoSk, leoK, leoValidityTimestamp];
 

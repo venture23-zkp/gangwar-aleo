@@ -4,18 +4,19 @@ import { createCharacters } from "../../core/gangwar";
 
 // import { sampleParticipants } from "../../samples/participants";
 import { initialWarRecord } from "../../samples/initialWarRecord";
+import { LOCAL_NETWORK_ADDRESS, LOCAL_NETWORK_PRIVATE_KEY, LOCAL_NETWORK_VIEW_KEY } from "../../constants";
 
 jest.setTimeout(600000);
 
 describe("Gangwar Service", () => {
   const keys = {
-    owner: "aleo1z9rkh2xecmpnx9jxkvnyq08mfeddrsrccny0j2hgw4yfhnxpxyqqp42329",
-    privateKey: "APrivateKey1zkp3WTnfDxUchbLeHqwGrgdkTNieykUP72UPNmv4uQngjwf",
-    viewKey: "AViewKey1fvqnzQ9nYfFMAkhjdcz5UEtDD1JjpbtG8kMXBLJKAHbd",
+    owner: LOCAL_NETWORK_ADDRESS,
+    privateKey: LOCAL_NETWORK_PRIVATE_KEY,
+    viewKey: LOCAL_NETWORK_VIEW_KEY,
   };
 
   const schnorrKeys = {
-    sk: "2", // secret key
+    sk: "1", // secret key
   };
 
   let updatedWar: War;
@@ -25,7 +26,7 @@ describe("Gangwar Service", () => {
 
     const simulationId = 1;
     const registrationDuration = 1000;
-    const maxNumberOfPlayers = 10;
+    const maxNumberOfPlayers = 6;
     const maxRounds = 10;
     const participationLootcrateCount = 1;
     const winnerLootcrateCount = 1;
