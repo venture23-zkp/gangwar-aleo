@@ -1,203 +1,509 @@
-# ZK Gaming SDK
+# Gangwars
 
-Game development API that allows interaction with the Aleo Zero-Knowledge platform.
+[Gangwars](https://war.gangstaverse.co/) is already a successful online game of battle between two teams with five members each currently live on ICON chain with plans to expand it on BASE in near future. So far, users have spent 24,000+ ICX and 500,000+ CROWN to participate in the games and everyday all the games are fully packed with players.
 
-Check [Boloney!](https://github.com/Kryha/boloney) the first game built with ZK Gaming Toolkit.
+<details>
 
-## Getting Started
+<summary> Expand this section to learn how Gangwars currently works on other chains. </summary>
 
-There are 2 main ways to run the API: locally or inside an isolated Minikube container.
+## High Level Overview of Gangwars as on other public mainstream chains
 
-### Running locally
+The current version of the game as running on the ICON can be briefly summarized with the following points:
 
-Before running the API locally, make sure to install the following software:
+### Game Setup and Registration
 
-- [Node.js](https://nodejs.org/en) version 18.16.0 LTS
-- [Yarn](https://yarnpkg.com/getting-started/install)
-- [Aleo](https://github.com/AleoHQ/aleo#2-build-guide)
-- [Leo](https://github.com/AleoHQ/leo#2-build-guide)
-- [SnarkOS](https://github.com/AleoHQ/snarkOS#22-installation)
-- Aleo development server - run `cargo install aleo-development-server`
+First, the game administrator initiates the game on the ICON blockchain and announces the starting time of the battle along with the registration deadline. To participate, players must register with a player character Non-Fungible Token (NFT) on the blockchain. Each NFT encapsulates attributes that determine the player's strength, weapons, hit chance, damage chance, and more. Learn more about these attributes [here](https://gangstaverse.medium.com/gangwars-introducing-primary-and-secondary-stats-e236050f33dc).
 
-Run a local SnarkOS beacon node:
+> Note: This happens fully on chain.
 
-```sh
-snarkos start --nodisplay --dev 0 --beacon "APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH"
+### Team Formation and Balancing:
+
+Once the registration deadline is reached, a centralized server retrieves the NFTs of the registered players and divides them into two teams, aiming to balance the teams' overall strength. This ensures a fair and competitive gameplay experience.
+
+> Note: This happens off-chain.
+
+### Simulation
+
+#### Battle Modes
+
+The battles are initiated within the centralized server. Various battle modes are available, and one of these modes is randomly selected for each round. These modes include "One vs One," where one player is chosen from each team, and "Two vs One," involving two players from the first team against one player from the second team. The game offers over 20 such battle modes, each offering unique combinations of players and weapons. The full list of available modes can be viewed on the Gangwars platform.
+
+#### Attack Mechanism and Damage Calculation
+
+During battles, attacks are executed based on the chosen mode. To decide if a attack landed on the targeted player, a biased coin is flipped. The probability for landing a attack as well as the damage is based on the stats of both the attacking player and the targeted player.
+`P(Successful Hit) = Hit Chance of Attacking Player * (1 - Dodge Chance of Dodged Player)`
+
+#### Medic Kits and Recovery:
+
+Players have the option to employ medic kits to restore their health during battles. This adds an element of strategy as players must decide when to use these resources to maximize their chances of survival.
+
+#### Progression and Rounds:
+
+The game progresses through multiple rounds of battles or face-offs between the two teams. Teams alternate between roles as attackers and targets, creating a dynamic and engaging gameplay loop. The game's frontend displays these events with symbolic representations and narrations that enhance the overall immersive experience.
+
+Learn more about simulation and core mechanics [here](https://gangstaverse.medium.com/gangwars-core-mechanics-4d40dfa9ad17)
+
+> Note: This happens off-chain.
+
+### Victory Conditions and Rewards:
+
+The game concludes when all players from one of the teams have been defeated. The winning team is declared, and this information is updated on the blockchain. The event logs are pushed to Arweave. Players from the victorious team are rewarded with on-chain assets, adding an incentive for strategic gameplay and teamwork. These assets can be used to further enhance NFT's stats.
+
+</details>
+
+<details>
+<summary>Scope of Improvement</summary>
+
+### Scope of Improvement
+
+The game on ICON is well appreciated by the community, yet we see some scope of improvement:
+
+- Everything is fine upto the user registration phase. But when it comes to team division we try to balance team such that total strength of each team is comparable. This task is handled by a central server and is not verified. The impact of creating a biased team could lead to predictable win to the team favored by the server.
+- Another important part which could be done any better is using **verifiable randomness** i.e. proving spectators that we are making moves based on randomness for choosing the mode of battle and the players in each round.
+
+In short, we need a way to validate our offchain actions which could have significant impact on end outcomes.
+
+# Gangwars on Aleo
+
+With Aleo we are trying to implement a verifiable version of Gangwars. Before we begin with actual flow of how our game is made verifiable by using Aleo it is recommended to get familiarized with Aleo Blockchain, Zero Knowledge Proof and Zero Knowledge Succicnt Non-Interactive Arguments of Knowledge \(zk-snarks\).
+
+## Randomness
+
+Critical part of game engine is the use of randomness. Randomness is used in each round to :
+
+- select a attacking (main) player and targeted player
+- determine if the targeted player dodged the attack
+- determine if the attack actually landed
+- determine if the landed attack was critical
+
+In our game,
+
+- In each transition where we make moves randomly we need to use the random number available on Aleo chain.
+- For the first time random number is seeded by `start_game` transition.
+- After that while making every transition call the random number should be supplied along with other necessary parameters.
+- The transition will make use of random number to decide any actions which requires verifiable randomness. Please refer to game_loop transition for better insight.
+- When all the necessary computations of attacks are done we regenerate a random number by xoring the current Aleo's random number given by `ChaCha::rand_u16()` with the previous one and update it on chain.
+- This loop continues until game end.
+
+Generic Flow diagram of this process is as shown in the image below:
+
+![Sequence Diagram of Game Creation ](https://github.com/purusang/gangwar-aleo/blob/main/img/RandomNumber.png#gh-light-mode-only)
+![Sequence Diagram of Game Creation ](https://github.com/purusang/gangwar-aleo/blob/main/img/dRandomNumber.png#gh-dark-mode-only)
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+> Note: we are supplying random number, which is stored in previous transition call, in each transition call. It is mainly because we have used `ChaCha::rand_u16()` in finalize block which gives us current random number from Aleo chain which changes depending upon transactions and block formation. For proving our random move we cannot rely on live onchain random value which changes frequently. Instead we use the one that we have saved in a transition call and generate proof of using it and update it with **current random number xored with previous one** for next transition call. And so on.
+
+> #### How do we prove random moves in Gangwars on Aleo?
+
+### Major differences in implemention of Gangwars on Aleo as compared to Aleo on other mainstream public chains
+
+- The most important difference is the random moves being verifiable. Players no more need to trust our central server for an honest gameplay.
+- For this specfic phase of submission
+  - Gangwars with 3 players in each team with the plan of expanding it to 5 vs 5.
+  - Also there will only be one mode \(1 vs 1 mode\) of attack instead of 20+ modes.
+
+</details>
+
+## Transitions
+
+Our overall game can be covered by 5 major transitions which can also be viewed as different phases of game:
+
+### 1. Game Creation
+
+Game is created with [`create_game`](/contracts/gangwar/src/main.leo#L135-L159) transition.
+
+```rust
+transition create_game(
+  simulation_id: u32,
+  registration_time: u32,
+  max_number_of_players: u8,
+  max_rounds: u8,
+  participation_lootcrate_count: u8,
+  winner_lootcrate_count: u8
+)
 ```
 
-> ⚠️ Do not change the private key, since the app is configured to use that in develop.
+> This transition can only be called by the admin
 
-Open another terminal window and run Aleo development server:
+<details>
+<summary> Inputs </summary>
 
-```sh
-aleo-develop start -p http://127.0.0.1:3030
+#### Inputs
+
+- **simulation_id**: A unique identifier for a particular game. No two game can have the same id.
+- **registration_time**: Duration (in blocks) to which players can join the game. It is added with `block.height` to get `deadline_to_register`.
+- **max_number_of_players**: Max number of players that can join the particular war. For our case it is always 6.
+- **max_rounds** (Max allowed faceoffs) Max times the simulation will be run for this game.
+- participation_lootcrate_count: `Lootcrate NFT` to be received upon participation
+- **winner_lootcrate_count**: Additional `Lootcrate NFT` to be recieved upon win.
+</details>
+
+<details>
+<summary> Outputs </summary>
+
+#### Ouputs
+
+The transition does not have any outputs.
+
+</details>
+
+<details>
+<summary> Finalize </summary>
+
+#### Finalize
+
+```rust
+finalize create_game(
+  simulation_id: u32,
+  registration_time: u32,
+  max_number_of_players: u8,
+  max_rounds: u8,
+  participation_lootcrate_count: u8,
+  winner_lootcrate_count: u8
+)
 ```
 
-> ⚠️ Make sure to specify that local address. If no address is specified, the dev server will connect to the public testnet and you usually don't want that when developing.
+The input parameters to the finalize statement is stored on chain in a mapping with `simulation_id` as key into the `GangwarSettings` struct as value.
 
-Build all the programs locally by running:
-
-```bash
-./build_local_programs.sh
+```rust
+struct GangwarSettings {
+  created_at: u32,
+  deadline_to_register: u32,
+  max_number_of_players: u8,
+  max_rounds: u8,
+  participation_lootcrate_count: u8,
+  winner_lootcrate_count: u8,
+  registered_players: u8,
+  random_number: u16
+}
 ```
 
-The first time you run the API, make sure to deploy the programs as well:
+- **created_at**: `block.height`
+- **deadline_to_register**: `block.height` + `registration_time`
+- **max_number_of_players**: Max number of players that can join the particular war. For our case it is always 6.
+- **max_rounds** (Max allowed faceoffs) Max times the simulation will be run for this game.
+- **participation_lootcrate_count**: `Lootcrate NFT` to be received upon participation.
+- **winner_lootcrate_count**: Additional `Lootcrate NFT` to be recieved upon win.
+- **registered_players**: Number of players who have joined this gangwar. Initially set to 0.
+- **random_number**: `ChaCha::rand_u16()`
 
-```sh
-DEPLOY_PROGRAMS=true DEPLOY_PRIVATE_KEY=APrivateKey1zkp8CZNn3yeCseEtxuVPbDCwSyhGW6yZKUYKfgXmcpoGPWH yarn start
+</details>
+
+<details>
+<summary> Sequence diagram </summary>
+
+#### Sequence Diagram
+
+![Sequence Diagram of Game Creation](https://github.com/purusang/gangwar-aleo/blob/main/img/GameCreation.png#gh-light-mode-only)
+![Sequence Diagram of Game Creation](https://github.com/purusang/gangwar-aleo/blob/main/img/dGameCreation.png#gh-dark-mode-only)
+
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+</details>
+
+### 2. Player Registration
+
+Once a game is created, players may now join the game before pre-specified deadline with [`join_game`](/contracts/gangwar/src/main.leo#L217-L254) transition.
+
+```rust
+transition join_game(
+  simulation_id: u32,
+  char: Character,
+  signature: Signature
+) -> Player
 ```
 
-Pay very close attention to the application and development server logs.
+> A valid signature of the admin is required to join the game.
 
-After all the programs have been deployed to the network, the API should be accessible at <http://localhost:5001>
+<details>
+<summary> Inputs </summary>
 
-Unless you reset the network, you don't need to re-deploy the programs, so the following time you want to run the API locally, just run:
+#### Inputs
 
-```bash
-yarn start
+- **simulation_id**: A unique identifier for a particular game.
+- **char**: A Character struct
+- **signature**: Signature of admin
+
+Character is a struct that defines the attributes of the player. Each character has `PrimaryStats`, `SecondaryStats` and a `Weapon`. These attributes are responsible for the outcome in a battle.
+
+```rust
+struct Character {
+    nft_id: u16,
+    player_addr: address,
+    primary_stats: PrimaryStats,
+    secondary_stats: SecondaryStats,
+    primary_equipment: Weapon,
+}
 ```
 
-If you wish to reset your network, stop the beacon process and then run:
+> To check the signature of the admin, we required something similar to `ecrecover` on Aleo. Since we couldn't find something similar, we instead implemented [Schnorr Signature Algorithm in Leo](/contracts/dsa/src/main.leo).
 
-```sh
-snarkos clean --dev 0
+Players have the opportunity to choose their player character from a collection of characters available. These characters are based on actual NFTs on ICON Blockchain. To initiate this process, players make a selection request to our centralized server, which holds authorization to sign the player character. The centralized server responds by providing the `Character` along with its associated attributes and a `Signature`.
+
+After acquiring the `Character` and `Signature`, players can join the game using **Leo Wallet**.
+
+</details>
+
+<details>
+<summary> Outputs </summary>
+
+#### Output
+
+This creates a `Player` record in the ownership of the admin. The `Player` record is defined as:
+
+```rust
+record Player {
+  owner: address,
+  simulation_id: u32,
+  char: Character
+}
 ```
 
-> ⚠️ After you reset the local network, you will have to re-deploy your programs.
+</details>
 
-### Running with Minikube
+<details>
+<summary> Finalize</summary>
 
-> ⚠️ It is highly discouraged to use this method unless you are working on deployment or you know what you are doing. When you are running the API through minikube, the app will connect to the public testnet and that is not ideal for development.
+#### Finalize
 
-Before running the API with Minikube, make sure to install the following software:
+On each finalize, a new random_number is saved in the mapping as:
+`gangwar_settings[simulation_id].random_number = gangwar_settings[simulation_id].random_number xor ChaCha::rand_u16()`
 
-- [Docker](https://docs.docker.com/engine/install/)
-- [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
-- [Minikube](https://minikube.sigs.k8s.io/docs/start/) - perform only the first step, titled "Installation"
-- [Skaffold](https://skaffold.dev/docs/install/)
+This ensures that the `random_number` that is used later in simulation is not influenced by the admin.
 
-Before running Minikube, make sure Docker is running. If you are on MacOS, make sure to give Docker access to at least 8GB of memory and at least 50GB of virtual disk. You can do that by opening Docker desktop -> settings (in the top right corner) -> resources.
+</details>
 
-Run Minikube:
+<details>
+<summary> Sequence Diagram </summary>
 
-```bash
-minikube start --cpus=max --memory=max
+#### Sequence Diagram
+
+![Sequence Diagram of Player Registration ](https://github.com/purusang/gangwar-aleo/blob/main/img/GameJoining.png#gh-light-mode-only)
+![Sequence Diagram of Player Registration ](https://github.com/purusang/gangwar-aleo/blob/main/img/dGameJoining.png#gh-dark-mode-only)
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+</details>
+
+### 3. Game Onset
+
+Once all the players have joined, and the deadline to register has passed, game can be started with [`start_game`](/contracts/gangwar/src/main.leo#L259-L346) transition. To start the game, central server fetches the unspent records of players registered to a particular `simulation_id` and creates a `War` record. The players are divided into two teams **fairly** and one of the team is chosen at random to be the attacking team (also called `main_team`).
+
+```rust
+transition start_game(
+  simulation_id: u32,
+  random_seed: u16,
+  p1: Player,
+  p2: Player,
+  p3: Player,
+  p4: Player,
+  p5: Player,
+  p6: Player
+) -> War
 ```
 
-Enable ingress add-on:
+> Player records needs to be sorted by their strength i.e. p1.strength >= p2.strength >= ... >= p6.strength.
 
-```bash
-minikube addons enable ingress
+<details>
+<summary> Inputs </summary>
+
+#### Inputs
+
+- **simulation_id**: A unique identifier for a particular game.
+- **random_seed**: Random number for the `simulation_id`. This must be the same value that is stored on the mapping.
+- **p1**: Player Record
+- **p2**: Player Record
+- **p3**: Player Record
+- **p4**: Player Record
+- **p5**: Player Record
+- **p6**: Player Record
+
+> Although, sort could have been implemented within Leo program, we decided to do it outside and simply verify it. It helped us save computation time.
+
+</details>
+
+<details>
+<summary> Outputs </summary>
+This creates a `War` record in the ownership of the admin. War record is used to maintain onchain state of the gangwars game with following declaration:
+The `War` record is implemented as:
+
+```rust
+record War {
+    owner: address,
+    simulation_id: u32,
+    round: u8,
+    main_team: Team,
+    target_team: Team,
+    physical_attack: PhysicalAttack
+}
 ```
 
-Open a new terminal tab and run:
+`Team` is a simple struct that holds the players belonging together. It is implemented as:
 
-```bash
-sudo minikube tunnel
+```rust
+struct Team {
+  p1: Character,
+  p2: Character,
+  p3: Character
+}
 ```
 
-This will allow you to access the deployed application at the address specified in the ingress configuration so keep it running in the background.
+`PhysicalAttack` is used to represent the event that happened for a particular round. It is implemented as:
 
-Return to the first terminal tab and run:
-
-```bash
-skaffold run
+```rust
+struct PhysicalAttack {
+    main: u8, // Index of the main (attacking) player
+    target: u8, // Index of the targeted player
+    is_dodged: bool, // Whether the attack was dodged by targeted player
+    is_critical: bool, // Whether the hit by main player was critical.
+    total_normal_hits: u16, // Total hits
+    total_critical_hits: u16, // Total critical hits. Critical hits cause 2X damage.
+    damage: u16 // Actual damage to the targeted player
+}
 ```
 
-This will build the API and deploy it on the minikube cluster.
+</details>
 
-To check the status of your pods, run:
+<details>
+<summary> Finalize</summary>
 
-```bash
-kubectl -n zk-gaming-tk-local get pods
+#### Finalize
+
+On each finalize, a new random_number is saved in the mapping as:
+`gangwar_settings[simulation_id].random_number = gangwar_settings[simulation_id].random_number xor ChaCha::rand_u16()`
+
+This ensures that the `random_number` that is used later in simulation is not influenced by the admin.
+
+</details>
+
+<details>
+<summary> Sequence Diagram </summary>
+
+#### Sequence Diagram
+
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/StartGame.png#gh-light-mode-only)
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/dStartGame.png#gh-dark-mode-only)
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+</details>
+
+### 4. Gameplay Simulation
+
+After the creation of the `War` record, the game enters the simulation phase with [`simulate1vs1`](/contracts/gangwar/src/main.leo#L349-L556) transition. A player is randomly chosen from the `main_team` to initiate an attack on a randomly selected player from the opposing `target_team`.
+
+The determination of whether an attack successfully lands on the targeted player relies on the outcome of a **biased coin flip**. This coin flip is influenced by the respective stats of both the attacking player and the targeted player. The probability of achieving a successful hit is calculated as follow:
+
+`P(Successful Hit) = Hit Chance of Attacking Player * (1 - Dodge Chance of Dodged Player)`
+
+Damage inflicted during the faceoff is calculated based on the number of successful hits achieved. This information tracked and recorded in the `PhysicalAttack` struct within `War` record.
+
+```rust
+transition simulate1vs1(
+  w: War,
+  random_seed: u16
+) -> War
 ```
 
-To read the logs, run:
+> The newly created `War` record swaps the `main_team` and `target_team` ensuring they attack and defend turn by turn.
 
-```bash
-# pod_name can be retrieved from the output of the previous command
-kubectl -n zk-gaming-tk-local logs <pod_name> -f
+> This transition is called until conditions to end the game is fulfilled.
+
+<details>
+<summary> Inputs </summary>
+
+#### Inputs
+
+- **w**: Unspent `War` record. Only 1 unspent `War` record exist for a particular `simualtion_id`.
+- **random_seed**: Random number for the `simulation_id`. This must be the same value that is stored on the mapping.
+
+</details>
+
+<details>
+<summary> Outputs </summary>
+
+A new `War` record is created at every gameloop.
+</details>
+
+<details>
+<summary> Finalize</summary>
+
+#### Finalize
+
+On each finalize, we ensure that we are using the saved randomness. Then we updated the saved randomness as:
+`gangwar_settings[simulation_id].random_number = gangwar_settings[simulation_id].random_number xor ChaCha::rand_u16()`
+
+</details>
+
+<details>
+<summary> Sequence Diagram </summary>
+
+#### Sequence Diagram
+
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/GameLoop.png#gh-light-mode-only)
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/dGameLoop.png#gh-dark-mode-only)
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+
+</details>
+
+### 5. Victory and Rewards
+
+Game can be ended to distribute the rewards [\(LootCrate NFT\)](https://gangstaverse.medium.com/the-spoils-of-gangwars-lootcrates-7d32a4ad727d) with [`finish_game`](/contracts/gangwar/src/main.leo#L560-L590) transition when any of the following conditions meet:
+
+- All the players from any of the team are dead.
+- Maximum allowed rounds have been played.
+
+```rust
+transition finish_game(
+  w: War,
+  participation_lootcrate_count: u8,
+  winner_lootcrate_count: u8,
+  random_number: u16
+  ) -> (
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint,
+    lootcrate_nft_v1.leo/NFT_mint
+  )
 ```
 
-If the pods are running correctly, the API should be accessible at <http://zk-gaming-tk.localhost>
+<details>
+<summary> Inputs </summary>
 
-> ⚠️ On MacOS you may need to configure `dnsmasq` in order to access custom domain names. Consider following this [guide](https://www.stevenrombauts.be/2018/01/use-dnsmasq-instead-of-etc-hosts/#2-only-send-test-and-box-queries-to-dnsmasq) and use `.localhost` instead of `.test` and `.box`.
+#### Inputs
 
-## Submitting a PR
+- **w**: Unspent `War` record.
+- **participation_lootcrate_count**: Number of NFTs to be received upon participation.
+- **winner_lootcrate_count**: Number of additional NFTs to be received upon upon.
+- **random_seed**: This is used to break a tie.
 
-> ⚠️ These steps can only be completed by maintainers that have access to the wallet.
+</details>
 
-If a PR contains any changes to the Leo programs, make sure to perform the following actions before completing it so that the programs are correctly deployed to the testnet:
+<details>
+<summary> Outputs </summary>
 
-1. Navigate [here](https://demo.leo.app/faucet) and give some credits to the Kryha Aleo account.
-2. Wait for the transaction to complete. Don't close the browser tab!
-3. Complete the PR and the pipeline should automatically deploy the new programs to the testnet using the newly obtained credits. Just be patient... Like, [very patient](https://youtu.be/xNjyG8S4_kI)... Deployment through the pipeline takes about 8 minutes per program.
+`NFT_mint` record is minted for all the participants and the winners based on the initial value set in the mapping. The `NFT_mint` record can be later used to claim NFTs once they are added on `lootcrate_nft_v1`. These NFTs will be used to enhance `Character's` in the next version of the game.
+</details>
 
-## Adding a new Leo program
+<details>
+<summary> Finalize</summary>
 
-When creating a new Leo program, the pipeline has to be updated in order for the program to be deployed to the testnet.
+#### Finalize
 
-Let's assume the name of our program is `cool_program`. For it to be properly deployed, open `azure-pipelines.yaml` and add the following case to the `run_check_script` job:
+We ensure that the conditions to end the game has actually been met and the rewards has been distributed properly.
 
-```sh
-files=$(git diff HEAD HEAD~ --name-only)
+</details>
 
-while IFS= read -r name; do
-    # previous cases are omitted here
-    ...
-    elif [[ $name =~ ^contracts/cool_program/* ]]; then
-        echo "##vso[task.setvariable variable=coolProgramUpdated;isoutput=true]True"
-    fi
-done <<<"$files"
-```
+<details>
+<summary> Sequence Diagram </summary>
 
-Then, in `build_and_deploy_leo_programs_stage` define a new variable:
+#### Sequence Diagram
 
-```yaml
-variables:
-    # previous variables omitted
-    ...
-    coolProgramUpdated: $[stageDependencies.check_updated_programs.run_check_script.outputs['UpdatedPrograms.coolProgramUpdated']]
-```
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/FinishGame.png#gh-light-mode-only)
+![Sequence Diagram of Start Game ](https://github.com/purusang/gangwar-aleo/blob/main/img/dFinishGame.png#gh-dark-mode-only)
+[View image in Draw.io](https://drive.google.com/file/d/1UNgYdlVOPSd29BLWDDHIMWjPppl4Bt9r/view?usp=sharing)
+</details>
 
-In `build_and_deploy_leo_programs_job` job, after all the previously defined steps, add these new steps:
+## Acknowledgements
 
-```yaml
-- script: |
-    docker build -f Dockerfile.program . \
-      --build-arg APP_NAME=cool_program \
-      --build-arg PRIVATE_KEY=$(privateKey) \
-      --build-arg BUILD_ID=$(buildId) \
-      --build-arg FEE=600000 \
-      --build-arg ZK_GAMING_ALEO="eu.gcr.io/web3-335312/aleo/zk-gaming-snarkos:latest"
-  displayName: Cool Program Docker build
-  condition: and(succeeded(), eq(variables['coolProgramUpdated'], 'True'))
-  retryCountOnTaskFailure: 3
-- script: echo "##vso[task.setvariable variable=coolProgramVersion;isoutput=true]$(buildId)"
-  displayName: Update Cool Program version locally
-  condition: and(succeeded(), eq(variables['coolProgramUpdated'], 'True'))
-- script: |
-    az pipelines variable-group variable update \
-      --group-id $(aleoProgramIdsGroupId) \
-      --name coolProgramVersion \
-      --org $(devOpsOrg) \
-      --project $(devOpsProject) \
-      --value $(buildId)
-  displayName: Update Cool Program version in variable group
-  condition: and(succeeded(), eq(variables['coolProgramUpdated'], 'True'))
-  env:
-    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-```
-
-The version variable has to be added to the pipeline variable group. For that, contact <marius@kryha.io>.
-
-## Updating Leo and SnarkOS versions
-
-Since both Leo and SnarkOS are currently in active development and some changes may break the build, we manually set the commit hash in `Dockerfile.snarkos` to the latest versions that work properly with the toolkit. If you wish to update to a newer version you should:
-
-1. `git pull` the newest Leo or SnarkOS code and run `cargo install --path .` to install the new versions locally.
-2. Make sure the programs build and run correctly with the updated CLI tools.
-3. Run the toolkit locally with `yarn start` and make sure the endpoints work as expected.
-4. Run `git log` in the Leo or SnarkOS repo and copy the `HEAD` commit hash.
-5. Open `Dockerfile.snarkos` and set the proper commit hash to the pasted value.
-6. Run the toolkit through `skaffold run` and make sure it works properly.
+Thanks to the Kryha team for generously open sourcing their [zk-gaming-toolkit](https://github.com/kryha/zk-gaming-toolkit). This invaluable resource played a pivotal role in seamlessly integrating Aleo with our outward-facing APIs, facilitating communication with our frontend and other servers.
